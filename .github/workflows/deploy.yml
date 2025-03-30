@@ -1,0 +1,42 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]  # main 브랜치에 push될 때만 실행됨
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ 레포 코드 불러오기
+        uses: actions/checkout@v3
+
+      - name: ☕ JDK 17 설정
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 🛠️ Gradle 빌드 (테스트 생략)
+        run: ./gradlew build -x test
+
+      - name: 📦 jar 파일 EC2로 전송
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: build/libs/*.jar
+          target: /home/ubuntu/my-app/backend/app.jar
+
+      - name: 🚀 EC2에서 도커 재시작
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd ~/my-app
+            docker-compose down
+            docker-compose up -d --build
