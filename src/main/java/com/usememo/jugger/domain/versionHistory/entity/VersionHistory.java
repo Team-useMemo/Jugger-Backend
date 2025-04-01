@@ -3,11 +3,12 @@ package com.usememo.jugger.domain.versionHistory.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Document(collection = "version_histories")
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class VersionHistory {
 	@Id

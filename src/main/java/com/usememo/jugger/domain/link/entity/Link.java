@@ -3,12 +3,12 @@ package com.usememo.jugger.domain.link.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 
 @Document(collection = "links")
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class Link {
 	@Id
@@ -17,12 +17,6 @@ public class Link {
 	private String chatUuid;
 
 	private String url;
-	private Category category;
-
-	@Data
-	public static class Category {
-		private String categoryUuid;
-		private String name;
-	}
+	private String categoryUuid;
 }
 
