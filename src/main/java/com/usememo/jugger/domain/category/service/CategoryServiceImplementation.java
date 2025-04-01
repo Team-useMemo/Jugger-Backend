@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService {
+public class CategoryServiceImplementation implements CategoryService {
 	private final CategoryRepository categoryRepository;
 
 	public Mono<Category> createCategory(PostCategoryDto postCategoryDto) {
