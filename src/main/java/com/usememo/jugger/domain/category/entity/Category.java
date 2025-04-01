@@ -1,4 +1,4 @@
-package com.usememo.jugger.domain.photo.entity;
+package com.usememo.jugger.domain.category.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -7,14 +7,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-@Document(collection = "photos")
+@Document(collection = "category")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class Photo {
+public class Category {
 	@Id
 	private String uuid;
-	private String userUuid;
-	private String chatUuid;
-	private String url;
-	private String categoryUuid;
+	private String name;
+	private String color;
 }

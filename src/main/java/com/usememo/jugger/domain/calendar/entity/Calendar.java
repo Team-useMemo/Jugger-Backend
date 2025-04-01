@@ -5,12 +5,12 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 
 @Document(collection = "calendars")
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class Calendar {
 	@Id
@@ -20,11 +20,6 @@ public class Calendar {
 	private String title;
 	private LocalDateTime timestamp;
 
-	private Category category;
+	private String categoryUuid;
 
-	@Data
-	public static class Category {
-		private String categoryUuid;
-		private String name;
-	}
 }
