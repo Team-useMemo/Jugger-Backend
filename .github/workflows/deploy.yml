@@ -2,7 +2,7 @@ name: Deploy Spring Backend
 
 on:
   push:
-    branches: [ "main", "dev","feat/#3-ci/cd" ]
+    branches: [ "main", "dev", "feat/#3-ci/cd" ]
 
 jobs:
   deploy-backend:
@@ -15,11 +15,7 @@ jobs:
       - name: 🔐 application.properties 생성
         run: |
           mkdir -p src/main/resources
-#          echo "spring.datasource.url=${{ secrets.SPRING_DATASOURCE_URL }}" >> src/main/resources/application.properties
-#          echo "spring.datasource.username=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> src/main/resources/application.properties
-#          echo "spring.datasource.password=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> src/main/resources/application.properties
-#          echo "jwt.secret=${{ secrets.JWT_SECRET }}" >> src/main/resources/application.properties
-#          echo "spring.profiles.active=${{ secrets.SPRING_PROFILES_ACTIVE }}" >> src/main/resources/application.properties
+          # 실제 환경 변수 작성 부분은 생략됨
 
       - name: ☕ Gradle Build (jar 생성)
         run: ./gradlew build -x test
@@ -27,10 +23,13 @@ jobs:
       - name: 🐳 Docker Hub 로그인
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 📦 Spring 이미지 Build & Push
+      - name: 📦 Spring 이미지 Build & Push with Git SHA Tag
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
 
       - name: 🚀 EC2에서 backend 재시작
         uses: appleboy/ssh-action@v0.1.6
@@ -39,6 +38,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            IMAGE_TAG=${{ github.sha }}
             cd ~/my-app
+            sed -i "s|image: .*/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|" docker-compose.yml
             docker-compose pull backend
             docker-compose up -d backend
