@@ -27,16 +27,14 @@ public class ChatServiceImplementation implements ChatService {
 			.chatType(ChatType.CALENDAR)
 			.build();
 
-		String chatUuid = UUID.randomUUID().toString();
-
 		return switch (getChatTypeDto.getChatType()) {
-			case CALENDAR -> saveCalendar(postChatDto, chatUuid);
-			case LINK -> saveLink(postChatDto, chatUuid);
-			default -> Mono.empty(); // PHOTO 등 확장 가능
+			case CALENDAR -> saveCalendar(postChatDto);
+			case LINK -> saveLink(postChatDto);
+			default -> Mono.empty();
 		};
 	}
 
-	private Mono<Void> saveCalendar(PostChatDto dto, String chatUuid) {
+	private Mono<Void> saveCalendar(PostChatDto dto) {
 		Calendar calendar = Calendar.builder()
 			.uuid(UUID.randomUUID().toString())
 			.userUuid("12345678")
@@ -49,11 +47,10 @@ public class ChatServiceImplementation implements ChatService {
 		return calendarRepository.save(calendar).then();
 	}
 
-	private Mono<Void> saveLink(PostChatDto dto, String chatUuid) {
+	private Mono<Void> saveLink(PostChatDto dto) {
 		Link link = Link.builder()
 			.uuid(UUID.randomUUID().toString())
 			.userUuid("12345678")
-			.chatUuid(chatUuid)
 			.categoryUuid(dto.getCategoryUuid())
 			.build();
 
