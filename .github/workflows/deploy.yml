@@ -38,8 +38,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            IMAGE_TAG=${{ github.sha }}
             cd ~/my-app
             sed -i "s|image: .*/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|" docker-compose.yml
-            docker-compose pull backend
-            docker-compose up -d backend
+            docker compose pull backend
+            docker compose up -d backend
