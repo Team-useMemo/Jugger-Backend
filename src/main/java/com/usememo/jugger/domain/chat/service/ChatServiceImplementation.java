@@ -9,9 +9,12 @@ import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
 import com.usememo.jugger.domain.chat.dto.GetChatTypeDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
+import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.entity.ChatType;
+import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.link.entity.Link;
 import com.usememo.jugger.domain.link.repository.LinkRepository;
+import com.usememo.jugger.global.exception.chat.CategoryNullException;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -22,6 +25,8 @@ public class ChatServiceImplementation implements ChatService {
 
 	private final CalendarRepository calendarRepository;
 	private final LinkRepository linkRepository;
+
+	private final ChatRepository chatRepository;
 
 	@Override
 	public Mono<Void> processChat(PostChatDto postChatDto) {
@@ -39,7 +44,22 @@ public class ChatServiceImplementation implements ChatService {
 
 	@Override
 	public Mono<Void> postChat(PostChatDto postChatDto) {
-		return null;
+
+		return Mono.justOrEmpty(postChatDto.getCategoryUuid())
+			.switchIfEmpty(Mono.error(new CategoryNullException()))
+			.flatMap(categoryUuid -> {
+				String chatUuid = UUID.randomUUID().toString();
+
+				Chat chat = Chat.builder()
+					.uuid(chatUuid)
+					.userUuid("123456789a")
+					.categoryUuid(categoryUuid)
+					.data(postChatDto.getText())
+					.build();
+
+				return chatRepository.save(chat).then();
+			});
+
 	}
 
 	private Mono<Void> saveCalendar(PostChatDto dto) {

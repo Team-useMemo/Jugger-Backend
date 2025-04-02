@@ -64,4 +64,5 @@ class CategoryServiceImplementationTest {
 		assertThat(captured.getName()).isEqualTo("운동");
 		assertThat(captured.getColor()).isEqualTo("#FF0000");
 	}
+
 }
