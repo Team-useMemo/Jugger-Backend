@@ -55,13 +55,12 @@ class ChatServiceImplementationTest {
 			.categoryUuid("category-123")
 			.text("테스트 메시지")
 			.build();
-
-		// save(chat) 호출 시 Mono<Chat> 리턴하게 설정
+		
 		when(chatRepository.save(any(Chat.class)))
 			.thenReturn(Mono.just(mock(Chat.class)));
 
 		StepVerifier.create(chatService.postChat(dto))
-			.verifyComplete(); // Mono<Void> 완료 확인
+			.verifyComplete();
 
 		ArgumentCaptor<Chat> captor = ArgumentCaptor.forClass(Chat.class);
 		verify(chatRepository).save(captor.capture());
