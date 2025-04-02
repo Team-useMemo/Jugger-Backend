@@ -6,5 +6,5 @@ import com.usememo.jugger.domain.category.entity.Category;
 import reactor.core.publisher.Mono;
 
 public interface CategoryService {
-	public Mono<Category> createCategory(PostCategoryDto postCategoryDto);
+	Mono<Category> createCategory(PostCategoryDto postCategoryDto);
 }

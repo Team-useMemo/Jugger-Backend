@@ -15,7 +15,6 @@ public class Link {
 	private String uuid;
 	private String userUuid;
 	private String chatUuid;
-
 	private String url;
 	private String categoryUuid;
 }
