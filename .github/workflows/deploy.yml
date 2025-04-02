@@ -24,9 +24,8 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: 📦 Spring 이미지 Build & Push with Git SHA Tag
-        env:
-          IMAGE_TAG: ${{ github.sha }}
         run: |
+          IMAGE_TAG=${{ github.sha }}
           docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG} .
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
