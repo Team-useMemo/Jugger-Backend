@@ -2,7 +2,7 @@ name: Deploy Spring Backend
 
 on:
   push:
-    branches: [ "main", "dev", "feat/#3-ci/cd" ]
+    branches: [ "main", "dev" ]
 
 jobs:
   deploy-backend:
