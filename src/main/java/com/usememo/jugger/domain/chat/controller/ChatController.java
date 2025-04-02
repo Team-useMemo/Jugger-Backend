@@ -20,7 +20,7 @@ public class ChatController {
 
 	@PostMapping
 	public Mono<ResponseEntity<Void>> postChat(@RequestBody PostChatDto postChatDto) {
-		return chatService.processChat(postChatDto)
+		return chatService.postChat(postChatDto)
 			.thenReturn(ResponseEntity.ok().build());
 	}
 }

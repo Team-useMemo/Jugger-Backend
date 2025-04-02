@@ -3,6 +3,8 @@ package com.usememo.jugger.domain.chat.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
 import com.usememo.jugger.domain.chat.dto.GetChatTypeDto;
@@ -14,6 +16,7 @@ import com.usememo.jugger.domain.link.repository.LinkRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@Service
 @RequiredArgsConstructor
 public class ChatServiceImplementation implements ChatService {
 
@@ -32,6 +35,11 @@ public class ChatServiceImplementation implements ChatService {
 			case LINK -> saveLink(postChatDto);
 			default -> Mono.empty();
 		};
+	}
+
+	@Override
+	public Mono<Void> postChat(PostChatDto postChatDto) {
+		return null;
 	}
 
 	private Mono<Void> saveCalendar(PostChatDto dto) {
