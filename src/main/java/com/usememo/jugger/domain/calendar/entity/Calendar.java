@@ -16,10 +16,9 @@ public class Calendar {
 	@Id
 	private String uuid;
 	private String userUuid;
-
 	private String title;
-	private LocalDateTime timestamp;
-
+	private LocalDateTime startDateTime;
+	private LocalDateTime endDateTime;
 	private String categoryUuid;
 
 }

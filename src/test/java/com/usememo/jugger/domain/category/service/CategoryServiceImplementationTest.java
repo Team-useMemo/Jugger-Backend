@@ -45,6 +45,9 @@ class CategoryServiceImplementationTest {
 		when(categoryRepository.save(any(Category.class)))
 			.thenReturn(Mono.just(savedCategory));
 
+		when(categoryRepository.findByName("운동"))
+			.thenReturn(Mono.empty());
+
 		Mono<Category> result = categoryService.createCategory(postCategoryDto);
 
 		StepVerifier.create(result)
@@ -61,4 +64,5 @@ class CategoryServiceImplementationTest {
 		assertThat(captured.getName()).isEqualTo("운동");
 		assertThat(captured.getColor()).isEqualTo("#FF0000");
 	}
+
 }
