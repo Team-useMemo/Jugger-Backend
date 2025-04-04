@@ -13,6 +13,7 @@ import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
+import com.usememo.jugger.domain.link.entity.Link;
 import com.usememo.jugger.domain.link.repository.LinkRepository;
 import com.usememo.jugger.global.exception.chat.CategoryNullException;
 
@@ -55,7 +56,7 @@ class ChatServiceImplementationTest {
 			.categoryUuid("category-123")
 			.text("테스트 메시지")
 			.build();
-		
+
 		when(chatRepository.save(any(Chat.class)))
 			.thenReturn(Mono.just(mock(Chat.class)));
 
@@ -70,6 +71,36 @@ class ChatServiceImplementationTest {
 		assertThat(chat.getData()).isEqualTo("테스트 메시지");
 		assertThat(chat.getUserUuid()).isEqualTo("123456789a");
 		assertThat(chat.getUuid()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("사용자가 link를 입력했을때, 정규표현식으로 분류하는지 확인")
+	void postLinkSave() {
+		PostChatDto dto = PostChatDto.builder()
+			.categoryUuid("category-123")
+			.text("https://www.youtube.com/watch?v=F-zSxR1zgYQ&list=RDF-zSxR1zgYQ&start_radio=1")
+			.build();
+
+		when(linkRepository.save(any(Link.class))).thenReturn(Mono.just(Link.builder().build()));
+		when(chatRepository.save(any(Chat.class))).thenReturn(Mono.just(Chat.builder().build()));
+
+		Mono<Void> result = chatService.postChat(dto);
+
+		StepVerifier.create(result)
+			.verifyComplete(); // 정상 완료 확인
+
+		verify(linkRepository, times(1)).save(argThat(link ->
+			link.getUrl().equals(dto.getText()) &&
+				link.getCategoryUuid().equals(dto.getCategoryUuid())
+		));
+
+		verify(chatRepository, times(1)).save(argThat(chat ->
+			chat.getData().equals(dto.getText()) &&
+				chat.getCategoryUuid().equals(dto.getCategoryUuid()) &&
+				chat.getRefs() != null &&
+				chat.getRefs().getLinkUuid() != null
+		));
+
 	}
 
 }
