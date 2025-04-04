@@ -44,22 +44,52 @@ public class ChatServiceImplementation implements ChatService {
 
 	@Override
 	public Mono<Void> postChat(PostChatDto postChatDto) {
-
 		return Mono.justOrEmpty(postChatDto.getCategoryUuid())
 			.switchIfEmpty(Mono.error(new CategoryNullException()))
 			.flatMap(categoryUuid -> {
-				String chatUuid = UUID.randomUUID().toString();
-
-				Chat chat = Chat.builder()
-					.uuid(chatUuid)
-					.userUuid("123456789a")
-					.categoryUuid(categoryUuid)
-					.data(postChatDto.getText())
-					.build();
-
-				return chatRepository.save(chat).then();
+				if (isLink(postChatDto.getText())) {
+					return saveLinkChat(postChatDto, categoryUuid);
+				} else {
+					return saveTextChat(postChatDto, categoryUuid);
+				}
 			});
+	}
 
+	private Mono<Void> saveLinkChat(PostChatDto dto, String categoryUuid) {
+		String chatUuid = UUID.randomUUID().toString();
+		String linkUuid = UUID.randomUUID().toString();
+
+		Link link = Link.builder()
+			.uuid(linkUuid)
+			.userUuid("123456789a")
+			.categoryUuid(categoryUuid)
+			.url(dto.getText())
+			.build();
+
+		Chat chat = Chat.builder()
+			.uuid(chatUuid)
+			.userUuid("123456789a")
+			.categoryUuid(categoryUuid)
+			.data(dto.getText())
+			.refs(Chat.Refs.builder().linkUuid(linkUuid).build())
+			.build();
+
+		return linkRepository.save(link)
+			.then(chatRepository.save(chat))
+			.then(); // Mono<Void>
+	}
+
+	private Mono<Void> saveTextChat(PostChatDto dto, String categoryUuid) {
+		String chatUuid = UUID.randomUUID().toString();
+
+		Chat chat = Chat.builder()
+			.uuid(chatUuid)
+			.userUuid("123456789a")
+			.categoryUuid(categoryUuid)
+			.data(dto.getText())
+			.build();
+
+		return chatRepository.save(chat).then();
 	}
 
 	private Mono<Void> saveCalendar(PostChatDto dto) {
@@ -83,6 +113,17 @@ public class ChatServiceImplementation implements ChatService {
 			.build();
 
 		return linkRepository.save(link).then();
+	}
+
+	private boolean isLink(String text) {
+		if (text == null)
+			return false;
+
+		String lower = text.toLowerCase();
+
+		boolean hasHttpPrefix = lower.startsWith("https://") || lower.startsWith("http://");
+
+		return hasHttpPrefix;
 	}
 }
 
