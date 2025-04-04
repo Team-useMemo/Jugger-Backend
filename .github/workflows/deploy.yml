@@ -17,6 +17,7 @@ jobs:
       - name: 🔐 application.properties 생성
         run: |
           mkdir -p src/main/resources
+          echo "spring.data.mongodb.uri=${{ secrets.MONGO_URL }}" >> src/main/resources/application.properties
           # echo "spring.datasource.url=..." >> src/main/resources/application.properties
           # 필요한 설정을 secrets로부터 채워넣기
 
