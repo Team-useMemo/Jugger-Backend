@@ -1,5 +1,6 @@
 package com.usememo.jugger.domain.chat.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -67,8 +68,8 @@ public class ChatServiceImplementation implements ChatService {
 			.uuid(UUID.randomUUID().toString())
 			.userUuid("12345678")
 			.title("title")
-			.startDateTime(LocalDateTime.now())
-			.endDateTime(LocalDateTime.now())
+			.startDateTime(Instant.from(LocalDateTime.now()))
+			.endDateTime(Instant.from(LocalDateTime.now()))
 			.categoryUuid(dto.getCategoryUuid())
 			.build();
 

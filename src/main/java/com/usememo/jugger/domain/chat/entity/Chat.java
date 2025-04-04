@@ -23,6 +23,7 @@ public class Chat {
 	private Refs refs;
 
 	@Data
+	@Builder
 	public static class Refs {
 		private String calendarUuid;
 		private String photoUuid;
