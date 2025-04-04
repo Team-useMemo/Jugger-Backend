@@ -1,6 +1,6 @@
 package com.usememo.jugger.domain.chat.dto;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.usememo.jugger.domain.chat.entity.Chat;
@@ -24,7 +24,7 @@ public class GetChatByCategoryDto {
 		private Chat.Refs calendar;
 		private Chat.Refs photo;
 		private Chat.Refs link;
-		private ZonedDateTime timestamp;
+		private LocalDateTime timestamp;
 	}
 
 }

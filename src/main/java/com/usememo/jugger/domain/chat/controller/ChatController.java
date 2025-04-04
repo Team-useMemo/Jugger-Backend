@@ -31,7 +31,7 @@ public class ChatController {
 			.thenReturn(ResponseEntity.ok().build());
 	}
 
-	@GetMapping
+	@GetMapping("/before")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsBefore(
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime before,
 		@RequestParam(value = "page", defaultValue = "0") int page,
@@ -41,7 +41,7 @@ public class ChatController {
 
 	}
 
-	@GetMapping
+	@GetMapping("after")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsAfter(
 		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime after,
 		@RequestParam(value = "page", defaultValue = "0") int page,

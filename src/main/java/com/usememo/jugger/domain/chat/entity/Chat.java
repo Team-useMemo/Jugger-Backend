@@ -1,6 +1,7 @@
 package com.usememo.jugger.domain.chat.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.usememo.jugger.global.utils.BaseTimeEntity;
@@ -15,7 +16,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-public class Chat extends BaseTimeEntity {
+public class Chat extends BaseTimeEntity implements Persistable<String> {
 	@Id
 	private String uuid;
 	private String userUuid;
@@ -30,6 +31,16 @@ public class Chat extends BaseTimeEntity {
 		private String calendarUuid;
 		private String photoUuid;
 		private String linkUuid;
+	}
+
+	@Override
+	public String getId() {
+		return getUuid();
+	}
+
+	@Override
+	public boolean isNew() {
+		return getCreatedAt() == null;
 	}
 }
 
