@@ -1,7 +1,7 @@
 package com.usememo.jugger.domain.chat.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -71,7 +71,7 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsBefore(ZonedDateTime before, int page, int size) {
+	public Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size) {
 		int skip = page * size;
 
 		return chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(before)
@@ -82,7 +82,7 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsAfter(ZonedDateTime before, int page, int size) {
+	public Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant before, int page, int size) {
 		int skip = page * size;
 
 		return chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(before)

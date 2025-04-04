@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -95,6 +96,7 @@ class ChatServiceImplementationTest {
 	void getChatsBefore() {
 		String categoryId = "category-1";
 		ZonedDateTime before = ZonedDateTime.now();
+		Instant mongoCompatibleBefore = before.toInstant();
 
 		List<Chat> chats = List.of(sampleChat(categoryId, before.minusMinutes(1)));
 		Category category = sampleCategory(categoryId, "여행", "#FFAA00");
@@ -105,7 +107,7 @@ class ChatServiceImplementationTest {
 		when(categoryRepository.findById(categoryId))
 			.thenReturn(Mono.just(category));
 
-		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(before, 0, 10);
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleBefore, 0, 10);
 
 		StepVerifier.create(result)
 			.expectNextMatches(list -> {
@@ -118,11 +120,13 @@ class ChatServiceImplementationTest {
 	}
 
 	@Test
+	@DisplayName("입력으로 주어진 이후 시간의 메세지 반환")
 	void getChatsAfter() {
 		String categoryId = "category-1";
-		ZonedDateTime before = ZonedDateTime.now();
+		ZonedDateTime after = ZonedDateTime.now();
+		Instant mongoCompatibleAfter = after.toInstant();
 
-		List<Chat> chats = List.of(sampleChat(categoryId, before.minusMinutes(1)));
+		List<Chat> chats = List.of(sampleChat(categoryId, after.minusMinutes(1)));
 		Category category = sampleCategory(categoryId, "여행", "#FFAA00");
 
 		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
@@ -131,7 +135,7 @@ class ChatServiceImplementationTest {
 		when(categoryRepository.findById(categoryId))
 			.thenReturn(Mono.just(category));
 
-		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(before, 0, 10);
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleAfter, 0, 10);
 
 		StepVerifier.create(result)
 			.expectNextMatches(list -> {

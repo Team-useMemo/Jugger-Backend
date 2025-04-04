@@ -1,6 +1,6 @@
 package com.usememo.jugger.domain.chat.controller;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -33,7 +33,7 @@ public class ChatController {
 
 	@GetMapping("/before")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsBefore(
-		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime before,
+		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size) {
 		return chatService.getChatsBefore(before, page, size)
@@ -43,7 +43,7 @@ public class ChatController {
 
 	@GetMapping("after")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsAfter(
-		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime after,
+		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size) {
 		return chatService.getChatsAfter(after, page, size)

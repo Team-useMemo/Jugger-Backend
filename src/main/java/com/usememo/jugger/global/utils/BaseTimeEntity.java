@@ -1,6 +1,6 @@
 package com.usememo.jugger.global.utils;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,9 +13,9 @@ public abstract class BaseTimeEntity {
 
 	@CreatedDate
 	@Field("created_at")
-	private LocalDateTime createdAt;
+	private Instant createdAt;
 
 	@LastModifiedDate
 	@Field("updated_at")
-	private LocalDateTime updatedAt;
+	private Instant updatedAt;
 }

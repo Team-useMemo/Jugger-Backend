@@ -1,6 +1,6 @@
 package com.usememo.jugger.domain.chat.service;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
@@ -15,8 +15,8 @@ public interface ChatService {
 
 	Mono<Void> postChat(PostChatDto postChatDto);
 
-	Mono<List<GetChatByCategoryDto>> getChatsBefore(ZonedDateTime before, int page, int size);
+	Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size);
 
-	Mono<List<GetChatByCategoryDto>> getChatsAfter(ZonedDateTime before, int page, int size);
+	Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant before, int page, int size);
 
 }
