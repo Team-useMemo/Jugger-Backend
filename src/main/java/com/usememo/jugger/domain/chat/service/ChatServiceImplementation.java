@@ -1,12 +1,18 @@
 package com.usememo.jugger.domain.chat.service;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
+import com.usememo.jugger.domain.category.repository.CategoryRepository;
+import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.GetChatTypeDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
 import com.usememo.jugger.domain.chat.entity.Chat;
@@ -17,6 +23,7 @@ import com.usememo.jugger.domain.link.repository.LinkRepository;
 import com.usememo.jugger.global.exception.chat.CategoryNullException;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -25,6 +32,7 @@ public class ChatServiceImplementation implements ChatService {
 
 	private final CalendarRepository calendarRepository;
 	private final LinkRepository linkRepository;
+	private final CategoryRepository categoryRepository;
 
 	private final ChatRepository chatRepository;
 
@@ -62,6 +70,28 @@ public class ChatServiceImplementation implements ChatService {
 
 	}
 
+	@Override
+	public Mono<List<GetChatByCategoryDto>> getChatsBefore(ZonedDateTime before, int page, int size) {
+		int skip = page * size;
+
+		return chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(before)
+			.skip(skip)
+			.take(size)
+			.collectList()
+			.flatMap(this::groupByCategory);
+	}
+
+	@Override
+	public Mono<List<GetChatByCategoryDto>> getChatsAfter(ZonedDateTime before, int page, int size) {
+		int skip = page * size;
+
+		return chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(before)
+			.skip(skip)
+			.take(size)
+			.collectList()
+			.flatMap(this::groupByCategory);
+	}
+
 	private Mono<Void> saveCalendar(PostChatDto dto) {
 		Calendar calendar = Calendar.builder()
 			.uuid(UUID.randomUUID().toString())
@@ -84,5 +114,45 @@ public class ChatServiceImplementation implements ChatService {
 
 		return linkRepository.save(link).then();
 	}
+
+	private Mono<List<GetChatByCategoryDto>> groupByCategory(List<Chat> chats) {
+		Map<String, List<Chat>> grouped = chats.stream()
+			.collect(Collectors.groupingBy(Chat::getCategoryUuid));
+
+		// NOTE: Flux로 묶어서 카테고리마다 처리
+		return Flux.fromIterable(grouped.entrySet())
+			.flatMap(entry -> {
+				String categoryId = entry.getKey();
+				List<Chat> chatList = entry.getValue();
+
+				return categoryRepository.findById(categoryId)
+					.map(category -> {
+						List<GetChatByCategoryDto.ChatItem> chatItems = chatList.stream()
+							.map(chat -> GetChatByCategoryDto.ChatItem.builder()
+								.data(chat.getData())
+								.calendar(
+									chat.getRefs() != null && chat.getRefs().getCalendarUuid() != null ?
+										chat.getRefs() : null)
+								.photo(
+									chat.getRefs() != null && chat.getRefs().getPhotoUuid() != null ? chat.getRefs() :
+										null)
+								.link(
+									chat.getRefs() != null && chat.getRefs().getLinkUuid() != null ? chat.getRefs() :
+										null)
+								.timestamp(chat.getCreatedAt())
+								.build())
+							.toList();
+
+						return GetChatByCategoryDto.builder()
+							.categoryId(categoryId)
+							.categoryName(category.getName())
+							.categoryColor(category.getColor())
+							.chatItems(chatItems)
+							.build();
+					});
+			})
+			.collectList();
+	}
+
 }
 
