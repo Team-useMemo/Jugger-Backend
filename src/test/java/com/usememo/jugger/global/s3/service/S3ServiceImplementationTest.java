@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -24,24 +25,27 @@ class S3ServiceImplementationTest {
 		S3Template s3Template = mock(S3Template.class);
 		S3ServiceImplementation s3ServiceImplementation = new S3ServiceImplementation(s3Template);
 
+		String testBucketName = "jugger-bucket";
+		ReflectionTestUtils.setField(s3ServiceImplementation, "bucketName", testBucketName);
+
 		FilePart filePart = mock(FilePart.class);
 		when(filePart.filename()).thenReturn("test-image.jpg");
 
 		DataBuffer dataBuffer = new DefaultDataBufferFactory().wrap("fake-image-content".getBytes());
 		when(filePart.content()).thenReturn(Flux.just(dataBuffer));
 
-		when(s3Template.upload(eq("jugger-bucket"), any(String.class), any(InputStream.class)))
+		when(s3Template.upload(eq(testBucketName), any(String.class), any(InputStream.class)))
 			.thenReturn(null);
 
 		// when & then
 		StepVerifier.create(s3ServiceImplementation.uploadFile(filePart))
 			.assertNext(url -> {
-				assert url.startsWith("https://jugger-bucket.s3.ap-northeast-2.amazonaws.com/");
+				assert url.startsWith("https://" + testBucketName + ".s3.ap-northeast-2.amazonaws.com/");
 				assert url.endsWith(".jpg");
 			})
 			.verifyComplete();
 
 		verify(s3Template, times(1))
-			.upload(eq("jugger-bucket"), any(String.class), any(InputStream.class));
+			.upload(eq(testBucketName), any(String.class), any(InputStream.class));
 	}
 }
