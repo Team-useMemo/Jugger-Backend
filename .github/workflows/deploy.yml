@@ -18,7 +18,6 @@ jobs:
         run: |
           mkdir -p src/main/resources
           # echo "spring.datasource.url=..." >> src/main/resources/application.properties
-          # 필요한 설정을 secrets로부터 채워넣기
           # echo "spring.datasource.url=..." >> src/main/resources/application.properties
           # 필요한 설정을 secrets로부터 채워넣기
           echo "spring.webflux.multipart.enabled=true" >> src/main/resources/application.properties
