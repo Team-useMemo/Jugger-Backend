@@ -13,7 +13,9 @@ import lombok.Getter;
 @Document(collection = "calendars")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+
 @Getter
+
 public class Calendar {
 	@Id
 	private String uuid;

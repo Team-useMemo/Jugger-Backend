@@ -17,8 +17,17 @@ jobs:
       - name: 🔐 application.properties 생성
         run: |
           mkdir -p src/main/resources
+<<<<<<< HEAD
           # echo "spring.datasource.url=..." >> src/main/resources/application.properties
           # 필요한 설정을 secrets로부터 채워넣기
+=======
+          echo "spring.webflux.multipart.enabled=true" >> src/main/resources/application.properties
+          echo "spring.data.mongodb.uri=${{ secrets.MONGO_URI }}" >> src/main/resources/application.properties
+          echo "cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}" >> src/main/resources/application.properties
+          echo "cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_KEY }}" >> src/main/resources/application.properties
+          echo "cloud.aws.region.static=${{ secrets.AWS_REGION }}" >> src/main/resources/application.properties
+          echo "cloud.aws.s3.bucket=${{ secrets.S3_BUCKET }}" >> src/main/resources/application.properties
+>>>>>>> 6ad500512c0fd1d5b54d3acd4d659e729b5ed4fa
 
       - name: ☕ Gradle Build (jar 생성)
         run: ./gradlew build -x test

@@ -17,6 +17,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class Chat extends BaseTimeEntity implements Persistable<String> {
+
 	@Id
 	private String uuid;
 	private String userUuid;
