@@ -8,6 +8,5 @@ import reactor.core.publisher.Mono;
 public interface CategoryService {
 
 	Mono<Category> createCategory(PostCategoryDto postCategoryDto);
-	
 }
 

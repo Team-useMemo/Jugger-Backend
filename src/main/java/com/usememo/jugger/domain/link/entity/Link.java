@@ -12,7 +12,6 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-
 public class Link {
 	@Id
 	private String uuid;

@@ -22,10 +22,13 @@ jobs:
           # 필요한 설정을 secrets로부터 채워넣기
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
           # echo "spring.datasource.url=..." >> src/main/resources/application.properties
           # 필요한 설정을 secrets로부터 채워넣기
 =======
 >>>>>>> 4ac04ea9234d655574651ef3af13d40154de3a7d
+=======
+>>>>>>> dev
           echo "spring.webflux.multipart.enabled=true" >> src/main/resources/application.properties
           echo "spring.data.mongodb.uri=${{ secrets.MONGO_URI }}" >> src/main/resources/application.properties
           echo "cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}" >> src/main/resources/application.properties
