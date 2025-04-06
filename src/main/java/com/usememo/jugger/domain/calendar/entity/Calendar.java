@@ -21,6 +21,7 @@ public class Calendar {
 	private String title;
 	private Instant startDateTime;
 	private Instant endDateTime;
+
 	private String categoryUuid;
 
 }

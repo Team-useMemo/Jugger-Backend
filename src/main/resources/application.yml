@@ -1,0 +1,16 @@
+spring:
+  webflux:
+    multipart:
+      enabled: true
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/jugger
+  cloud:
+    aws:
+      credentials:
+        access-key: AKIAZVLTDIFPKJMPUTWM
+        secret-key: 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
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: jugger-bucket
