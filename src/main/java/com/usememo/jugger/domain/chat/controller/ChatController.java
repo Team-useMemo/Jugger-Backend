@@ -41,7 +41,7 @@ public class ChatController {
 
 	}
 
-	@GetMapping("after")
+	@GetMapping("/after")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsAfter(
 		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
 		@RequestParam(value = "page", defaultValue = "0") int page,
