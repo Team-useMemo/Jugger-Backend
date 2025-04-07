@@ -21,7 +21,7 @@ jobs:
           # echo "spring.datasource.url=..." >> src/main/resources/application.properties
           # 필요한 설정을 secrets로부터 채워넣기
           echo "spring.webflux.multipart.enabled=true" >> src/main/resources/application.properties
-          echo "spring.data.mongodb.uri=${{ secrets.MONGO_URI }}" >> src/main/resources/application.properties
+          echo "spring.data.mongodb.uri=${{ secrets.MONGO_URL }}" >> src/main/resources/application.properties
           echo "cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}" >> src/main/resources/application.properties
           echo "cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_KEY }}" >> src/main/resources/application.properties
           echo "cloud.aws.region.static=${{ secrets.AWS_REGION }}" >> src/main/resources/application.properties
