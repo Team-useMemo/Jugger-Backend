@@ -2,6 +2,7 @@ package com.usememo.jugger.domain.photo.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,8 +13,15 @@ import lombok.Builder;
 @Builder
 public class Photo {
 	@Id
-	private String photo_uuid;
-	private String user_uuid;
+	@Field("photo_uuid")
+	private String photoUuid;
+
+	@Field("user_uuid")
+	private String userUuid;
+
+	@Field("url")
 	private String url;
-	private String category_uuid;
+
+	@Field("category_uuid")
+	private String categoryUuid;
 }
