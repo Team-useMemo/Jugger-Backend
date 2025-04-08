@@ -20,5 +20,7 @@ public class Link {
 
 	private String url;
 	private String categoryUuid;
+
+	private String caption;
 }
 
