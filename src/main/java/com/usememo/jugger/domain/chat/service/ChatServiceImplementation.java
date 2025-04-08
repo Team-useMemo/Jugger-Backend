@@ -122,6 +122,30 @@ public class ChatServiceImplementation implements ChatService {
 			.flatMap(this::groupByCategory);
 	}
 
+	@Override
+	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(String categoryId, Instant before, int page,
+		int size) {
+		int skip = page * size;
+
+		return chatRepository.findByCategoryUuidAndCreatedAtBeforeOrderByCreatedAtDesc(categoryId, before)
+			.skip(skip)
+			.take(size)
+			.collectList()
+			.flatMap(this::groupByCategory);
+	}
+
+	@Override
+	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(String categoryId, Instant after, int page,
+		int size) {
+		int skip = page * size;
+
+		return chatRepository.findByCategoryUuidAndCreatedAtAfterOrderByCreatedAtDesc(categoryId, after)
+			.skip(skip)
+			.take(size)
+			.collectList()
+			.flatMap(this::groupByCategory);
+	}
+
 	private Mono<Void> saveCalendar(PostChatDto dto) {
 		Calendar calendar = Calendar.builder()
 			.uuid(UUID.randomUUID().toString())
@@ -144,7 +168,6 @@ public class ChatServiceImplementation implements ChatService {
 
 		return linkRepository.save(link).then();
 	}
-
 
 	private boolean isLink(String text) {
 		if (text == null)
@@ -195,7 +218,6 @@ public class ChatServiceImplementation implements ChatService {
 			})
 			.collectList();
 	}
-
 
 }
 

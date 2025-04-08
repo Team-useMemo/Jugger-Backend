@@ -122,7 +122,6 @@ class ChatServiceImplementationTest {
 
 	}
 
-
 	@DisplayName("입력으로 주어진 이전 시간의 메세지 반환")
 	void getChatsBefore() {
 		String categoryId = "category-1";
@@ -178,6 +177,76 @@ class ChatServiceImplementationTest {
 			.verifyComplete();
 	}
 
+	@Test
+	@DisplayName("입력으로 주어진 이전 시간의 카테고리별 채팅 반환")
+	void getChatsByCategoryIdBefore() {
+		String categoryId = "category-1";
+		ZonedDateTime before = ZonedDateTime.now();
+		Instant mongoCompatibleBefore = before.toInstant();
+
+		List<Chat> chats = List.of(sampleChat(categoryId, before.minusMinutes(1)));
+		Category category = sampleCategory(categoryId, "여행", "#FFAA00");
+
+		when(chatRepository.findByCategoryUuidAndCreatedAtBeforeOrderByCreatedAtDesc(any(), any()))
+			.thenReturn(Flux.fromIterable(chats));
+
+		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
+			.thenReturn(Flux.fromIterable(chats));
+
+		when(categoryRepository.findById(categoryId))
+			.thenReturn(Mono.just(category));
+
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleBefore, 0, 10);
+
+		StepVerifier.create(result)
+			.expectNextMatches(list -> {
+				return list.size() == 1 &&
+					list.get(0).getCategoryId().equals(categoryId) &&
+					list.get(0).getCategoryName().equals("여행") &&
+					list.get(0).getChatItems().size() == 1;
+			})
+			.verifyComplete();
+	}
+
+	@Test
+	@DisplayName("입력으로 주어진 이후 시간의 카테고리별 채팅 반환")
+	void getChatsByCategoryIdAfter() {
+		String categoryId = "category-1";
+		ZonedDateTime after = ZonedDateTime.now();
+		Instant mongoCompatibleAfter = after.toInstant();
+
+		List<Chat> chats = List.of(sampleChat(categoryId, after.minusMinutes(1)));
+		Category category = sampleCategory(categoryId, "여행", "#FFAA00");
+
+		when(chatRepository.findByCategoryUuidAndCreatedAtAfterOrderByCreatedAtDesc(any(), any()))
+			.thenReturn(Flux.fromIterable(chats));
+
+		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
+			.thenReturn(Flux.fromIterable(chats));
+
+		when(categoryRepository.findById(categoryId))
+			.thenReturn(Mono.just(category));
+
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleAfter, 0, 10);
+
+		StepVerifier.create(result)
+			.expectNextMatches(list -> {
+				return list.size() == 1 &&
+					list.get(0).getCategoryId().equals(categoryId) &&
+					list.get(0).getCategoryName().equals("여행") &&
+					list.get(0).getChatItems().size() == 1;
+			})
+			.verifyComplete();
+	}
+
+	private Category sampleCategory(String id, String name, String color) {
+		return Category.builder()
+			.uuid(id)
+			.name(name)
+			.color(color)
+			.build();
+	}
+
 	private Chat sampleChat(String categoryId, ZonedDateTime time) {
 		return Chat.builder()
 			.uuid(UUID.randomUUID().toString())
@@ -188,14 +257,6 @@ class ChatServiceImplementationTest {
 				.calendarUuid("1234a")
 				.linkUuid("1234a")
 				.photoUuid("1234a").build())
-			.build();
-	}
-
-	private Category sampleCategory(String id, String name, String color) {
-		return Category.builder()
-			.uuid(id)
-			.name(name)
-			.color(color)
 			.build();
 	}
 }
