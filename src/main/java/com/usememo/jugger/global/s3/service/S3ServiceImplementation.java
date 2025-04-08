@@ -57,8 +57,8 @@ public class S3ServiceImplementation implements S3Service{
 	private Mono<Boolean> savePhoto(String saveUrl,String user_uuid, String category_uuid){
 		return photoRepository.save(Photo.builder()
 				.url(saveUrl)
-				.user_uuid(user_uuid)
-				.category_uuid(category_uuid)
+				.userUuid(user_uuid)
+				.categoryUuid(category_uuid)
 				.build())
 			.map(saved -> true)
 			.onErrorReturn(false);
