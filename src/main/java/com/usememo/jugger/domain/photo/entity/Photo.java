@@ -12,9 +12,8 @@ import lombok.Builder;
 @Builder
 public class Photo {
 	@Id
-	private String uuid;
-	private String userUuid;
-	private String chatUuid;
+	private String photo_uuid;
+	private String user_uuid;
 	private String url;
-	private String categoryUuid;
+	private String category_uuid;
 }
