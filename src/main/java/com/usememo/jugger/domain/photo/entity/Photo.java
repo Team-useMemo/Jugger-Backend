@@ -3,14 +3,17 @@ package com.usememo.jugger.domain.photo.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
 @Document(collection = "photos")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Getter
 public class Photo {
 	@Id
 	@Field("photo_uuid")
