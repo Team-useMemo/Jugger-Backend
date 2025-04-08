@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 public class S3Controller {
 	private final S3ServiceImplementation s3ServiceImplementation;
 
-	@PostMapping(value = "/test", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public Mono<ResponseEntity<String>> upload(@RequestPart("file") FilePart file) {
 		return s3ServiceImplementation.uploadFile(file)
 			.map(url -> ResponseEntity.ok(url));
