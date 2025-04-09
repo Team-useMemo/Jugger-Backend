@@ -53,7 +53,7 @@ public class S3ServiceImplementation implements S3Service{
 				}
 			});
 	}
-	//DB에 저장하는 함수
+
 	private Mono<Boolean> savePhoto(String saveUrl,String user_uuid, String category_uuid){
 		return photoRepository.save(Photo.builder()
 				.url(saveUrl)
