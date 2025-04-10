@@ -17,7 +17,7 @@ public interface ChatService {
 
 	Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size);
 
-	Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant before, int page, int size);
+	Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size);
 
 	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(String categoryId, Instant before, int page, int size);
 

@@ -112,10 +112,10 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant before, int page, int size) {
+	public Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size) {
 		int skip = page * size;
 
-		return chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(before)
+		return chatRepository.findByCreatedAtAfterOrderByCreatedAtDesc(after)
 			.skip(skip)
 			.take(size)
 			.collectList()
