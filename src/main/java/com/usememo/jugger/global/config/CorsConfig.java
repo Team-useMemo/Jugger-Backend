@@ -14,6 +14,7 @@ public class CorsConfig {
 
 	private static final List<String> ALLOWED_ORIGINS = List.of(
 		"https://jugger.netlify.app",
+		"http://localhost:5173",
 		"http://localhost:3000"
 	);
 
