@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/api/v1/upload")
 @RequiredArgsConstructor
 public class S3Controller {
 	private final S3Service s3Service;
