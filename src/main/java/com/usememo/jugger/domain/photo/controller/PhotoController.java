@@ -23,10 +23,8 @@ public class PhotoController {
 
 	@GetMapping("/photos")
 	public Flux<GetPhotoDto> getPhotos(
-		@RequestParam String user_uuid,
 		@RequestParam String category_uuid){
 		return photoService.getPhotoDto(GetPhotoRequestDto.builder()
-			.userUuid(user_uuid)
 			.categoryUuid(category_uuid)
 			.build());
 	}
