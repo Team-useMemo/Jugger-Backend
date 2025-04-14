@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.WebFilter;
 
 @Configuration
@@ -21,9 +23,9 @@ public class CorsConfig {
 	@Bean
 	public WebFilter corsFilter() {
 		return (exchange, chain) -> {
-			var request = exchange.getRequest();
-			var response = exchange.getResponse();
-			var origin = request.getHeaders().getOrigin();
+			ServerHttpRequest request = exchange.getRequest();
+			ServerHttpResponse response = exchange.getResponse();
+			String origin = request.getHeaders().getOrigin();
 
 			if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
 				response.getHeaders().add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
@@ -40,4 +42,5 @@ public class CorsConfig {
 			return chain.filter(exchange);
 		};
 	}
+
 }
