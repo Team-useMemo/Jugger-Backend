@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
+import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
 
@@ -27,12 +28,13 @@ class CalendarServiceImplementationTest {
 
 	private CalendarServiceImplementation calendarService;
 	private ChatRepository chatRepository;
-
+	private CategoryRepository categoryRepository;
 	@BeforeEach
 	void setUp() {
 		chatRepository = mock(ChatRepository.class);
 		calendarRepository = mock(CalendarRepository.class);
-		calendarService = new CalendarServiceImplementation(calendarRepository, chatRepository);
+		categoryRepository = mock(CategoryRepository.class);
+		calendarService = new CalendarServiceImplementation(calendarRepository, chatRepository,categoryRepository);
 	}
 
 	@Test
