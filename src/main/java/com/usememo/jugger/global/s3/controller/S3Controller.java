@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/api/v1/upload")
 @RequiredArgsConstructor
 public class S3Controller {
 	private final S3Service s3Service;
@@ -24,11 +24,10 @@ public class S3Controller {
 	@PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public Mono<ResponseEntity<String>> upload(
 		@RequestPart("file") FilePart file,
-		@RequestPart("user_uuid") String userUuid,
 		@RequestPart("category_uuid") String categoryUuid
 	) {
 		PhotoDto dto = PhotoDto.builder()
-			.user_uuid(userUuid)
+			.user_uuid("123456789a")
 			.category_uuid(categoryUuid)
 			.filePart(file)
 			.build();
