@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.service.CategoryService;
@@ -65,5 +66,12 @@ public class CategoryController {
 		return chatService.getChatsByCategoryIdAfter(categoryId, after, page, size)
 			.map(list -> ResponseEntity.ok().body(list));
 
+	}
+
+	@GetMapping("/recent")
+	public Mono<ResponseEntity<List<GetRecentCategoryDto>>> getRecentCategories() {
+		return categoryService.getRecentCategories()
+			.collectList()
+			.map(ResponseEntity::ok);
 	}
 }

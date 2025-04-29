@@ -219,5 +219,10 @@ public class ChatServiceImplementation implements ChatService {
 			.collectList();
 	}
 
+	@Override
+	public Mono<Chat> getLatestChatByCategoryId(String categoryId) {
+		return chatRepository.findFirstByCategoryUuidOrderByCreatedAtDesc(categoryId);
+	}
+
 }
 
