@@ -19,11 +19,14 @@ import com.usememo.jugger.domain.category.service.CategoryService;
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.service.ChatService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/categories")
+@Tag(name = "카테고리 API", description = "카테고리 API에 대한 설명입니다.")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -31,6 +34,7 @@ public class CategoryController {
 
 	private final ChatService chatService;
 
+	@Operation(summary = "[POST] 카테고리 생성")
 	@PostMapping
 	public Mono<ResponseEntity<Category>> createCategory(@RequestBody PostCategoryDto postCategoryDto) {
 		return categoryService.createCategory(postCategoryDto)
@@ -39,6 +43,7 @@ public class CategoryController {
 				.body(savedCategory));
 	}
 
+	@Operation(summary = "[GET] 카테고리별 채팅 조회 (이전 메세지 불러오기) ")
 	@GetMapping("/chat/before")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsByCategoryBefore(
 		@RequestParam("categoryId") String categoryId,
@@ -50,6 +55,7 @@ public class CategoryController {
 
 	}
 
+	@Operation(summary = "[GET] 카테고리별 채팅 조회 (이후 메세지 불러오기)")
 	@GetMapping("/chat/after")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsByCategoryAfter(
 		@RequestParam("categoryId") String categoryId,
