@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
+import com.usememo.jugger.domain.chat.service.ChatService;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -19,10 +20,12 @@ class CategoryServiceImplementationTest {
 	private CategoryRepository categoryRepository;
 	private CategoryService categoryService;
 
+	private ChatService chatService;
+
 	@BeforeEach
 	void setUp() {
 		categoryRepository = mock(CategoryRepository.class);
-		categoryService = new CategoryServiceImplementation(categoryRepository);
+		categoryService = new CategoryServiceImplementation(categoryRepository, chatService);
 	}
 
 	@Test
