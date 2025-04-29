@@ -21,6 +21,8 @@ public class CategoryServiceImplementation implements CategoryService {
 	private final CategoryRepository categoryRepository;
 	private final ChatService chatService;
 
+	private final String tempUuid = "123456789a";
+
 	public Mono<Category> createCategory(PostCategoryDto dto) {
 		return categoryRepository.findByName(dto.getName())
 			.flatMap(existing -> Mono.<Category>error(new CategoryExistException()))
@@ -29,7 +31,7 @@ public class CategoryServiceImplementation implements CategoryService {
 					.uuid(UUID.randomUUID().toString())
 					.name(dto.getName())
 					.color(dto.getColor())
-					.userUuid("123456789a")
+					.userUuid(tempUuid)
 					.build();
 				return categoryRepository.save(newCategory);
 			}));
@@ -37,7 +39,7 @@ public class CategoryServiceImplementation implements CategoryService {
 
 	@Override
 	public Flux<GetRecentCategoryDto> getRecentCategories() {
-		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc("123456789a")
+		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(tempUuid)
 			.flatMap(category ->
 				chatService.getLatestChatByCategoryId(category.getUuid())
 					.switchIfEmpty(Mono.justOrEmpty(null)) // null-safe
