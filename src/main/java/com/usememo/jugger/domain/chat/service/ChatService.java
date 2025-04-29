@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
+import com.usememo.jugger.domain.chat.entity.Chat;
 
 import reactor.core.publisher.Mono;
 
@@ -23,4 +24,5 @@ public interface ChatService {
 
 	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(String categoryId, Instant after, int page, int size);
 
+	Mono<Chat> getLatestChatByCategoryId(String categoryId);
 }
