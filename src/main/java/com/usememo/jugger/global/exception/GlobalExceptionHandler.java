@@ -26,10 +26,10 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
 	private final ObjectMapper objectMapper;
 
 	@Override
-	public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+	public Mono<Void> handle(ServerWebExchange exchange, Throwable exception) {
 		ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-		if (ex instanceof BaseException) {
-			errorCode = ((BaseException) ex).getErrorCode();
+		if (exception instanceof BaseException) {
+			errorCode = ((BaseException) exception).getErrorCode();
 		}
 
 		exchange.getResponse().setStatusCode(errorCode.getHttpStatus());
