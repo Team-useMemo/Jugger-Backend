@@ -1,4 +1,4 @@
-package com.usememo.jugger.global.exception.handler;
+package com.usememo.jugger.global.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
