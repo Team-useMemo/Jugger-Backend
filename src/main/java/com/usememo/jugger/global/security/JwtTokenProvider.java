@@ -21,6 +21,8 @@ public class JwtTokenProvider {
 	@Value("${spring.jwt.secret}")
 	private String SECRET_KEY;
 
+	@Value("${spring.jwt.access-token-duration}")
+
 	private final MacAlgorithm alg = Jwts.SIG.HS512;
 
 	public String createAccessToken(UUID userId) {

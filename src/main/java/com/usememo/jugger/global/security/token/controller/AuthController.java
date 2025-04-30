@@ -53,7 +53,7 @@ public class AuthController {
 	@PostMapping("/logout")
 	public Mono<ResponseEntity<Void>> logout(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
 		if (refreshToken == null) {
-			return Mono.just(ResponseEntity.noContent().build()); // 쿠키 없으면 무시
+			return Mono.just(ResponseEntity.noContent().build());
 		}
 
 		String userId;
@@ -62,7 +62,11 @@ public class AuthController {
 		} catch (Exception e) {
 			return Mono.just(ResponseEntity.noContent().build());
 		}
-
+		//프론트에서 인가 코드를 받아서 -> 코드를 서버가 가져서 카카오에 요청을 받아서 처리하는 것이다.
+		//사용자 정보를 저장하는 형식인 것이다.
+		//프론트에 jwt 토큰을 넘겨주면 되는 것이다.
+		//redirection 때문에 문제가 발생하는 것이다.
+		//security 설정해서 이대로 쓰기
 		return refreshTokenRepository.deleteByUserId(UUID.fromString(userId))
 			.thenReturn(ResponseEntity
 				.noContent()
@@ -70,7 +74,6 @@ public class AuthController {
 					.httpOnly(true)
 					.secure(true)
 					.path("/")
-					.sameSite("None")
 					.maxAge(0)
 					.build()
 					.toString()
@@ -78,11 +81,11 @@ public class AuthController {
 				.build());
 	}
 
-	@GetMapping("/success")
-	public Mono<ResponseEntity<Map<String, String>>> loginSuccess(Authentication authentication) {
-		CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
-		String accessToken = jwtTokenProvider.createAccessToken(UUID.fromString(user.getUserId()));
-		return Mono.just(ResponseEntity.ok(Map.of("accessToken", accessToken)));
-	}
+	// @GetMapping("/success")
+	// public Mono<ResponseEntity<Map<String, String>>> loginSuccess(Authentication authentication) {
+	// 	CustomOAuth2User user = (CustomOAuth2User) authentication.getPrincipal();
+	// 	String accessToken = jwtTokenProvider.createAccessToken(UUID.fromString(user.getUserId()));
+	// 	return Mono.just(ResponseEntity.ok(Map.of("accessToken", accessToken)));
+	// }
 
 }
