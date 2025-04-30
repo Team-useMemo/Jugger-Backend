@@ -3,6 +3,7 @@ package com.usememo.jugger.global.security;
 import static io.jsonwebtoken.security.Keys.*;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -22,12 +23,12 @@ public class JwtTokenProvider {
 	private String SECRET_KEY;
 
 	@Value("${spring.jwt.access-token-duration}")
-
+	private Duration accessTokenDuration;
 	private final MacAlgorithm alg = Jwts.SIG.HS512;
 
 	public String createAccessToken(UUID userId) {
 		Date now = new Date();
-		Date expiryDate = new Date(now.getTime() + 3600000);
+		Date expiryDate = new Date(now.getTime() + accessTokenDuration.toMillis() );
 
 
 		SecretKey key = hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
