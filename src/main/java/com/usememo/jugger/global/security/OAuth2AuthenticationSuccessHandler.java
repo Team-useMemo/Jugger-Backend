@@ -1,5 +1,6 @@
 package com.usememo.jugger.global.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -26,7 +27,8 @@ public class OAuth2AuthenticationSuccessHandler implements ServerAuthenticationS
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRepository refreshTokenRepository;
 
-	private static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(7);
+	@Value("${spring.jwt.refresh-token-duration}")
+	private  Duration REFRESH_TOKEN_DURATION;
 
 	public OAuth2AuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider,RefreshTokenRepository refreshTokenRepository) {
 		this.jwtTokenProvider = jwtTokenProvider;
@@ -38,11 +40,11 @@ public class OAuth2AuthenticationSuccessHandler implements ServerAuthenticationS
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 
 		CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-		UUID userId = UUID.fromString(oAuth2User.getUserId());
+		String userId = oAuth2User.getUserId();
 
 		String accessToken = jwtTokenProvider.createAccessToken(userId);
 
-		String refreshToken = jwtTokenProvider.createRefreshToken(userId,REFRESH_TOKEN_DURATION.toMillis());
+		String refreshToken = jwtTokenProvider.createRefreshToken(userId);
 
 		RefreshToken tokenDoc = RefreshToken.builder()
 			.userId(userId)
