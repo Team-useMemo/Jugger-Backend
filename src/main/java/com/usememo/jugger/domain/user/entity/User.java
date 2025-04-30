@@ -7,10 +7,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 @Document(collection = "users")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Getter
 public class User {
 	@Id
 	private String uuid;
