@@ -34,7 +34,8 @@ public class SecurityConfig {
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
 					"/webjars/**",
-					"/favicon.ico"
+					"/favicon.ico",
+					"/docs"
 				)
 				.permitAll()
 				.anyExchange()
