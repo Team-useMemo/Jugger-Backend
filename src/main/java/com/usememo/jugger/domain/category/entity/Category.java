@@ -21,4 +21,8 @@ public class Category extends BaseTimeEntity {
 	private String color;
 	private Boolean isPinned;
 	private String userUuid;
+
+	public void setPinned(Boolean pinned) {
+		isPinned = pinned;
+	}
 }
