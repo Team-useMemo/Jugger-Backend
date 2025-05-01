@@ -22,5 +22,8 @@ public class Link {
 	private String categoryUuid;
 
 	private String caption;
+
+	public Link() {
+	}
 }
 
