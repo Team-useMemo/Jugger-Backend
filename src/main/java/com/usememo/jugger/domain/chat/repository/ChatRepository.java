@@ -10,9 +10,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
-	Flux<Chat> findByCreatedAtBeforeOrderByCreatedAtDesc(Instant before);
+	Flux<Chat> findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(Instant before, String userUuid);
 
-	Flux<Chat> findByCreatedAtAfterOrderByCreatedAtDesc(Instant after);
+	Flux<Chat> findByUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(Instant after, String userUuid);
 
 	Flux<Chat> findByCategoryUuidAndCreatedAtBeforeOrderByCreatedAtDesc(String categoryId, Instant before);
 

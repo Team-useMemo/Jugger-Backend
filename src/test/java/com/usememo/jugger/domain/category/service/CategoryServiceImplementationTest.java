@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.entity.Category;
@@ -28,12 +29,14 @@ class CategoryServiceImplementationTest {
 
 	private ChatService chatService;
 
+	private ReactiveMongoTemplate reactiveMongoTemplate;
+
 	@BeforeEach
 	void setUp() {
-		categoryRepository = mock(CategoryRepository.class);
-		categoryService = new CategoryServiceImplementation(categoryRepository, chatService);
 		Map<String, Object> attributes = new HashMap<>();
 		customOAuth2User = new CustomOAuth2User(attributes, "123456789a");
+		categoryRepository = mock(CategoryRepository.class);
+		categoryService = new CategoryServiceImplementation(categoryRepository, chatService, reactiveMongoTemplate);
 	}
 
 	@Test

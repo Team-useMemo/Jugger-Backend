@@ -23,6 +23,7 @@ import com.usememo.jugger.domain.link.repository.LinkRepository;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
 import com.usememo.jugger.global.exception.chat.CategoryNullException;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -40,46 +41,46 @@ public class ChatServiceImplementation implements ChatService {
 	private final ChatRepository chatRepository;
 
 	@Override
-	public Mono<Void> processChat(PostChatDto postChatDto) {
+	public Mono<Void> processChat(PostChatDto postChatDto, CustomOAuth2User customOAuth2User) {
 		// TODO: AI 서버 결과는 실제 배포 시 교체 예정
 		GetChatTypeDto getChatTypeDto = GetChatTypeDto.builder()
 			.chatType(ChatType.CALENDAR)
 			.build();
 
 		return switch (getChatTypeDto.getChatType()) {
-			case CALENDAR -> saveCalendar(postChatDto);
-			case LINK -> saveLink(postChatDto);
+			case CALENDAR -> saveCalendar(postChatDto, customOAuth2User);
+			case LINK -> saveLink(postChatDto, customOAuth2User);
 			default -> Mono.empty();
 		};
 	}
 
 	@Override
-	public Mono<Void> postChat(PostChatDto postChatDto) {
+	public Mono<Void> postChat(PostChatDto postChatDto, CustomOAuth2User customOAuth2User) {
 		return Mono.justOrEmpty(postChatDto.getCategoryUuid())
 			.switchIfEmpty(Mono.error(new CategoryNullException()))
 			.flatMap(categoryUuid -> {
 				if (isLink(postChatDto.getText())) {
-					return saveLinkChat(postChatDto, categoryUuid);
+					return saveLinkChat(postChatDto, categoryUuid, customOAuth2User);
 				} else {
-					return saveTextChat(postChatDto, categoryUuid);
+					return saveTextChat(postChatDto, categoryUuid, customOAuth2User);
 				}
 			});
 	}
 
-	private Mono<Void> saveLinkChat(PostChatDto dto, String categoryUuid) {
+	private Mono<Void> saveLinkChat(PostChatDto dto, String categoryUuid, CustomOAuth2User customOAuth2User) {
 		String chatUuid = UUID.randomUUID().toString();
 		String linkUuid = UUID.randomUUID().toString();
 
 		Link link = Link.builder()
 			.uuid(linkUuid)
-			.userUuid("123456789a")
+			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(categoryUuid)
 			.url(dto.getText())
 			.build();
 
 		Chat chat = Chat.builder()
 			.uuid(chatUuid)
-			.userUuid("123456789a")
+			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(categoryUuid)
 			.data(dto.getText())
 			.refs(Chat.Refs.builder().linkUuid(linkUuid).build())
@@ -90,12 +91,12 @@ public class ChatServiceImplementation implements ChatService {
 			.then(); // Mono<Void>
 	}
 
-	private Mono<Void> saveTextChat(PostChatDto dto, String categoryUuid) {
+	private Mono<Void> saveTextChat(PostChatDto dto, String categoryUuid, CustomOAuth2User customOAuth2User) {
 		String chatUuid = UUID.randomUUID().toString();
 
 		Chat chat = Chat.builder()
 			.uuid(chatUuid)
-			.userUuid("123456789a")
+			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(categoryUuid)
 			.data(dto.getText())
 			.build();
@@ -104,10 +105,11 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size) {
+	public Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size,
+		CustomOAuth2User customOAuth2User) {
 		int skip = page * size;
 
-		return chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(before)
+		return chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(before, customOAuth2User.getUserId())
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -115,10 +117,11 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size) {
+	public Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size,
+		CustomOAuth2User customOAuth2User) {
 		int skip = page * size;
 
-		return chatRepository.findByCreatedAtAfterOrderByCreatedAtDesc(after)
+		return chatRepository.findByUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(after, customOAuth2User.getUserId())
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -149,11 +152,11 @@ public class ChatServiceImplementation implements ChatService {
 			.flatMap(this::groupByCategory);
 	}
 
-	private Mono<Void> saveCalendar(PostChatDto dto) {
+	private Mono<Void> saveCalendar(PostChatDto dto, CustomOAuth2User customOAuth2User) {
 		Calendar calendar = Calendar.builder()
 			.uuid(UUID.randomUUID().toString())
-			.userUuid("12345678")
-			.title("title")
+			.userUuid(customOAuth2User.getUserId())
+			.title(dto.getText())
 			.startDateTime(Instant.from(LocalDateTime.now()))
 			.endDateTime(Instant.from(LocalDateTime.now()))
 			.categoryUuid(dto.getCategoryUuid())
@@ -162,10 +165,10 @@ public class ChatServiceImplementation implements ChatService {
 		return calendarRepository.save(calendar).then();
 	}
 
-	private Mono<Void> saveLink(PostChatDto dto) {
+	private Mono<Void> saveLink(PostChatDto dto, CustomOAuth2User customOAuth2User) {
 		Link link = Link.builder()
 			.uuid(UUID.randomUUID().toString())
-			.userUuid("12345678")
+			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(dto.getCategoryUuid())
 			.build();
 
