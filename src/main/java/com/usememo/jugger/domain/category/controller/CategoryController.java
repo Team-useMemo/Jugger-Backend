@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mongodb.client.result.UpdateResult;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.entity.Category;
@@ -72,11 +73,22 @@ public class CategoryController {
 
 	}
 
+	@Operation(summary = "[GET] 최근 채팅한 카테고리 조회 (사이드바 용)")
 	@GetMapping("/recent")
 	public Mono<ResponseEntity<List<GetRecentCategoryDto>>> getRecentCategories(
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return categoryService.getRecentCategories(customOAuth2User)
 			.collectList()
 			.map(ResponseEntity::ok);
+	}
+
+	@Operation(summary = "[POST] 카테고리 핀 설정/해제")
+	@PostMapping("/pin")
+	public Mono<ResponseEntity<UpdateResult>> pinCategory(String categoryId, boolean isPinned) {
+		return categoryService.pinCategory(categoryId, isPinned)
+			.map(savedPin -> ResponseEntity
+				.status(HttpStatus.OK)
+				.body(savedPin));
+
 	}
 }

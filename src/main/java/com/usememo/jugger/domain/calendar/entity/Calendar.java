@@ -14,7 +14,6 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-
 public class Calendar {
 	@Id
 	private String uuid;
@@ -24,4 +23,7 @@ public class Calendar {
 	private Instant endDateTime;
 	private String categoryUuid;
 
+	public Calendar() {
+
+	}
 }
