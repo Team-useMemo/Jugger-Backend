@@ -30,9 +30,10 @@ jobs:
           echo "spring.jwt.secret=${{ secrets.JWT_SECRET}}" >> src/main/resources/application.properties
           echo "spring.jwt.refresh-token-duration=${{ secret.JWT_REFRESH}}" >> src/main/resources/application.properties
           echo "spring.jwt.access-token-duration=${{ secret.JWT_ACCESS}}" >> src/main/resources/application.properties
-          echo "spring.kakao.client-id=${{ secret.KAKAO_CLIENT_ID}}" >> src/main/resources/application.properties
-          echo "spring.kakao.client-secret=${{ secret.KAKAO_SECRET}}" >> src/main/resources/application.properties
-          echo "spring.kakao.redirect-uri=${{ secret.KAKAO_REDIRECT_URI}}" >> src/main/resources/application.properties
+          echo "kakao.client-id=${{ secret.KAKAO_CLIENT_ID}}" >> src/main/resources/application.properties
+          echo "kakao.client-secret=${{ secret.KAKAO_SECRET}}" >> src/main/resources/application.properties
+          echo "kakao.redirect-uri=${{ secret.KAKAO_REDIRECT_URI}}" >> src/main/resources/application.properties
+
       - name: ☕ Gradle Build (jar 생성)
         run: ./gradlew build -x test
 
