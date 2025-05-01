@@ -18,16 +18,20 @@ import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.service.CalendarService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/calendar")
+@Tag(name = "캘린더 API", description = "캘린더 API에 대한 설명입니다.")
 @RequiredArgsConstructor
 public class CalendarController {
 
 	private final CalendarService calendarService;
 
+	@Operation(summary = "[POST] 일정등록")
 	@PostMapping
 	public Mono<ResponseEntity<Calendar>> postCalendar(@RequestBody PostCalendarDto postCalendarDto) {
 		return calendarService.postCalendar(postCalendarDto)
@@ -36,6 +40,7 @@ public class CalendarController {
 				.body(savedCalendar));
 	}
 
+	@Operation(summary = "[GET] 일정조회")
 	@GetMapping
 	public Mono<ResponseEntity<List<GetCalendarDto>>> getCalendar(
 		@RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,

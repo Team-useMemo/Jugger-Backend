@@ -16,21 +16,26 @@ import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
 import com.usememo.jugger.domain.chat.service.ChatService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
+@Tag(name = "채팅 API", description = "채팅 API에 대한 설명입니다.")
 @RequestMapping("/api/v1/chat")
 @RequiredArgsConstructor
 public class ChatController {
 	private final ChatService chatService;
 
+	@Operation(summary = "[POST]채팅 입력 ")
 	@PostMapping
 	public Mono<ResponseEntity<Void>> postChat(@RequestBody PostChatDto postChatDto) {
 		return chatService.postChat(postChatDto)
 			.thenReturn(ResponseEntity.ok().build());
 	}
 
+	@Operation(summary = "[GET] 전체 채팅 조회(이전 메세지 조회)")
 	@GetMapping("/before")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsBefore(
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
@@ -41,6 +46,7 @@ public class ChatController {
 
 	}
 
+	@Operation(summary = "[GET] 전체 채팅 조회(이후 메세지 조회)")
 	@GetMapping("/after")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsAfter(
 		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,

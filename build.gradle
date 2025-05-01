@@ -33,10 +33,13 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+
     //Jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2'
 
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
