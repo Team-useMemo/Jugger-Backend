@@ -23,6 +23,8 @@ repositories {
     mavenCentral()
 }
 
+def os = org.gradle.internal.os.OperatingSystem.current()
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -42,6 +44,10 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2'
 
 
+    //mac 설정
+    if (os.isMacOsX()) {
+        runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"
+    }
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
