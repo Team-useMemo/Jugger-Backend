@@ -20,6 +20,8 @@ import com.usememo.jugger.domain.chat.entity.ChatType;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.link.entity.Link;
 import com.usememo.jugger.domain.link.repository.LinkRepository;
+import com.usememo.jugger.domain.photo.entity.Photo;
+import com.usememo.jugger.domain.photo.repository.PhotoRepository;
 import com.usememo.jugger.global.exception.chat.CategoryNullException;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class ChatServiceImplementation implements ChatService {
 	private final CalendarRepository calendarRepository;
 	private final LinkRepository linkRepository;
 	private final CategoryRepository categoryRepository;
+	private final PhotoRepository photoRepository;
 
 	private final ChatRepository chatRepository;
 
@@ -184,37 +187,56 @@ public class ChatServiceImplementation implements ChatService {
 		Map<String, List<Chat>> grouped = chats.stream()
 			.collect(Collectors.groupingBy(Chat::getCategoryUuid));
 
-		// NOTE: Flux로 묶어서 카테고리마다 처리
 		return Flux.fromIterable(grouped.entrySet())
 			.flatMap(entry -> {
 				String categoryId = entry.getKey();
 				List<Chat> chatList = entry.getValue();
 
 				return categoryRepository.findById(categoryId)
-					.map(category -> {
-						List<GetChatByCategoryDto.ChatItem> chatItems = chatList.stream()
-							.map(chat -> GetChatByCategoryDto.ChatItem.builder()
-								.data(chat.getData())
-								.calendar(
-									chat.getRefs() != null && chat.getRefs().getCalendarUuid() != null ?
-										chat.getRefs() : null)
-								.photo(
-									chat.getRefs() != null && chat.getRefs().getPhotoUuid() != null ? chat.getRefs() :
-										null)
-								.link(
-									chat.getRefs() != null && chat.getRefs().getLinkUuid() != null ? chat.getRefs() :
-										null)
-								.timestamp(chat.getCreatedAt())
-								.build())
-							.toList();
+					.flatMap(category ->
+						Flux.fromIterable(chatList)
+							.flatMap(chat -> {
+								Chat.Refs refs = chat.getRefs();
 
-						return GetChatByCategoryDto.builder()
-							.categoryId(categoryId)
-							.categoryName(category.getName())
-							.categoryColor(category.getColor())
-							.chatItems(chatItems)
-							.build();
-					});
+								Mono<Calendar> calendarMono = (refs != null && refs.getCalendarUuid() != null)
+									? calendarRepository.findById(refs.getCalendarUuid())
+									: Mono.just(new Calendar());
+
+								Mono<Photo> photoMono = (refs != null && refs.getPhotoUuid() != null)
+									?
+									photoRepository.findById(refs.getPhotoUuid())
+									: Mono.just(new Photo());
+
+								Mono<Link> linkMono = (refs != null && refs.getLinkUuid() != null)
+									? linkRepository.findById(refs.getLinkUuid())
+									: Mono.just(new Link());
+
+								return Mono.zip(calendarMono, photoMono, linkMono)
+									.map(tuple -> {
+										Calendar calendar = tuple.getT1();
+										Photo photo = tuple.getT2();
+										Link link = tuple.getT3();
+
+										return GetChatByCategoryDto.ChatItem.builder()
+											.data(chat.getData())
+											.scheduleName(calendar.getTitle())
+											.scheduleStartDate(calendar.getStartDateTime())
+											.scheduleEndDate(calendar.getEndDateTime())
+											.imgUrl(photo.getUrl())
+											.linkUrl(link.getUrl())
+											.timestamp(chat.getCreatedAt())
+											.build();
+									});
+
+							})
+							.collectList()
+							.map(chatItems -> GetChatByCategoryDto.builder()
+								.categoryId(categoryId)
+								.categoryName(category.getName())
+								.categoryColor(category.getColor())
+								.chatItems(chatItems)
+								.build())
+					);
 			})
 			.collectList();
 	}
