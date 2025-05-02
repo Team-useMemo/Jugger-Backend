@@ -21,8 +21,10 @@ import com.usememo.jugger.global.security.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RestController
 @Tag(name = "채팅 API", description = "채팅 API에 대한 설명입니다.")
 @RequestMapping("/api/v1/chat")
@@ -45,6 +47,7 @@ public class ChatController {
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size, @AuthenticationPrincipal
 	CustomOAuth2User customOAuth2User) {
+		log.info(customOAuth2User.getUserId());
 		return chatService.getChatsBefore(before, page, size, customOAuth2User)
 			.map(list -> ResponseEntity.ok().body(list));
 
