@@ -1,6 +1,7 @@
 package com.usememo.jugger.global.security.token.controller;
 
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -8,12 +9,14 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.security.JwtTokenProvider;
+import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
@@ -85,8 +88,8 @@ public class AuthController {
 
 	@Operation(summary = "[POST] 카카오 로그인")
 	@PostMapping("/kakao")
-	public Mono<ResponseEntity<TokenResponse>> loginByKakao(@RequestParam String code) {
-		return kakaoService.loginWithKakao(code)
+	public Mono<ResponseEntity<TokenResponse>> loginByKakao(@RequestBody KakaoLoginRequest request) {
+		return kakaoService.loginWithKakao(request.code())
 			.map(token -> ResponseEntity.ok().body(token));
 	}
 
