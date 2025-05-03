@@ -27,6 +27,12 @@ jobs:
           echo "spring.cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_KEY }}" >> src/main/resources/application.properties
           echo "spring.cloud.aws.region.static=${{ secrets.AWS_REGION }}" >> src/main/resources/application.properties
           echo "spring.cloud.aws.s3.bucket=${{ secrets.S3_BUCKET }}" >> src/main/resources/application.properties
+          echo "spring.jwt.secret=${{ secrets.JWT_SECRET}}" >> src/main/resources/application.properties
+          echo "spring.jwt.refresh-token-duration=${{ secret.JWT_REFRESH}}" >> src/main/resources/application.properties
+          echo "spring.jwt.access-token-duration=${{ secret.JWT_ACCESS}}" >> src/main/resources/application.properties
+          echo "kakao.client-id=${{ secret.KAKAO_CLIENT_ID}}" >> src/main/resources/application.properties
+          echo "kakao.client-secret=${{ secret.KAKAO_SECRET}}" >> src/main/resources/application.properties
+          echo "kakao.redirect-uri=${{ secret.KAKAO_REDIRECT_URI}}" >> src/main/resources/application.properties
 
       - name: ☕ Gradle Build (jar 생성)
         run: ./gradlew build -x test

@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.databind.type.LogicalType.*;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +22,9 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
+
 import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
+
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
@@ -96,13 +99,12 @@ public class AuthController {
 	public Mono<ResponseEntity<TokenResponse>> loginByKakao(@RequestBody KakaoLoginRequest request) {
 		return kakaoService.loginWithKakao(request.code())
 			.map(token -> ResponseEntity.ok().body(token));
-	}
+
 
 	@Operation(summary = "[POST] 회원가입")
 	@PostMapping("/kakao/signup")
 	public Mono<ResponseEntity<?>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest){
 		return kakaoService.signUpKakao(kakaoSignUpRequest)
-			.map(token -> ResponseEntity.ok().body(token));
-	}
+
 
 }

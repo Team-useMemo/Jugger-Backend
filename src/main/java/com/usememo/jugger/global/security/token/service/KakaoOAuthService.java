@@ -15,7 +15,9 @@ import com.usememo.jugger.domain.user.entity.User;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
+
 import com.usememo.jugger.global.exception.KakaoException;
+
 import com.usememo.jugger.global.security.JwtTokenProvider;
 import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
 import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
@@ -40,7 +42,9 @@ public class KakaoOAuthService {
 			.map(user -> {
 					return jwtTokenProvider.createTokenBundle(user.getUuid());
 				}
+
 			);
+
 	}
 
 	private Mono<String> getAccessToken(String code) {
@@ -95,6 +99,7 @@ public class KakaoOAuthService {
 			return Mono.error(new BaseException(ErrorCode.KAKAO_NAME_MISSING));
 		}
 
+
 		return userRepository.findByEmail(email)
 			.flatMap(Mono::just)
 			.switchIfEmpty(Mono.defer(() -> Mono.error(
@@ -119,6 +124,7 @@ public class KakaoOAuthService {
 		userRepository.save(user);
 
 		return Mono.just(jwtTokenProvider.createTokenBundle(user.getUuid()));
+
 
 	}
 }
