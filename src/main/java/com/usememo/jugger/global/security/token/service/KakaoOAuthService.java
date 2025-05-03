@@ -15,8 +15,10 @@ import com.usememo.jugger.domain.user.entity.User;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
+import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
 import com.usememo.jugger.global.security.token.domain.KakaoUserResponse;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 
@@ -38,8 +40,7 @@ public class KakaoOAuthService {
 			.map(user -> {
 					return jwtTokenProvider.createTokenBundle(user.getUuid());
 				}
-			)
-			.onErrorMap(e -> new BaseException(ErrorCode.KAKAO_JWT_ERROR));
+			);
 	}
 
 	private Mono<String> getAccessToken(String code) {
@@ -93,16 +94,31 @@ public class KakaoOAuthService {
 		if (name == null) {
 			return Mono.error(new BaseException(ErrorCode.KAKAO_NAME_MISSING));
 		}
+
 		return userRepository.findByEmail(email)
-			.switchIfEmpty(Mono.defer(() ->
-				userRepository.save(User.builder()
-					.uuid(UUID.randomUUID().toString())
-					.email(email)
-					.name(name)
-					.domain("kakao")
-					.terms(new User.Terms())
-					.build())
-			))
-			.onErrorMap(e -> new BaseException(ErrorCode.KAKAO_UNKNOWN_ERROR));
+			.flatMap(Mono::just)
+			.switchIfEmpty(Mono.defer(() -> Mono.error(
+				new KakaoException(ErrorCode.KAKAO_USER_NOT_FOUND,Map.of("email", email, "nickname", name))
+			)));
+	}
+
+
+	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest){
+		String uuid = UUID.randomUUID().toString();
+		User.Terms terms = new User.Terms();
+		terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
+		terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
+		terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
+		User user = User.builder()
+			.uuid(uuid)
+			.name(kakaoSignUpRequest.name())
+			.email(kakaoSignUpRequest.email())
+			.domain(kakaoSignUpRequest.domain())
+			.terms(terms)
+			.build();
+		userRepository.save(user);
+
+		return Mono.just(jwtTokenProvider.createTokenBundle(user.getUuid()));
+
 	}
 }

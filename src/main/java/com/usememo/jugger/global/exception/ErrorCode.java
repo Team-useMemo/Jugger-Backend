@@ -26,6 +26,7 @@ public enum ErrorCode {
 	KAKAO_JSON_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 419, "카카오 응답 JSON 파싱에 실패했습니다."),
 	KAKAO_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 420, "카카오 로그인 중 알 수 없는 오류가 발생했습니다."),
 	KAKAO_JWT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 421, "카카오 jwt 토큰 제공시 에러"),
+	KAKAO_USER_NOT_FOUND(BAD_REQUEST,427,"존재하지 않는 회원입니다."),
 
 	JWT_KEY_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 422, "JWT 키 생성에 실패했습니다."),
 	JWT_ACCESS_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 423, "액세스 토큰 생성 실패"),
