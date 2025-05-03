@@ -1,5 +1,6 @@
 package com.usememo.jugger.domain.photo.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.usememo.jugger.domain.photo.dto.GetPhotoDto;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.service.PhotoService;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,9 +27,9 @@ public class PhotoController {
 	@Operation(summary = "[GET] 사진 조회")
 	@GetMapping("/photos")
 	public Flux<GetPhotoDto> getPhotos(
-		@RequestParam String category_uuid) {
+		@RequestParam String category_uuid, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return photoService.getPhotoDto(GetPhotoRequestDto.builder()
 			.categoryUuid(category_uuid)
-			.build());
+			.build(), customOAuth2User);
 	}
 }

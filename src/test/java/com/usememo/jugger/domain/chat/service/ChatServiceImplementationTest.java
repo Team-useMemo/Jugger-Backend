@@ -6,7 +6,9 @@ import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +26,9 @@ import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.link.entity.Link;
 import com.usememo.jugger.domain.link.repository.LinkRepository;
+import com.usememo.jugger.domain.photo.repository.PhotoRepository;
 import com.usememo.jugger.global.exception.chat.CategoryNullException;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,17 +44,24 @@ class ChatServiceImplementationTest {
 	private LinkRepository linkRepository;
 	@Mock
 	private CategoryRepository categoryRepository;
+
+	@Mock
+	private PhotoRepository photoRepository;
 	@Mock
 	private ChatService chatService;
 
+	private CustomOAuth2User customOAuth2User;
+
 	@BeforeEach
 	void setUp() {
+		Map<String, Object> attributes = new HashMap<>();
+		customOAuth2User = new CustomOAuth2User(attributes, "123456789a");
 		chatRepository = mock(ChatRepository.class);
 		calendarRepository = mock(CalendarRepository.class);
 		linkRepository = mock(LinkRepository.class);
 		categoryRepository = mock(CategoryRepository.class);
 		chatService = new ChatServiceImplementation(calendarRepository, linkRepository, categoryRepository,
-			chatRepository);
+			photoRepository, chatRepository);
 
 	}
 
@@ -61,7 +72,7 @@ class ChatServiceImplementationTest {
 			.categoryUuid(null)
 			.text("놀고싶다")
 			.build();
-		StepVerifier.create(chatService.postChat(postChatDto))
+		StepVerifier.create(chatService.postChat(postChatDto, customOAuth2User))
 			.expectError(CategoryNullException.class)
 			.verify();
 
@@ -79,7 +90,7 @@ class ChatServiceImplementationTest {
 		when(chatRepository.save(any(Chat.class)))
 			.thenReturn(Mono.just(mock(Chat.class)));
 
-		StepVerifier.create(chatService.postChat(dto))
+		StepVerifier.create(chatService.postChat(dto, customOAuth2User))
 			.verifyComplete();
 
 		ArgumentCaptor<Chat> captor = ArgumentCaptor.forClass(Chat.class);
@@ -103,7 +114,7 @@ class ChatServiceImplementationTest {
 		when(linkRepository.save(any(Link.class))).thenReturn(Mono.just(Link.builder().build()));
 		when(chatRepository.save(any(Chat.class))).thenReturn(Mono.just(Chat.builder().build()));
 
-		Mono<Void> result = chatService.postChat(dto);
+		Mono<Void> result = chatService.postChat(dto, customOAuth2User);
 
 		StepVerifier.create(result)
 			.verifyComplete(); // 정상 완료 확인
@@ -131,13 +142,14 @@ class ChatServiceImplementationTest {
 		List<Chat> chats = List.of(sampleChat(categoryId, before.minusMinutes(1)));
 		Category category = sampleCategory(categoryId, "여행", "#FFAA00");
 
-		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
+		when(chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(any(), customOAuth2User.getUserId()))
 			.thenReturn(Flux.fromIterable(chats));
 
 		when(categoryRepository.findById(categoryId))
 			.thenReturn(Mono.just(category));
 
-		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleBefore, 0, 10);
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleBefore, 0, 10,
+			customOAuth2User);
 
 		StepVerifier.create(result)
 			.expectNextMatches(list -> {
@@ -159,13 +171,11 @@ class ChatServiceImplementationTest {
 		List<Chat> chats = List.of(sampleChat(categoryId, after.minusMinutes(1)));
 		Category category = sampleCategory(categoryId, "여행", "#FFAA00");
 
-		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
-			.thenReturn(Flux.fromIterable(chats));
-
 		when(categoryRepository.findById(categoryId))
 			.thenReturn(Mono.just(category));
 
-		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleAfter, 0, 10);
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleAfter, 0, 10,
+			customOAuth2User);
 
 		StepVerifier.create(result)
 			.expectNextMatches(list -> {
@@ -190,13 +200,14 @@ class ChatServiceImplementationTest {
 		when(chatRepository.findByCategoryUuidAndCreatedAtBeforeOrderByCreatedAtDesc(any(), any()))
 			.thenReturn(Flux.fromIterable(chats));
 
-		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
+		when(chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(any(), customOAuth2User.getUserId()))
 			.thenReturn(Flux.fromIterable(chats));
 
 		when(categoryRepository.findById(categoryId))
 			.thenReturn(Mono.just(category));
 
-		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleBefore, 0, 10);
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleBefore, 0, 10,
+			customOAuth2User);
 
 		StepVerifier.create(result)
 			.expectNextMatches(list -> {
@@ -221,13 +232,14 @@ class ChatServiceImplementationTest {
 		when(chatRepository.findByCategoryUuidAndCreatedAtAfterOrderByCreatedAtDesc(any(), any()))
 			.thenReturn(Flux.fromIterable(chats));
 
-		when(chatRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(any()))
+		when(chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(any(), customOAuth2User.getUserId()))
 			.thenReturn(Flux.fromIterable(chats));
 
 		when(categoryRepository.findById(categoryId))
 			.thenReturn(Mono.just(category));
 
-		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleAfter, 0, 10);
+		Mono<List<GetChatByCategoryDto>> result = chatService.getChatsBefore(mongoCompatibleAfter, 0, 10,
+			customOAuth2User);
 
 		StepVerifier.create(result)
 			.expectNextMatches(list -> {

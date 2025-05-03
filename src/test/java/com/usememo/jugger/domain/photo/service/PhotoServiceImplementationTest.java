@@ -1,30 +1,37 @@
 package com.usememo.jugger.domain.photo.service;
 
+import static org.mockito.Mockito.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.photo.dto.GetPhotoDto;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.usememo.jugger.global.security.CustomOAuth2User;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.List;
-
-import static org.mockito.Mockito.*;
 
 class PhotoServiceImplementationTest {
 
 	@Test
 	@DisplayName("Photo 목록을 조회하고 Dto로 변환")
 	void getPhotoDto_shouldReturnFluxOfGetPhotoDto() {
+
+		Map<String, Object> attributes = new HashMap<>();
+		CustomOAuth2User customOAuth2User = new CustomOAuth2User(attributes, "123456789a");
 		// given
 		PhotoRepository photoRepository = mock(PhotoRepository.class);
-		CategoryRepository categoryRepository =mock(CategoryRepository.class);
-		PhotoServiceImplementation photoService = new PhotoServiceImplementation(photoRepository,categoryRepository);
+		CategoryRepository categoryRepository = mock(CategoryRepository.class);
+		PhotoServiceImplementation photoService = new PhotoServiceImplementation(photoRepository, categoryRepository);
 
 		String userUuid = "123456789a";
 		String categoryUuid = "여행";
@@ -48,7 +55,7 @@ class PhotoServiceImplementationTest {
 			.build();
 
 		// when
-		Flux<GetPhotoDto> result = photoService.getPhotoDto(requestDto);
+		Flux<GetPhotoDto> result = photoService.getPhotoDto(requestDto, customOAuth2User);
 
 		// then
 		StepVerifier.create(result)

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.service.CategoryService;
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.service.ChatService;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,8 +40,10 @@ public class CategoryController {
 
 	@Operation(summary = "[POST] 카테고리 생성")
 	@PostMapping
-	public Mono<ResponseEntity<Category>> createCategory(@RequestBody PostCategoryDto postCategoryDto) {
-		return categoryService.createCategory(postCategoryDto)
+	public Mono<ResponseEntity<Category>> createCategory(@RequestBody PostCategoryDto postCategoryDto,
+		@AuthenticationPrincipal
+		CustomOAuth2User customOAuth2User) {
+		return categoryService.createCategory(postCategoryDto, customOAuth2User)
 			.map(savedCategory -> ResponseEntity
 				.status(HttpStatus.CREATED)
 				.body(savedCategory));
@@ -71,8 +75,9 @@ public class CategoryController {
 
 	@Operation(summary = "[GET] 최근 채팅한 카테고리 조회 (사이드바 용)")
 	@GetMapping("/recent")
-	public Mono<ResponseEntity<List<GetRecentCategoryDto>>> getRecentCategories() {
-		return categoryService.getRecentCategories()
+	public Mono<ResponseEntity<List<GetRecentCategoryDto>>> getRecentCategories(
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+		return categoryService.getRecentCategories(customOAuth2User)
 			.collectList()
 			.map(ResponseEntity::ok);
 	}

@@ -1,15 +1,23 @@
 package com.usememo.jugger.global.security;
 
-import static io.jsonwebtoken.security.Keys.*;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import com.usememo.jugger.global.exception.BaseException;
+import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.security.token.domain.TokenResponse;
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -17,12 +25,8 @@ import io.jsonwebtoken.security.MacAlgorithm;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
-import javax.crypto.SecretKey;
-
-import com.usememo.jugger.global.exception.BaseException;
-import com.usememo.jugger.global.exception.ErrorCode;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -115,6 +119,24 @@ public class JwtTokenProvider {
 			return new TokenResponse(accessToken, refreshToken);
 		} catch (Exception e) {
 			throw new BaseException(ErrorCode.JWT_BUNDLE_CREATION_FAILED);
+		}
+	}
+
+	public Mono<Authentication> getAuthentication(String token) {
+		try {
+			Claims claims = Jwts.parser()
+				.verifyWith(key)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
+
+			String userId = claims.getSubject();
+			Map<String, Object> attributes = Map.of("userId", userId);
+			CustomOAuth2User principal = new CustomOAuth2User(attributes, userId);
+			Authentication auth = new UsernamePasswordAuthenticationToken(principal, token, List.of());
+			return Mono.just(auth);
+		} catch (Exception e) {
+			return Mono.empty();
 		}
 	}
 }

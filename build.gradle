@@ -48,6 +48,10 @@ dependencies {
     if (os.isMacOsX()) {
         runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"
     }
+
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

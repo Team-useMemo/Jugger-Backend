@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.client.result.UpdateResult;
@@ -15,6 +16,7 @@ import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.exception.category.CategoryExistException;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -28,9 +30,8 @@ public class CategoryServiceImplementation implements CategoryService {
 
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-	private final String tempUuid = "123456789a";
-
-	public Mono<Category> createCategory(PostCategoryDto dto) {
+	public Mono<Category> createCategory(PostCategoryDto dto,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByName(dto.getName())
 			.flatMap(existing -> Mono.<Category>error(new CategoryExistException()))
 			.switchIfEmpty(Mono.defer(() -> {
@@ -38,15 +39,15 @@ public class CategoryServiceImplementation implements CategoryService {
 					.uuid(UUID.randomUUID().toString())
 					.name(dto.getName())
 					.color(dto.getColor())
-					.userUuid(tempUuid)
+					.userUuid(customOAuth2User.getUserId())
 					.build();
 				return categoryRepository.save(newCategory);
 			}));
 	}
 
 	@Override
-	public Flux<GetRecentCategoryDto> getRecentCategories() {
-		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(tempUuid)
+	public Flux<GetRecentCategoryDto> getRecentCategories(CustomOAuth2User customOAuth2User) {
+		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(customOAuth2User.getUserId())
 			.flatMap(category ->
 				chatService.getLatestChatByCategoryId(category.getUuid())
 					.switchIfEmpty(Mono.justOrEmpty(null)) // null-safe

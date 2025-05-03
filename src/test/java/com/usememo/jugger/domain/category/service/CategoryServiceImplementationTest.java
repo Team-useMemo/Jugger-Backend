@@ -3,15 +3,20 @@ package com.usememo.jugger.domain.category.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.service.ChatService;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -20,12 +25,18 @@ class CategoryServiceImplementationTest {
 	private CategoryRepository categoryRepository;
 	private CategoryService categoryService;
 
+	private CustomOAuth2User customOAuth2User;
+
 	private ChatService chatService;
+
+	private ReactiveMongoTemplate reactiveMongoTemplate;
 
 	@BeforeEach
 	void setUp() {
+		Map<String, Object> attributes = new HashMap<>();
+		customOAuth2User = new CustomOAuth2User(attributes, "123456789a");
 		categoryRepository = mock(CategoryRepository.class);
-		categoryService = new CategoryServiceImplementation(categoryRepository, chatService);
+		categoryService = new CategoryServiceImplementation(categoryRepository, chatService, reactiveMongoTemplate);
 	}
 
 	@Test
@@ -51,7 +62,7 @@ class CategoryServiceImplementationTest {
 		when(categoryRepository.findByName("운동"))
 			.thenReturn(Mono.empty());
 
-		Mono<Category> result = categoryService.createCategory(postCategoryDto);
+		Mono<Category> result = categoryService.createCategory(postCategoryDto, customOAuth2User);
 
 		StepVerifier.create(result)
 			.assertNext(category -> {
