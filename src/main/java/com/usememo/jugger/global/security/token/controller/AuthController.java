@@ -1,5 +1,8 @@
 package com.usememo.jugger.global.security.token.controller;
 
+import static com.fasterxml.jackson.databind.type.LogicalType.*;
+
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -15,8 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.user.repository.UserRepository;
+import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
+
+import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
+
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
@@ -36,7 +44,7 @@ public class AuthController {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final KakaoOAuthService kakaoService;
 
-	@Operation(summary = "[POST] refresh token 발급")
+	@Operation(summary = "[POST] refresh token 으로 새로운 access token 발급")
 	@PostMapping(value = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Mono<ResponseEntity<String>> refreshAccessToken(
 		@CookieValue(name = "refresh_token", required = false) String refreshToken) {
@@ -93,4 +101,11 @@ public class AuthController {
 			.map(token -> ResponseEntity.ok().body(token));
 	}
 
+	@Operation(summary = "[POST] 회원가입")
+	@PostMapping("/kakao/signup")
+	public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
+		return kakaoService.signUpKakao(kakaoSignUpRequest)
+			.map(token -> ResponseEntity.ok().body(token));
+
+	}
 }
