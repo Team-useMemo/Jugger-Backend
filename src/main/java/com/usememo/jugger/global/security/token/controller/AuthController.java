@@ -99,12 +99,13 @@ public class AuthController {
 	public Mono<ResponseEntity<TokenResponse>> loginByKakao(@RequestBody KakaoLoginRequest request) {
 		return kakaoService.loginWithKakao(request.code())
 			.map(token -> ResponseEntity.ok().body(token));
-
+	}
 
 	@Operation(summary = "[POST] 회원가입")
 	@PostMapping("/kakao/signup")
-	public Mono<ResponseEntity<?>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest){
+	public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
 		return kakaoService.signUpKakao(kakaoSignUpRequest)
+			.map(token -> ResponseEntity.ok().body(token));
 
-
+	}
 }
