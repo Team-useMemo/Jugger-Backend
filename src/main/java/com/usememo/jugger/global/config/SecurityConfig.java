@@ -7,6 +7,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
 import com.usememo.jugger.global.security.CustomOAuth2UserService;
 import com.usememo.jugger.global.security.JwtAuthenticationConverter;
@@ -30,6 +31,7 @@ public class SecurityConfig {
 		JwtAuthenticationConverter jwtAuthenticationConverter) {
 
 		AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(jwtAuthenticationManager);
+		jwtFilter.setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 		jwtFilter.setServerAuthenticationConverter(jwtAuthenticationConverter);
 
 		return http
