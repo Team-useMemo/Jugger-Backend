@@ -105,24 +105,35 @@ public class KakaoOAuthService {
 			}));
 	}
 
+
 	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
-		String uuid = UUID.randomUUID().toString();
+		String email = kakaoSignUpRequest.email();
+		String domain = kakaoSignUpRequest.domain();
+		String name = kakaoSignUpRequest.name();
 
-		User.Terms terms = new User.Terms();
-		terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
-		terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
-		terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
+		return userRepository.findByEmailAndDomainAndName(email, domain, name)
+			.flatMap(existingUser ->
+				Mono.<TokenResponse>error(new BaseException(ErrorCode.DUPLICATE_USER))
+			)
+			.switchIfEmpty(Mono.defer(() -> {
+				String uuid = UUID.randomUUID().toString();
 
-		User user = User.builder()
-			.uuid(uuid)
-			.name(kakaoSignUpRequest.name())
-			.email(kakaoSignUpRequest.email())
-			.domain(kakaoSignUpRequest.domain())
-			.terms(terms)
-			.build();
+				User.Terms terms = new User.Terms();
+				terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
+				terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
+				terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
 
-		return userRepository.save(user)
-			.map(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
+				User user = User.builder()
+					.uuid(uuid)
+					.name(name)
+					.email(email)
+					.domain(domain)
+					.terms(terms)
+					.build();
+
+				return userRepository.save(user)
+					.map(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
+			}));
 	}
 
 }

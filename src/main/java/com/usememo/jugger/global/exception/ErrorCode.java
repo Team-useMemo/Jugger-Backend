@@ -29,6 +29,7 @@ public enum ErrorCode {
 
 	KAKAO_USER_NOT_FOUND(BAD_REQUEST,427,"존재하지 않는 회원입니다."),
 
+	DUPLICATE_USER(BAD_REQUEST,428,"중복된 회원정보입니다."),
 
 	JWT_KEY_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 422, "JWT 키 생성에 실패했습니다."),
 	JWT_ACCESS_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 423, "액세스 토큰 생성 실패"),
