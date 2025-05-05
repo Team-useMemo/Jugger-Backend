@@ -87,7 +87,6 @@ public class KakaoOAuthService {
 			});
 	}
 
-
 	private Mono<User> saveOrFindUser(KakaoUserResponse response) {
 		String email = response.getKakao_account().getEmail();
 		String name = response.getProperties().getNickname();
@@ -99,21 +98,21 @@ public class KakaoOAuthService {
 			return Mono.error(new BaseException(ErrorCode.KAKAO_NAME_MISSING));
 		}
 
-
-		return userRepository.findByEmail(email)
-			.flatMap(Mono::just)
-			.switchIfEmpty(Mono.defer(() -> Mono.error(
-				new KakaoException(ErrorCode.KAKAO_USER_NOT_FOUND,Map.of("email", email, "nickname", name))
-			)));
+		return userRepository.findByEmailAndDomain(email, "kakao")
+			.switchIfEmpty(Mono.defer(() -> {
+				return Mono.error(new KakaoException(ErrorCode.KAKAO_USER_NOT_FOUND,
+					Map.of("email", email, "nickname", name)));
+			}));
 	}
 
-
-	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest){
+	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
 		String uuid = UUID.randomUUID().toString();
+
 		User.Terms terms = new User.Terms();
 		terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
 		terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
 		terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
+
 		User user = User.builder()
 			.uuid(uuid)
 			.name(kakaoSignUpRequest.name())
@@ -121,10 +120,9 @@ public class KakaoOAuthService {
 			.domain(kakaoSignUpRequest.domain())
 			.terms(terms)
 			.build();
-		userRepository.save(user);
 
-		return Mono.just(jwtTokenProvider.createTokenBundle(user.getUuid()));
-
-
+		return userRepository.save(user)
+			.map(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
 	}
+
 }
