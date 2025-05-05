@@ -8,6 +8,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 import com.usememo.jugger.global.security.JwtAuthenticationConverter;
 import com.usememo.jugger.global.security.JwtAuthenticationManager;
@@ -16,7 +17,6 @@ import com.usememo.jugger.global.security.OAuth2AuthenticationSuccessHandler;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
-
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
@@ -27,6 +27,9 @@ public class SecurityConfig {
 		AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(jwtAuthenticationManager);
 		jwtFilter.setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 		jwtFilter.setServerAuthenticationConverter(jwtAuthenticationConverter);
+		jwtFilter.setRequiresAuthenticationMatcher(
+			ServerWebExchangeMatchers.pathMatchers("/api/**")
+		);
 
 		return http
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
