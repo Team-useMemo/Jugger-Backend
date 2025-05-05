@@ -41,7 +41,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
 
 
     //mac 설정
