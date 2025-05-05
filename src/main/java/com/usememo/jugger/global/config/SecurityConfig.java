@@ -9,7 +9,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
-import com.usememo.jugger.global.security.CustomOAuth2UserService;
 import com.usememo.jugger.global.security.JwtAuthenticationConverter;
 import com.usememo.jugger.global.security.JwtAuthenticationManager;
 import com.usememo.jugger.global.security.OAuth2AuthenticationSuccessHandler;
@@ -18,11 +17,6 @@ import com.usememo.jugger.global.security.OAuth2AuthenticationSuccessHandler;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-	private final CustomOAuth2UserService customOAuth2UserService;
-
-	public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
-		this.customOAuth2UserService = customOAuth2UserService;
-	}
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
