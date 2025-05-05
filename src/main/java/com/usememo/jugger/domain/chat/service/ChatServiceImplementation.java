@@ -108,8 +108,7 @@ public class ChatServiceImplementation implements ChatService {
 	public Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size,
 		CustomOAuth2User customOAuth2User) {
 		int skip = page * size;
-
-		return chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(before, customOAuth2User.getUserId())
+		return chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(customOAuth2User.getUserId(), before)
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -121,7 +120,7 @@ public class ChatServiceImplementation implements ChatService {
 		CustomOAuth2User customOAuth2User) {
 		int skip = page * size;
 
-		return chatRepository.findByUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(after, customOAuth2User.getUserId())
+		return chatRepository.findByUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(customOAuth2User.getUserId(), after)
 			.skip(skip)
 			.take(size)
 			.collectList()
