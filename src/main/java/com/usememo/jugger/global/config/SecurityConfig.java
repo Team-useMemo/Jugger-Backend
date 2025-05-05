@@ -8,6 +8,8 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 import com.usememo.jugger.global.security.JwtAuthenticationConverter;
@@ -28,7 +30,12 @@ public class SecurityConfig {
 		jwtFilter.setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 		jwtFilter.setServerAuthenticationConverter(jwtAuthenticationConverter);
 		jwtFilter.setRequiresAuthenticationMatcher(
-			ServerWebExchangeMatchers.pathMatchers("/api/**")
+			new AndServerWebExchangeMatcher(
+				ServerWebExchangeMatchers.pathMatchers("/api/**"),
+				new NegatedServerWebExchangeMatcher(
+					ServerWebExchangeMatchers.pathMatchers("/api/v3/api-docs/**")
+				)
+			)
 		);
 
 		return http
