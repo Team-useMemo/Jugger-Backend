@@ -2,6 +2,7 @@ package com.usememo.jugger.global.security;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Component;
 
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.security.token.domain.RefreshToken;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
+import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -43,6 +46,7 @@ public class JwtTokenProvider {
 
 	private final MacAlgorithm alg = Jwts.SIG.HS512;
 	private SecretKey key;
+	private final RefreshTokenRepository refreshTokenRepository;
 
 	@PostConstruct
 	public void init() {
@@ -112,15 +116,26 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public TokenResponse createTokenBundle(String userId) {
+	public Mono<TokenResponse> createTokenBundle(String userId) {
 		try {
 			String accessToken = createAccessToken(userId);
 			String refreshToken = createRefreshToken(userId);
-			return new TokenResponse(accessToken, refreshToken);
+
+			Instant expiryDate = Instant.now().plus(refreshTokenDuration);
+
+			RefreshToken refreshTokenEntity = RefreshToken.builder()
+				.userId(userId)
+				.token(refreshToken)
+				.expiryDate(expiryDate)
+				.build();
+
+			return refreshTokenRepository.save(refreshTokenEntity)
+				.thenReturn(new TokenResponse(accessToken, refreshToken));
 		} catch (Exception e) {
-			throw new BaseException(ErrorCode.JWT_BUNDLE_CREATION_FAILED);
+			return Mono.error(new BaseException(ErrorCode.JWT_BUNDLE_CREATION_FAILED));
 		}
 	}
+
 
 	public Mono<Authentication> getAuthentication(String token) {
 		try {

@@ -35,7 +35,10 @@ public enum ErrorCode {
 	JWT_ACCESS_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 423, "액세스 토큰 생성 실패"),
 	JWT_REFRESH_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 424, "리프레시 토큰 생성 실패"),
 	JWT_PARSE_FAILED(HttpStatus.UNAUTHORIZED, 425, "JWT 파싱 실패"),
-	JWT_BUNDLE_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 426, "JWT 번들 생성 실패");
+	JWT_BUNDLE_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 426, "JWT 번들 생성 실패"),
+
+	NO_LOGOUT_USER(BAD_REQUEST,404,"존재하지 않는 refresh token입니다."),
+	WRONG_LOGOUT(BAD_REQUEST,404,"로그아웃에 실패하였습니다.");
 
 	private final HttpStatus httpStatus;
 	private final int code;

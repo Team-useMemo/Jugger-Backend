@@ -5,7 +5,9 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,7 +24,9 @@ import com.usememo.jugger.global.security.JwtTokenProvider;
 import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
 import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
 import com.usememo.jugger.global.security.token.domain.KakaoUserResponse;
+import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
+import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -34,17 +38,17 @@ public class KakaoOAuthService {
 	private final KakaoOAuthProperties kakaoProps;
 	private final UserRepository userRepository;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final RefreshTokenRepository refreshTokenRepository;
 
 	public Mono<TokenResponse> loginWithKakao(String code) {
 		return getAccessToken(code)
 			.flatMap(this::getUserInfo)
 			.flatMap(this::saveOrFindUser)
-			.map(user -> {
+			.flatMap(user -> {
 					return jwtTokenProvider.createTokenBundle(user.getUuid());
 				}
 
 			);
-
 	}
 
 	private Mono<String> getAccessToken(String code) {
@@ -132,8 +136,38 @@ public class KakaoOAuthService {
 					.build();
 
 				return userRepository.save(user)
-					.map(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
+					.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));  // flatMap으로 변경
 			}));
+	}
+
+
+	public Mono<Void> userLogOut(String refreshToken){
+		String userId;
+		userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+		if(userId == null){
+			throw new BaseException(ErrorCode.NO_LOGOUT_USER);
+		}
+		return refreshTokenRepository.findByUserId(userId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_LOGOUT_USER)))
+			.flatMap(foundToken -> refreshTokenRepository.deleteByUserId(userId));
+	}
+
+
+
+	public Mono<ResponseEntity<NewTokenResponse>> giveNewToken(String refreshToken){
+		return refreshTokenRepository.findByToken(refreshToken)
+			.flatMap(savedToken -> {
+				if (!jwtTokenProvider.validateToken(savedToken.getToken())) {
+					return Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN));
+				}
+				String userId = jwtTokenProvider.getUserIdFromToken(savedToken.getToken());
+				return userRepository.findById(userId)
+					.map(user -> {
+						String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+						return ResponseEntity.ok().body(new NewTokenResponse(newAccessToken));
+					});
+			})
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN)));
 	}
 
 }
