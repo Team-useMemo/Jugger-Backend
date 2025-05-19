@@ -67,8 +67,7 @@ public class AuthController {
 	public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
 
 		return kakaoService.userLogOut(request.refreshToken())
-			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다."))));
-
+			.thenReturn(ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다.")));
 	}
 
 
