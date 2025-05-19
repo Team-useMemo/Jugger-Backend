@@ -136,7 +136,7 @@ public class KakaoOAuthService {
 					.build();
 
 				return userRepository.save(user)
-					.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));  // flatMap으로 변경
+					.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
 			}));
 	}
 
