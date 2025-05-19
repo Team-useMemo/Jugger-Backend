@@ -27,26 +27,6 @@ import com.usememo.jugger.global.security.OAuth2AuthenticationSuccessHandler;
 public class SecurityConfig {
 
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of(
-			"https://jugger.netlify.app",
-			"http://localhost:5173",
-			"http://localhost:3000",
-			"http://localhost:5174",
-			"https://usememoteam.site"
-		));
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization"));
-		config.setAllowCredentials(true);
-		config.setMaxAge(3600L);
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
-		return source;
-	}
-
-	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
 		OAuth2AuthenticationSuccessHandler successHandler,
 		JwtAuthenticationManager jwtAuthenticationManager,
@@ -65,7 +45,6 @@ public class SecurityConfig {
 		);
 
 		return http
-			// .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
 			.cors(ServerHttpSecurity.CorsSpec::disable)
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
 			.authorizeExchange(exchange -> exchange
@@ -77,6 +56,5 @@ public class SecurityConfig {
 			.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
 			.build();
 	}
-
 
 }
