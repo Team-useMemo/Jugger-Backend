@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   deploy-backend:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-
 
     steps:
       - name: ✅ Checkout Spring Code
@@ -18,44 +17,54 @@ jobs:
       - name: 🔐 application.properties 생성
         run: |
           mkdir -p src/main/resources
-          # echo "spring.datasource.url=..." >> src/main/resources/application.properties
-          # echo "spring.datasource.url=..." >> src/main/resources/application.properties
-          # 필요한 설정을 secrets로부터 채워넣기
+
           echo "spring.webflux.multipart.enabled=true" >> src/main/resources/application.properties
           echo "spring.data.mongodb.uri=${{ secrets.MONGO_URL }}" >> src/main/resources/application.properties
           echo "spring.cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY }}" >> src/main/resources/application.properties
           echo "spring.cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_KEY }}" >> src/main/resources/application.properties
           echo "spring.cloud.aws.region.static=${{ secrets.AWS_REGION }}" >> src/main/resources/application.properties
           echo "spring.cloud.aws.s3.bucket=${{ secrets.S3_BUCKET }}" >> src/main/resources/application.properties
-          echo "spring.jwt.secret=${{ secrets.JWT_SECRET}}" >> src/main/resources/application.properties
+          echo "spring.jwt.secret=${{ secrets.JWT_SECRET }}" >> src/main/resources/application.properties
           echo "spring.jwt.refresh-token-duration=${{ secrets.JWT_REFRESH }}" >> src/main/resources/application.properties
           echo "spring.jwt.access-token-duration=${{ secrets.JWT_ACCESS }}" >> src/main/resources/application.properties
+
+          # 공통 Kakao 설정
           echo "kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }}" >> src/main/resources/application.properties
           echo "kakao.client-secret=${{ secrets.KAKAO_SECRET }}" >> src/main/resources/application.properties
-          echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}" >> src/main/resources/application.properties
 
-      - name: ☕ Gradle Build (jar 생성)
+          # 브랜치에 따라 redirect-uri만 분기
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}" >> src/main/resources/application.properties
+          else
+            echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> src/main/resources/application.properties
+          fi
+        shell: bash
+
+      - name: ☕ Gradle Build
         run: ./gradlew build -x test
 
       - name: 🐳 Docker Hub 로그인
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: 📦 Docker 이미지 Build & Push with Git SHA Tag
+      - name: 📦 Docker Build & Push
         run: |
           IMAGE_TAG=${{ github.sha }}
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG} .
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}
 
-      - name: 🚀 EC2에 SSH 접속 후 backend 재배포
+      - name: 🚀 EC2 SSH 접속 후 배포
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ github.ref == 'refs/heads/main' && secrets.EC2_HOST || secrets.EC2_HOST_DEV }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ github.ref == 'refs/heads/main' && secrets.EC2_KEY || secrets.EC2_KEY_DEV }}
           script: |
             IMAGE_TAG=${{ github.sha }}
-            cd ~/my-app
+            cd ~/app  # 공통 디렉토리
+
+            # docker-compose.yml 내부의 이미지 태그만 교체
             sed -i "s|image: .*/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|" docker-compose.yml
+
             docker compose pull backend
             docker compose up -d backend
