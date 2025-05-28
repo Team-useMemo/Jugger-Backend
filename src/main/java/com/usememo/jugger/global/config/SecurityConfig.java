@@ -1,5 +1,7 @@
 package com.usememo.jugger.global.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -11,6 +13,10 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import com.usememo.jugger.global.security.JwtAuthenticationConverter;
 import com.usememo.jugger.global.security.JwtAuthenticationManager;
@@ -39,6 +45,7 @@ public class SecurityConfig {
 		);
 
 		return http
+			.cors(ServerHttpSecurity.CorsSpec::disable)
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
 			.authorizeExchange(exchange -> exchange
 				.pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**",
@@ -49,4 +56,5 @@ public class SecurityConfig {
 			.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
 			.build();
 	}
+
 }
