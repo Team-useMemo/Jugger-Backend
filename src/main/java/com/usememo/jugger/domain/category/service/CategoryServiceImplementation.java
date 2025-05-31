@@ -41,6 +41,7 @@ public class CategoryServiceImplementation implements CategoryService {
 					.name(dto.getName())
 					.color(dto.getColor())
 					.userUuid(customOAuth2User.getUserId())
+					.isPinned(false)
 					.build();
 				return categoryRepository.save(newCategory);
 			}));
