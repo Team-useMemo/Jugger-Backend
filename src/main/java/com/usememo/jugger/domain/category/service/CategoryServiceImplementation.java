@@ -14,6 +14,7 @@ import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
+import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.exception.category.CategoryExistException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
@@ -47,18 +48,22 @@ public class CategoryServiceImplementation implements CategoryService {
 
 	@Override
 	public Flux<GetRecentCategoryDto> getRecentCategories(CustomOAuth2User customOAuth2User) {
-		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(customOAuth2User.getUserId())
+		String userId = customOAuth2User.getUserId();
+
+		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(userId)
 			.flatMap(category ->
 				chatService.getLatestChatByCategoryId(category.getUuid())
-					.switchIfEmpty(Mono.justOrEmpty(null)) // null-safe
-					.map(chat -> GetRecentCategoryDto.builder()
+					.map(Chat::getData)
+					.defaultIfEmpty("")
+					.map(recentMessage -> GetRecentCategoryDto.builder()
 						.uuid(category.getUuid())
 						.name(category.getName())
 						.color(category.getColor())
 						.isPinned(category.getIsPinned())
 						.updateAt(category.getUpdatedAt())
-						.recentMessage(chat != null ? chat.getData() : null)
-						.build()));
+						.recentMessage(recentMessage)
+						.build())
+			);
 	}
 
 	@Override
