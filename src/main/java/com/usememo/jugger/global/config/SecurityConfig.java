@@ -2,6 +2,7 @@ package com.usememo.jugger.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -46,10 +47,12 @@ public class SecurityConfig {
 		return http
 			.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
+
 			.authorizeExchange(exchange -> exchange
 				.pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**",
 					"/v3/api-docs/**", "/webjars/**", "/favicon.ico", "/docs", "/health/**", "/api/v3/api-docs/**")
 				.permitAll()
+				.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.anyExchange().authenticated()
 			)
 			.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
