@@ -19,7 +19,8 @@ public class CorsConfig {
 			"http://localhost:5173",
 			"http://localhost:3000",
 			"http://localhost:5174",
-			"https://usememoteam.site"
+			"https://usememoteam.site",
+			"https://jjungmindev.site/"
 		));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization"));
