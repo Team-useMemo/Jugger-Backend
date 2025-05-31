@@ -49,10 +49,10 @@ public class SecurityConfig {
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
 
 			.authorizeExchange(exchange -> exchange
+				.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**",
 					"/v3/api-docs/**", "/webjars/**", "/favicon.ico", "/docs", "/health/**", "/api/v3/api-docs/**")
 				.permitAll()
-				.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.anyExchange().authenticated()
 			)
 			.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
