@@ -115,8 +115,7 @@ public class CategoryServiceImplementation implements CategoryService {
 				return reactiveMongoTemplate.updateFirst(query,update,Category.class)
 					.map(result -> new UpdateResponse(
 						200,
-						"카테고리 업데이트가 완료되었습니다.",
-						result
+						"카테고리 업데이트가 완료되었습니다."
 					));
 			});
 

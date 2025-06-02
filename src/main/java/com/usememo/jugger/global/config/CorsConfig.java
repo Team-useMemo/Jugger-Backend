@@ -22,7 +22,7 @@ public class CorsConfig {
 			"https://usememoteam.site",
 			"https://jjungmindev.site/"
 		));
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
 		config.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization"));
 		config.setAllowCredentials(true);
 		config.setMaxAge(3600L);
