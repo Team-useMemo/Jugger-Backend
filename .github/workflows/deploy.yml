@@ -27,6 +27,8 @@ jobs:
           echo "spring.jwt.secret=${{ secrets.JWT_SECRET }}" >> src/main/resources/application.properties
           echo "spring.jwt.refresh-token-duration=${{ secrets.JWT_REFRESH }}" >> src/main/resources/application.properties
           echo "spring.jwt.access-token-duration=${{ secrets.JWT_ACCESS }}" >> src/main/resources/application.properties
+          echo "master.token=${{ secrets.MASTER_TOKEN }}" >> src/main/resources/application.properties
+
 
           # 공통 Kakao 설정
           echo "kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }}" >> src/main/resources/application.properties
@@ -35,8 +37,10 @@ jobs:
           # 브랜치에 따라 redirect-uri만 분기
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}" >> src/main/resources/application.properties
+            echo "master.id=${{ secrets.MASTER_ID }}" >> src/main/resources/application.properties
           else
             echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> src/main/resources/application.properties
+            echo "master.id=${{ secrets.MASTER_ID_DEV }}" >> src/main/resources/application.properties
           fi
         shell: bash
 
