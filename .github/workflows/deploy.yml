@@ -59,17 +59,18 @@ jobs:
           host: ${{ github.ref == 'refs/heads/main' && secrets.EC2_HOST || secrets.EC2_HOST_DEV }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ github.ref == 'refs/heads/main' && secrets.EC2_KEY || secrets.EC2_KEY_DEV }}
+          envs: GITHUB_REF_NAME
           script: |
             IMAGE_TAG=${{ github.sha }}
             
-            if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            cd ~/my-app
-            else
-            cd ~/app
-            fi
+            echo "Branch: $GITHUB_REF_NAME"
+              
+              if [[ "$GITHUB_REF_NAME" == "main" ]]; then
+              cd ~/my-app
+              else
+              cd ~/app
+              fi
 
-
-            # docker-compose.yml 내부의 이미지 태그만 교체
             sed -i "s|image: .*/backend:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend:${IMAGE_TAG}|" docker-compose.yml
 
             docker compose pull backend
