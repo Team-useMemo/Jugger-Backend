@@ -10,6 +10,10 @@ public enum ErrorCode {
 
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "서버 내부 오류입니다."),
 	FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 501, "S3 파일 업로드에 실패했습니다."),
+
+	NO_CATEGORY(BAD_REQUEST,404,"잘못된 categoryId 입니다."),
+	NO_AUTHORITY(BAD_REQUEST,404,"해당 사용자의 카테고리가 아닙니다."),
+
 	CATEGORY_ALREADY_EXIST(BAD_REQUEST, 400, "이미 존재하는 카테고리입니다."),
 	CATEGORY_IS_NULL(BAD_REQUEST, 401, "카테고리는 NULL값일 수 없습니다."),
 	NO_REFRESH_TOKEN(UNAUTHORIZED, 402, "리프레시 토큰이 없습니다."),
