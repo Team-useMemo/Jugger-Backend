@@ -7,7 +7,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.client.result.UpdateResult;
+import com.usememo.jugger.domain.category.dto.DeleteResponse;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
+import com.usememo.jugger.domain.category.dto.UpdateRequest;
+import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.service.CategoryService;
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
@@ -91,4 +97,21 @@ public class CategoryController {
 				.body(savedPin));
 
 	}
+
+	@Operation(summary = "[DELETE] 카테고리 삭제")
+	@DeleteMapping("/delete/{categoryId}")
+	public Mono<ResponseEntity<DeleteResponse>> deleteCategory(@PathVariable String categoryId
+	,@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+		return categoryService.deleteCategory(categoryId,customOAuth2User)
+			.map(c -> ResponseEntity.status(HttpStatus.OK).body(new DeleteResponse(200,"카테고리가 삭제되었습니다.")));
+	}
+
+	@Operation(summary = "[PATCH] 카테고리 수정")
+	@PatchMapping("update")
+	public Mono<ResponseEntity<UpdateResponse>> updateCategory(@RequestBody UpdateRequest updateRequest,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+		return categoryService.updateCategory(updateRequest,customOAuth2User)
+			.map(c->ResponseEntity.status(HttpStatus.OK).body(c));
+	}
+
 }
