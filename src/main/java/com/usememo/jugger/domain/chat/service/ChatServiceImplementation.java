@@ -70,16 +70,17 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<Void> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User) {
-		// 카테고리 없이 채팅 요청이 들어오면: 임의의 카테고리를 생성하고 UUID를 채팅에 연결
+	public Mono<String> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User) {
 		return createDefaultCategory(customOAuth2User)
 			.flatMap(category -> {
 				String categoryUuid = category.getUuid();
-				if (isLink(postChatTextDto.getText())) {
-					return saveLinkChat(postChatTextDto.getText(), categoryUuid, customOAuth2User);
+				Mono<Void> saveMono;
+				if (isLink(postChatTextDto.text())) {
+					saveMono = saveLinkChat(postChatTextDto.text(), categoryUuid, customOAuth2User);
 				} else {
-					return saveTextChat(postChatTextDto.getText(), categoryUuid, customOAuth2User);
+					saveMono = saveTextChat(postChatTextDto.text(), categoryUuid, customOAuth2User);
 				}
+				return saveMono.thenReturn(categoryUuid);
 			});
 	}
 
@@ -90,9 +91,9 @@ public class ChatServiceImplementation implements ChatService {
 	private Mono<Category> createDefaultCategory(CustomOAuth2User user) {
 		return Mono.defer(() -> {
 			Category newCategory = Category.builder()
-				.uuid(UUID.randomUUID().toString())  // 진짜 UUID
-				.name("미분류")                      // 기본 이름
-				.color("#000000")                   // 기본 색상 (검정)
+				.uuid(UUID.randomUUID().toString())
+				.name("")
+				.color("")
 				.userUuid(user.getUserId())
 				.isPinned(false)
 				.build();

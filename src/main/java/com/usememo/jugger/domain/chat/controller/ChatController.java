@@ -41,13 +41,13 @@ public class ChatController {
 			.thenReturn(ResponseEntity.ok().build());
 	}
 
-	@Operation(summary = "[POST]카테고리 없이 채팅 입력 ")
+	@Operation(summary = "[POST]카테고리 없이 채팅 입력")
 	@PostMapping("/withoutCategory")
-	public Mono<ResponseEntity<Void>> postChatWithoutCategory(@RequestBody PostChatTextDto postChatTextDto,
-		@AuthenticationPrincipal
-		CustomOAuth2User customOAuth2User) {
+	public Mono<ResponseEntity<String>> postChatWithoutCategory(
+		@RequestBody PostChatTextDto postChatTextDto,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return chatService.postChatWithoutCategory(postChatTextDto, customOAuth2User)
-			.thenReturn(ResponseEntity.ok().build());
+			.map(ResponseEntity::ok);
 	}
 
 	@Operation(summary = "[GET] 전체 채팅 조회(이전 메세지 조회)")

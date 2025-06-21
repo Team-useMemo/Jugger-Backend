@@ -9,11 +9,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Document(collection = "category")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
+@Setter
 public class Category extends BaseTimeEntity {
 	@Id
 	private String uuid;

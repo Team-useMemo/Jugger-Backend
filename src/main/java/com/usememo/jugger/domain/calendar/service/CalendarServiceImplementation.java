@@ -12,6 +12,7 @@ import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -27,21 +28,22 @@ public class CalendarServiceImplementation implements CalendarService {
 	private final CategoryRepository categoryRepository;
 
 	@Override
-	public Mono<Calendar> postCalendar(PostCalendarDto postCalendarDto) {
+	public Mono<Calendar> postCalendar(PostCalendarDto postCalendarDto,
+		CustomOAuth2User customOAuth2User) {
 
 		String calendarUuid = UUID.randomUUID().toString();
 		Calendar calendar = Calendar.builder()
 			.categoryUuid(postCalendarDto.getCategoryId())
 			.title(postCalendarDto.getName())
 			.uuid(calendarUuid)
-			.userUuid("123456789a")
+			.userUuid(customOAuth2User.getUserId())
 			.startDateTime(postCalendarDto.getStartTime())
 			.endDateTime(postCalendarDto.getEndTime())
 			.build();
 
 		Chat chat = Chat.builder()
 			.uuid(UUID.randomUUID().toString())
-			.userUuid("123456789a")
+			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(postCalendarDto.getCategoryId())
 			.data(postCalendarDto.getName())
 			.refs(Chat.Refs.builder().calendarUuid(calendarUuid).build())
@@ -54,8 +56,9 @@ public class CalendarServiceImplementation implements CalendarService {
 	}
 
 	@Override
-	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end) {
-		return calendarRepository.findByStartDateTimeBetween(start, end)
+	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end,
+		CustomOAuth2User customOAuth2User) {
+		return calendarRepository.findByUserUuidAndStartDateTimeBetween(customOAuth2User.getUserId(), start, end)
 			.flatMap(calendar ->
 				categoryRepository.findByUuid(calendar.getCategoryUuid())
 					.map(category -> GetCalendarDto.builder()

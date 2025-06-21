@@ -18,7 +18,7 @@ public interface ChatService {
 
 	Mono<Void> postChat(PostChatDto postChatDto, CustomOAuth2User customOAuth2User);
 
-	Mono<Void> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User);
+	Mono<String> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User);
 
 	Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size,
 		CustomOAuth2User customOAuth2User);

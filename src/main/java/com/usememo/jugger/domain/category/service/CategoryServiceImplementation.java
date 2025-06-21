@@ -6,13 +6,12 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.mongodb.client.result.UpdateResult;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
+import com.usememo.jugger.domain.category.dto.PostCategoryWithUuidDto;
 import com.usememo.jugger.domain.category.dto.UpdateRequest;
 import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
@@ -22,9 +21,9 @@ import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.category.CategoryExistException;
+import com.usememo.jugger.global.exception.chat.CategoryNullException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,8 +36,7 @@ public class CategoryServiceImplementation implements CategoryService {
 
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-	public Mono<Category> createCategory(PostCategoryDto dto,
-		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+	public Mono<Category> createCategory(PostCategoryDto dto, CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByName(dto.getName())
 			.flatMap(existing -> Mono.<Category>error(new CategoryExistException()))
 			.switchIfEmpty(Mono.defer(() -> {
@@ -51,6 +49,19 @@ public class CategoryServiceImplementation implements CategoryService {
 					.build();
 				return categoryRepository.save(newCategory);
 			}));
+	}
+
+	@Override
+	public Mono<Category> createCategoryWithUuid(PostCategoryWithUuidDto postCategoryWithUuidDto,
+		CustomOAuth2User customOAuth2User) {
+		return categoryRepository.findByUuid(postCategoryWithUuidDto.getCategoryUuid())
+			.switchIfEmpty(Mono.error(new CategoryNullException()))
+			.flatMap(category -> {
+				category.setName(postCategoryWithUuidDto.getName());
+				category.setColor(postCategoryWithUuidDto.getColor());
+				category.setPinned(false);
+				return categoryRepository.save(category);
+			});
 	}
 
 	@Override
@@ -82,7 +93,7 @@ public class CategoryServiceImplementation implements CategoryService {
 	}
 
 	@Override
-	public Mono<Boolean> deleteCategory(String categoryId,CustomOAuth2User customOAuth2User){
+	public Mono<Boolean> deleteCategory(String categoryId, CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByUuid(categoryId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
 			.flatMap(category -> {
@@ -95,7 +106,7 @@ public class CategoryServiceImplementation implements CategoryService {
 	}
 
 	@Override
-	public Mono<UpdateResponse> updateCategory(UpdateRequest updateRequest, CustomOAuth2User customOAuth2User){
+	public Mono<UpdateResponse> updateCategory(UpdateRequest updateRequest, CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByUuid(updateRequest.categoryId())
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
 			.flatMap(category -> {
@@ -112,13 +123,12 @@ public class CategoryServiceImplementation implements CategoryService {
 					update.set("color", updateRequest.newColor());
 				}
 
-				return reactiveMongoTemplate.updateFirst(query,update,Category.class)
+				return reactiveMongoTemplate.updateFirst(query, update, Category.class)
 					.map(result -> new UpdateResponse(
 						200,
 						"카테고리 업데이트가 완료되었습니다."
 					));
 			});
-
 
 	}
 }
