@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.mongodb.client.result.UpdateResult;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
@@ -18,13 +17,13 @@ import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.entity.Chat;
+import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.category.CategoryExistException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,6 +32,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CategoryServiceImplementation implements CategoryService {
 	private final CategoryRepository categoryRepository;
+
+	private final ChatRepository chatRepository;
 	private final ChatService chatService;
 
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
@@ -82,7 +83,7 @@ public class CategoryServiceImplementation implements CategoryService {
 	}
 
 	@Override
-	public Mono<Boolean> deleteCategory(String categoryId,CustomOAuth2User customOAuth2User){
+	public Mono<Boolean> deleteCategory(String categoryId, CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByUuid(categoryId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
 			.flatMap(category -> {
@@ -90,12 +91,13 @@ public class CategoryServiceImplementation implements CategoryService {
 					return Mono.error(new BaseException(ErrorCode.NO_AUTHORITY));
 				}
 				return categoryRepository.deleteByUuid(categoryId)
+					.then(chatRepository.deleteByCategoryUuid(categoryId))
 					.thenReturn(true);
 			});
 	}
 
 	@Override
-	public Mono<UpdateResponse> updateCategory(UpdateRequest updateRequest, CustomOAuth2User customOAuth2User){
+	public Mono<UpdateResponse> updateCategory(UpdateRequest updateRequest, CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByUuid(updateRequest.categoryId())
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
 			.flatMap(category -> {
@@ -112,13 +114,12 @@ public class CategoryServiceImplementation implements CategoryService {
 					update.set("color", updateRequest.newColor());
 				}
 
-				return reactiveMongoTemplate.updateFirst(query,update,Category.class)
+				return reactiveMongoTemplate.updateFirst(query, update, Category.class)
 					.map(result -> new UpdateResponse(
 						200,
 						"카테고리 업데이트가 완료되었습니다."
 					));
 			});
-
 
 	}
 }

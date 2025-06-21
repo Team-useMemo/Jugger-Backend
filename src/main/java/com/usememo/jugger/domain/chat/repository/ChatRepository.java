@@ -20,4 +20,6 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
 
 	Mono<Chat> findFirstByCategoryUuidOrderByCreatedAtDesc(String categoryUuid);
 
+	Mono<Void> deleteByCategoryUuid(String categoryUuid);
+
 }
