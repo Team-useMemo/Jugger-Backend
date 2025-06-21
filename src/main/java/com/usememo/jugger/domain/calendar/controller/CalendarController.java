@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import com.usememo.jugger.domain.calendar.dto.GetCalendarDto;
 import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.service.CalendarService;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,8 +35,9 @@ public class CalendarController {
 
 	@Operation(summary = "[POST] 일정등록")
 	@PostMapping
-	public Mono<ResponseEntity<Calendar>> postCalendar(@RequestBody PostCalendarDto postCalendarDto) {
-		return calendarService.postCalendar(postCalendarDto)
+	public Mono<ResponseEntity<Calendar>> postCalendar(@RequestBody PostCalendarDto postCalendarDto,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+		return calendarService.postCalendar(postCalendarDto, customOAuth2User)
 			.map(savedCalendar -> ResponseEntity
 				.status(HttpStatus.CREATED)
 				.body(savedCalendar));
@@ -44,8 +47,9 @@ public class CalendarController {
 	@GetMapping
 	public Mono<ResponseEntity<List<GetCalendarDto>>> getCalendar(
 		@RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
-		@RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end) {
-		return calendarService.getCalendar(start, end).collectList()
+		@RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+		return calendarService.getCalendar(start, end, customOAuth2User).collectList()
 			.map(list -> ResponseEntity.ok().body(list));
 
 	}
