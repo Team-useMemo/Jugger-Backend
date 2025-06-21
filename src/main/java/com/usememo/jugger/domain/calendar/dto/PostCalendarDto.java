@@ -12,4 +12,7 @@ public class PostCalendarDto {
 	private Instant startTime;
 	private Instant endTime;
 	private String categoryId;
+	private String place;
+	private Instant alarm;
+	private String description;
 }
