@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
+import com.usememo.jugger.domain.chat.dto.PostChatTextDto;
 import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
@@ -37,6 +38,15 @@ public class ChatController {
 	public Mono<ResponseEntity<Void>> postChat(@RequestBody PostChatDto postChatDto, @AuthenticationPrincipal
 	CustomOAuth2User customOAuth2User) {
 		return chatService.postChat(postChatDto, customOAuth2User)
+			.thenReturn(ResponseEntity.ok().build());
+	}
+
+	@Operation(summary = "[POST]카테고리 없이 채팅 입력 ")
+	@PostMapping("/withoutCategory")
+	public Mono<ResponseEntity<Void>> postChatWithoutCategory(@RequestBody PostChatTextDto postChatTextDto,
+		@AuthenticationPrincipal
+		CustomOAuth2User customOAuth2User) {
+		return chatService.postChatWithoutCategory(postChatTextDto, customOAuth2User)
 			.thenReturn(ResponseEntity.ok().build());
 	}
 
