@@ -38,6 +38,7 @@ public class CalendarController {
 	public Mono<ResponseEntity<Calendar>> postCalendar(@RequestBody PostCalendarDto postCalendarDto,
 		@AuthenticationPrincipal
 		CustomOAuth2User customOAuth2User) {
+
 		return calendarService.postCalendar(postCalendarDto, customOAuth2User)
 			.map(savedCalendar -> ResponseEntity
 				.status(HttpStatus.CREATED)
@@ -48,8 +49,8 @@ public class CalendarController {
 	@GetMapping
 	public Mono<ResponseEntity<List<GetCalendarDto>>> getCalendar(
 		@RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
-		@RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end, @AuthenticationPrincipal
-	CustomOAuth2User customOAuth2User) {
+		@RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return calendarService.getCalendar(start, end, customOAuth2User).collectList()
 			.map(list -> ResponseEntity.ok().body(list));
 

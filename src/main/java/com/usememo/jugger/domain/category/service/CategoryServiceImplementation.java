@@ -17,6 +17,7 @@ import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.entity.Chat;
+import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
@@ -32,6 +33,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CategoryServiceImplementation implements CategoryService {
 	private final CategoryRepository categoryRepository;
+
+	private final ChatRepository chatRepository;
 	private final ChatService chatService;
 
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
@@ -101,6 +104,7 @@ public class CategoryServiceImplementation implements CategoryService {
 					return Mono.error(new BaseException(ErrorCode.NO_AUTHORITY));
 				}
 				return categoryRepository.deleteByUuid(categoryId)
+					.then(chatRepository.deleteByCategoryUuid(categoryId))
 					.thenReturn(true);
 			});
 	}

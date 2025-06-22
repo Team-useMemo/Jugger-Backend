@@ -39,6 +39,9 @@ public class CalendarServiceImplementation implements CalendarService {
 			.userUuid(customOAuth2User.getUserId())
 			.startDateTime(postCalendarDto.getStartTime())
 			.endDateTime(postCalendarDto.getEndTime())
+			.alarm(postCalendarDto.getAlarm())
+			.description(postCalendarDto.getDescription())
+			.place(postCalendarDto.getPlace())
 			.build();
 
 		Chat chat = Chat.builder()
@@ -67,6 +70,9 @@ public class CalendarServiceImplementation implements CalendarService {
 						.title(calendar.getTitle())
 						.startDateTime(calendar.getStartDateTime())
 						.endDateTime(calendar.getEndDateTime())
+						.alarm(calendar.getAlarm())
+						.place(calendar.getPlace())
+						.description(calendar.getDescription())
 						.build()
 					)
 			);

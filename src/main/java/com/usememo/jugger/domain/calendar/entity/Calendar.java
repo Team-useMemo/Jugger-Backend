@@ -22,6 +22,9 @@ public class Calendar {
 	private Instant startDateTime;
 	private Instant endDateTime;
 	private String categoryUuid;
+	private String place;
+	private Instant alarm;
+	private String description;
 
 	public Calendar() {
 
