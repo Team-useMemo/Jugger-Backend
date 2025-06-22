@@ -11,8 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CalendarService {
-
-	// NOTE: V1용 API
 	Mono<Calendar> postCalendar(PostCalendarDto postCalendarDto, CustomOAuth2User customOAuth2User);
 
 	Flux<GetCalendarDto> getCalendar(Instant start, Instant end, CustomOAuth2User customOAuth2User);

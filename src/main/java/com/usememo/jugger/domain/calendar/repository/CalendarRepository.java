@@ -9,5 +9,6 @@ import com.usememo.jugger.domain.calendar.entity.Calendar;
 import reactor.core.publisher.Flux;
 
 public interface CalendarRepository extends ReactiveMongoRepository<Calendar, String> {
-	Flux<Calendar> findByStartDateTimeBetween(Instant start, Instant end);
+	Flux<Calendar> findByUserUuidAndStartDateTimeBetween(String userUuid, Instant start, Instant end);
+
 }

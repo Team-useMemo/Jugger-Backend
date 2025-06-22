@@ -36,7 +36,9 @@ public class CalendarController {
 	@Operation(summary = "[POST] 일정등록")
 	@PostMapping
 	public Mono<ResponseEntity<Calendar>> postCalendar(@RequestBody PostCalendarDto postCalendarDto,
-		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+		@AuthenticationPrincipal
+		CustomOAuth2User customOAuth2User) {
+
 		return calendarService.postCalendar(postCalendarDto, customOAuth2User)
 			.map(savedCalendar -> ResponseEntity
 				.status(HttpStatus.CREATED)

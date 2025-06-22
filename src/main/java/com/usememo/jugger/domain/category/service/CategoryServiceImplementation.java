@@ -6,12 +6,12 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.client.result.UpdateResult;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
+import com.usememo.jugger.domain.category.dto.PostCategoryWithUuidDto;
 import com.usememo.jugger.domain.category.dto.UpdateRequest;
 import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
@@ -22,6 +22,7 @@ import com.usememo.jugger.domain.chat.service.ChatService;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.category.CategoryExistException;
+import com.usememo.jugger.global.exception.chat.CategoryNullException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
@@ -38,8 +39,7 @@ public class CategoryServiceImplementation implements CategoryService {
 
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
 
-	public Mono<Category> createCategory(PostCategoryDto dto,
-		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+	public Mono<Category> createCategory(PostCategoryDto dto, CustomOAuth2User customOAuth2User) {
 		return categoryRepository.findByName(dto.getName())
 			.flatMap(existing -> Mono.<Category>error(new CategoryExistException()))
 			.switchIfEmpty(Mono.defer(() -> {
@@ -52,6 +52,19 @@ public class CategoryServiceImplementation implements CategoryService {
 					.build();
 				return categoryRepository.save(newCategory);
 			}));
+	}
+
+	@Override
+	public Mono<Category> createCategoryWithUuid(PostCategoryWithUuidDto postCategoryWithUuidDto,
+		CustomOAuth2User customOAuth2User) {
+		return categoryRepository.findByUuid(postCategoryWithUuidDto.getCategoryUuid())
+			.switchIfEmpty(Mono.error(new CategoryNullException()))
+			.flatMap(category -> {
+				category.setName(postCategoryWithUuidDto.getName());
+				category.setColor(postCategoryWithUuidDto.getColor());
+				category.setPinned(false);
+				return categoryRepository.save(category);
+			});
 	}
 
 	@Override

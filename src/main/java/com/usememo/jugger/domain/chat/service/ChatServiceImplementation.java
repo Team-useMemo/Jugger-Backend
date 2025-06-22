@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
+import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.GetChatTypeDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
+import com.usememo.jugger.domain.chat.dto.PostChatTextDto;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.entity.ChatType;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
@@ -60,14 +62,47 @@ public class ChatServiceImplementation implements ChatService {
 			.switchIfEmpty(Mono.error(new CategoryNullException()))
 			.flatMap(categoryUuid -> {
 				if (isLink(postChatDto.getText())) {
-					return saveLinkChat(postChatDto, categoryUuid, customOAuth2User);
+					return saveLinkChat(postChatDto.getText(), categoryUuid, customOAuth2User);
 				} else {
-					return saveTextChat(postChatDto, categoryUuid, customOAuth2User);
+					return saveTextChat(postChatDto.getText(), categoryUuid, customOAuth2User);
 				}
 			});
 	}
 
-	private Mono<Void> saveLinkChat(PostChatDto dto, String categoryUuid, CustomOAuth2User customOAuth2User) {
+	@Override
+	public Mono<String> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User) {
+		return createDefaultCategory(customOAuth2User)
+			.flatMap(category -> {
+				String categoryUuid = category.getUuid();
+				Mono<Void> saveMono;
+				if (isLink(postChatTextDto.text())) {
+					saveMono = saveLinkChat(postChatTextDto.text(), categoryUuid, customOAuth2User);
+				} else {
+					saveMono = saveTextChat(postChatTextDto.text(), categoryUuid, customOAuth2User);
+				}
+				return saveMono.thenReturn(categoryUuid);
+			});
+	}
+
+	/**
+	 * 카테고리 없이 채팅 요청 시, 임의의 카테고리를 생성하고 UUID를 리턴.
+	 * 생성된 카테고리는 추후 사용자에게 이름과 색상을 선택하게 할 수 있다.
+	 */
+	private Mono<Category> createDefaultCategory(CustomOAuth2User user) {
+		return Mono.defer(() -> {
+			Category newCategory = Category.builder()
+				.uuid(UUID.randomUUID().toString())
+				.name("")
+				.color("")
+				.userUuid(user.getUserId())
+				.isPinned(false)
+				.build();
+
+			return categoryRepository.save(newCategory);
+		});
+	}
+
+	private Mono<Void> saveLinkChat(String text, String categoryUuid, CustomOAuth2User customOAuth2User) {
 		String chatUuid = UUID.randomUUID().toString();
 		String linkUuid = UUID.randomUUID().toString();
 
@@ -75,14 +110,14 @@ public class ChatServiceImplementation implements ChatService {
 			.uuid(linkUuid)
 			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(categoryUuid)
-			.url(dto.getText())
+			.url(text)
 			.build();
 
 		Chat chat = Chat.builder()
 			.uuid(chatUuid)
 			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(categoryUuid)
-			.data(dto.getText())
+			.data(text)
 			.refs(Chat.Refs.builder().linkUuid(linkUuid).build())
 			.build();
 
@@ -91,14 +126,14 @@ public class ChatServiceImplementation implements ChatService {
 			.then(); // Mono<Void>
 	}
 
-	private Mono<Void> saveTextChat(PostChatDto dto, String categoryUuid, CustomOAuth2User customOAuth2User) {
+	private Mono<Void> saveTextChat(String text, String categoryUuid, CustomOAuth2User customOAuth2User) {
 		String chatUuid = UUID.randomUUID().toString();
 
 		Chat chat = Chat.builder()
 			.uuid(chatUuid)
 			.userUuid(customOAuth2User.getUserId())
 			.categoryUuid(categoryUuid)
-			.data(dto.getText())
+			.data(text)
 			.build();
 
 		return chatRepository.save(chat).then();

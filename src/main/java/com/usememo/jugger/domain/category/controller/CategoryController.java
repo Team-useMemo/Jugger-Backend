@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +21,7 @@ import com.mongodb.client.result.UpdateResult;
 import com.usememo.jugger.domain.category.dto.DeleteResponse;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
+import com.usememo.jugger.domain.category.dto.PostCategoryWithUuidDto;
 import com.usememo.jugger.domain.category.dto.UpdateRequest;
 import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
@@ -51,6 +51,18 @@ public class CategoryController {
 		@AuthenticationPrincipal
 		CustomOAuth2User customOAuth2User) {
 		return categoryService.createCategory(postCategoryDto, customOAuth2User)
+			.map(savedCategory -> ResponseEntity
+				.status(HttpStatus.CREATED)
+				.body(savedCategory));
+	}
+
+	@Operation(summary = "[POST] 채팅방이 있는(카테고리 uuid가 있는) 상황에서 카테고리 생성")
+	@PostMapping("/withChatRoom")
+	public Mono<ResponseEntity<Category>> createCategoryWithUuid(
+		@RequestBody PostCategoryWithUuidDto postCategoryWithUuidDto,
+		@AuthenticationPrincipal
+		CustomOAuth2User customOAuth2User) {
+		return categoryService.createCategoryWithUuid(postCategoryWithUuidDto, customOAuth2User)
 			.map(savedCategory -> ResponseEntity
 				.status(HttpStatus.CREATED)
 				.body(savedCategory));
@@ -102,17 +114,17 @@ public class CategoryController {
 	@Operation(summary = "[DELETE] 카테고리 삭제")
 	@DeleteMapping("/delete/{categoryId}")
 	public Mono<ResponseEntity<DeleteResponse>> deleteCategory(@PathVariable String categoryId
-	,@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
-		return categoryService.deleteCategory(categoryId,customOAuth2User)
-			.map(c -> ResponseEntity.status(HttpStatus.OK).body(new DeleteResponse(200,"카테고리가 삭제되었습니다.")));
+		, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+		return categoryService.deleteCategory(categoryId, customOAuth2User)
+			.map(c -> ResponseEntity.status(HttpStatus.OK).body(new DeleteResponse(200, "카테고리가 삭제되었습니다.")));
 	}
 
 	@Operation(summary = "[PUT] 카테고리 수정")
 	@PutMapping("update")
 	public Mono<ResponseEntity<UpdateResponse>> updateCategory(@RequestBody UpdateRequest updateRequest,
-		@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
-		return categoryService.updateCategory(updateRequest,customOAuth2User)
-			.map(c->ResponseEntity.status(HttpStatus.OK).body(c));
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
+		return categoryService.updateCategory(updateRequest, customOAuth2User)
+			.map(c -> ResponseEntity.status(HttpStatus.OK).body(c));
 	}
 
 }

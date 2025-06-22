@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
+import com.usememo.jugger.domain.chat.dto.PostChatTextDto;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
@@ -16,6 +17,8 @@ public interface ChatService {
 	Mono<Void> processChat(PostChatDto postChatDto, CustomOAuth2User customOAuth2User);
 
 	Mono<Void> postChat(PostChatDto postChatDto, CustomOAuth2User customOAuth2User);
+
+	Mono<String> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User);
 
 	Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size,
 		CustomOAuth2User customOAuth2User);

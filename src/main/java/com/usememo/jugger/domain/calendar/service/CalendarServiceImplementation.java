@@ -28,7 +28,8 @@ public class CalendarServiceImplementation implements CalendarService {
 	private final CategoryRepository categoryRepository;
 
 	@Override
-	public Mono<Calendar> postCalendar(PostCalendarDto postCalendarDto, CustomOAuth2User customOAuth2User) {
+	public Mono<Calendar> postCalendar(PostCalendarDto postCalendarDto,
+		CustomOAuth2User customOAuth2User) {
 
 		String calendarUuid = UUID.randomUUID().toString();
 		Calendar calendar = Calendar.builder()
@@ -58,8 +59,9 @@ public class CalendarServiceImplementation implements CalendarService {
 	}
 
 	@Override
-	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end, CustomOAuth2User customOAuth2User) {
-		return calendarRepository.findByStartDateTimeBetween(start, end)
+	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end,
+		CustomOAuth2User customOAuth2User) {
+		return calendarRepository.findByUserUuidAndStartDateTimeBetween(customOAuth2User.getUserId(), start, end)
 			.flatMap(calendar ->
 				categoryRepository.findByUuid(calendar.getCategoryUuid())
 					.map(category -> GetCalendarDto.builder()
