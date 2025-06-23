@@ -14,6 +14,8 @@ import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.photo.dto.PhotoDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
+import com.usememo.jugger.global.exception.BaseException;
+import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.s3.S3UploadException;
 import com.usememo.jugger.global.s3.dto.FilesUploadResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
@@ -35,8 +37,17 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 	private String bucketName;
 
 	public Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId){
+		long MAX_COUNT = 5; //우선 아직 프론트 분들이랑 애기를 더 안나누고 설정해둔거라 빠르게 변경할 수 있을 것 같아서
+		//하드코딩입니다.
 		String userId = customOAuth2User.getUserId();
-		return files.flatMap(filePart -> {
+		return files
+			.index()
+			.flatMap(file -> {
+			long index = file.getT1();
+			FilePart filePart = file.getT2();
+			if(index >= MAX_COUNT){
+				return Mono.error(new BaseException(ErrorCode.UPLOAD_LIMIT));
+			}
 			PhotoDto photoDto = PhotoDto.builder()
 				.categoryId(categoryId)
 				.filePart(filePart)
