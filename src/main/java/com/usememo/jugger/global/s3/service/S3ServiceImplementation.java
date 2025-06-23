@@ -13,6 +13,7 @@ import com.usememo.jugger.domain.photo.dto.PhotoDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
 import com.usememo.jugger.global.exception.s3.S3UploadException;
+import com.usememo.jugger.global.utils.BaseTimeEntity;
 
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class S3ServiceImplementation implements S3Service {
+public class S3ServiceImplementation extends BaseTimeEntity implements S3Service {
 
 	private final S3Template s3Template;
 	private final PhotoRepository photoRepository;
@@ -74,9 +75,9 @@ public class S3ServiceImplementation implements S3Service {
 					.build();
 
 				return chatRepository.save(chat)
-					.thenReturn(true);  // Photo && Chat 모두 성공 → true
+					.thenReturn(true);
 			})
-			.onErrorResume(e -> Mono.just(false));  // Photo || Chat 실패 → false
+			.onErrorResume(e -> Mono.just(false));
 	}
 
 }

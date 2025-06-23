@@ -47,7 +47,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-@Tag(name = "Auth API", description = "로그인/로그아웃 API에 대한 설명입니다.")
+@Tag(name = "로그인 API", description = "로그인/로그아웃 API에 대한 설명입니다.")
 public class AuthController {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final UserRepository userRepository;
