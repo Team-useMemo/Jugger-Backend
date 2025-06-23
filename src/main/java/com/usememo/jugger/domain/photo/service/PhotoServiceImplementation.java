@@ -19,10 +19,10 @@ public class PhotoServiceImplementation implements PhotoService {
 	private final CategoryRepository categoryRepository;
 
 	public Flux<GetPhotoDto> getPhotoDto(GetPhotoRequestDto photoRequestDto, CustomOAuth2User customOAuth2User) {
-		return categoryRepository.findByUuid(photoRequestDto.getCategoryUuid())
+		return categoryRepository.findByUuid(photoRequestDto.getCategoryId())
 			.flatMapMany(category ->
 				photoRepository
-					.findByUserUuidAndCategoryUuid(customOAuth2User.getUserId(), photoRequestDto.getCategoryUuid())
+					.findByUserUuidAndCategoryUuid(customOAuth2User.getUserId(), photoRequestDto.getCategoryId())
 					.map(photo -> GetPhotoDto.builder()
 						.url(photo.getUrl())
 						.categoryName(category.getName())

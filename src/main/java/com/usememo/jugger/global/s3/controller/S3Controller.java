@@ -31,12 +31,12 @@ public class S3Controller {
 	@PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public Mono<ResponseEntity<String>> upload(
 		@RequestPart("file") FilePart file,
-		@RequestPart("category_uuid") String categoryUuid,
+		@RequestPart("category_uuid") String categoryId,
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
 	) {
 		PhotoDto dto = PhotoDto.builder()
-			.user_uuid(customOAuth2User.getUserId())
-			.category_uuid(categoryUuid)
+			.userId(customOAuth2User.getUserId())
+			.categoryId(categoryId)
 			.filePart(file)
 			.build();
 

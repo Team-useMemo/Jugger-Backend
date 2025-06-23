@@ -39,7 +39,7 @@ public class S3ServiceImplementation implements S3Service {
 					s3Template.upload(bucketName, newFileName, inputStream);
 					String saveUrl = "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/" + newFileName;
 
-					return savePhoto(saveUrl, photoDto.getUser_uuid(), photoDto.getCategory_uuid())
+					return savePhoto(saveUrl, photoDto.getUserId(), photoDto.getCategoryId())
 						.flatMap(success -> {
 							if (success) {
 								return Mono.just(saveUrl);
