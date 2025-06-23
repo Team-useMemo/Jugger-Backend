@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/user")
-@Tag(name = "User API", description = "회원정보 수정 및 회원탈퇴 API에 대한 설명입니다.")
+@Tag(name = "유저 API", description = "회원정보 수정 및 회원탈퇴 API에 대한 설명입니다.")
 public class UserController {
 
 	private final KakaoOAuthService kakaoOAuthService;
