@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import com.usememo.jugger.domain.chat.entity.Chat;
@@ -13,10 +15,13 @@ import com.usememo.jugger.domain.photo.dto.PhotoDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
 import com.usememo.jugger.global.exception.s3.S3UploadException;
+import com.usememo.jugger.global.s3.dto.FilesUploadResponse;
+import com.usememo.jugger.global.security.CustomOAuth2User;
 import com.usememo.jugger.global.utils.BaseTimeEntity;
 
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -28,6 +33,20 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 	private final ChatRepository chatRepository;
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucketName;
+
+	public Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId){
+		String userId = customOAuth2User.getUserId();
+		return files.flatMap(filePart -> {
+			PhotoDto photoDto = PhotoDto.builder()
+				.categoryId(categoryId)
+				.filePart(filePart)
+				.userId(userId)
+				.build();
+			return uploadFile(photoDto);
+		}).collectList()
+			.map(urls ->  FilesUploadResponse.of(200,"이미지 업로드에 성공하였습니다.",urls));
+	}
+
 
 	public Mono<String> uploadFile(PhotoDto photoDto) {
 		String originalFilename = photoDto.getFilePart().filename();
