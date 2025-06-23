@@ -42,7 +42,9 @@ public enum ErrorCode {
 	JWT_BUNDLE_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 426, "JWT 번들 생성 실패"),
 
 	NO_LOGOUT_USER(BAD_REQUEST,404,"존재하지 않는 refresh token입니다."),
-	WRONG_LOGOUT(BAD_REQUEST,404,"로그아웃에 실패하였습니다.");
+	WRONG_LOGOUT(BAD_REQUEST,404,"로그아웃에 실패하였습니다."),
+
+	DELETE_ERROR(BAD_REQUEST,404,"전체 게시글 삭제에 문제가 발생하였습니다.");
 
 	private final HttpStatus httpStatus;
 	private final int code;
