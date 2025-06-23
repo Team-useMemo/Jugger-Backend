@@ -10,5 +10,5 @@ import reactor.core.publisher.Mono;
 public interface PhotoRepository extends ReactiveMongoRepository<Photo, String> {
 	Flux<Photo> findByUserUuidAndCategoryUuid(String userUuid, String categoryUuid);
 
-	Mono<Photo> deleteByUserUuid(String userId);
+	Mono<Void> deleteByUserUuid(String userId);
 }

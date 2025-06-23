@@ -3,6 +3,8 @@ package com.usememo.jugger.domain.photo.dto;
 import java.time.Instant;
 import java.util.List;
 
+import com.usememo.jugger.domain.photo.entity.Photo;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,4 +14,6 @@ public class GetPhotoDto {
 	private String url;
 	private String categoryName;
 	private Instant timestamp;
+
+
 }

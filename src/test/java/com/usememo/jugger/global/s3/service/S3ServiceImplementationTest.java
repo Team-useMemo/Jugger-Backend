@@ -17,9 +17,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.photo.dto.PhotoDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
+import com.usememo.jugger.global.exception.BaseException;
+import com.usememo.jugger.global.utils.BaseTimeEntity;
 
 class S3ServiceImplementationTest {
 
@@ -29,7 +32,10 @@ class S3ServiceImplementationTest {
 		// given
 		S3Template s3Template = mock(S3Template.class);
 		PhotoRepository photoRepository = mock(PhotoRepository.class);
-		S3ServiceImplementation s3ServiceImplementation = new S3ServiceImplementation(s3Template, photoRepository);
+		BaseTimeEntity baseTimeEntity = mock(BaseTimeEntity.class);
+		ChatRepository chatRepository = mock(ChatRepository.class);
+		S3ServiceImplementation s3ServiceImplementation = new S3ServiceImplementation(s3Template, photoRepository
+		,chatRepository);
 
 		String testBucketName = "jugger-bucket";
 		ReflectionTestUtils.setField(s3ServiceImplementation, "bucketName", testBucketName);
@@ -53,8 +59,8 @@ class S3ServiceImplementationTest {
 		// when & then
 		StepVerifier.create(s3ServiceImplementation.uploadFile(
 				PhotoDto.builder()
-					.category_uuid(category_uuid)
-					.user_uuid(user_uuid)
+					.categoryId(category_uuid)
+					.userId(user_uuid)
 					.filePart(filePart)
 					.build()))
 			.assertNext(url -> {
