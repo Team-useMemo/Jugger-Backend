@@ -170,4 +170,9 @@ public class KakaoOAuthService {
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN)));
 	}
 
+	public Mono<Void> deleteUser(String userId){
+		return refreshTokenRepository.deleteByUserId(userId)
+			.then(userRepository.deleteById(userId))
+			.onErrorResume(e->Mono.error(new BaseException(ErrorCode.KAKAO_USER_NOT_FOUND)));
+	}
 }
