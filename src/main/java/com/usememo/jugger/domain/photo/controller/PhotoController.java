@@ -29,7 +29,7 @@ public class PhotoController {
 	public Flux<GetPhotoDto> getPhotos(
 		@RequestParam String category_uuid, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return photoService.getPhotoDto(GetPhotoRequestDto.builder()
-			.categoryUuid(category_uuid)
+			.categoryId(category_uuid)
 			.build(), customOAuth2User);
 	}
 }

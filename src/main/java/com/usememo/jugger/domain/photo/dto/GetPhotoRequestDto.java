@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @Builder
 public class GetPhotoRequestDto {
-	private String categoryUuid;
+	private String categoryId;
 }

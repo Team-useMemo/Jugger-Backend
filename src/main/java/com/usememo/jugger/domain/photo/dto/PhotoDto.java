@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 @Data
 public class PhotoDto {
-	private String user_uuid;
-	private String category_uuid;
+	private String userId;
+	private String categoryId;
 	private FilePart filePart;
 }
