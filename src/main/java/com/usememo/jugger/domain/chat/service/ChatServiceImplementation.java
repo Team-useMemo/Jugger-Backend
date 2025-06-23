@@ -24,6 +24,8 @@ import com.usememo.jugger.domain.link.entity.Link;
 import com.usememo.jugger.domain.link.repository.LinkRepository;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
+import com.usememo.jugger.global.exception.BaseException;
+import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.chat.CategoryNullException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
@@ -283,5 +285,17 @@ public class ChatServiceImplementation implements ChatService {
 		return chatRepository.findFirstByCategoryUuidOrderByCreatedAtDesc(categoryId);
 	}
 
+	@Override
+	public Mono<Void> deleteAllChats(CustomOAuth2User customOAuth2User){
+		String userId = customOAuth2User.getUserId();
+
+		return Mono.when(
+			chatRepository.deleteByUserUuid(userId),
+			calendarRepository.deleteByUserUuid(userId),
+			categoryRepository.deleteByUserUuid(userId),
+			photoRepository.deleteByUserUuid(userId),
+			linkRepository.deleteByUserUuid(userId)
+			).onErrorResume(e->  Mono.error(new BaseException(ErrorCode.DELETE_ERROR)));
+	}
 }
 

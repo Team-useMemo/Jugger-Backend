@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.usememo.jugger.domain.chat.dto.DeleteResponse;
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
 import com.usememo.jugger.domain.chat.dto.PostChatTextDto;
@@ -73,5 +75,13 @@ public class ChatController {
 		return chatService.getChatsAfter(after, page, size, customOAuth2User)
 			.map(list -> ResponseEntity.ok().body(list));
 
+	}
+
+
+	@Operation(summary = "[DELETE] 전체 채팅 삭제")
+	@DeleteMapping("/all")
+	public Mono<ResponseEntity<DeleteResponse>> deleteAll(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+		return chatService.deleteAllChats(customOAuth2User)
+			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new DeleteResponse(200,"전체 메모가 삭제되었습니다."))));
 	}
 }

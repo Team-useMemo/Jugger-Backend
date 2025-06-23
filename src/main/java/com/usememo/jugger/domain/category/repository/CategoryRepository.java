@@ -16,4 +16,6 @@ public interface CategoryRepository extends ReactiveMongoRepository<Category, St
 	Flux<Category> findAllByUserUuidOrderByUpdatedAtDesc(String userId);
 
 	Mono<Void> deleteByUuid(String categoryId);
+
+	Mono<Void> deleteByUserUuid(String userId);
 }

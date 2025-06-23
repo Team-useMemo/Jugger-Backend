@@ -31,4 +31,6 @@ public interface ChatService {
 	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(String categoryId, Instant after, int page, int size);
 
 	Mono<Chat> getLatestChatByCategoryId(String categoryId);
+
+	Mono<Void> deleteAllChats(CustomOAuth2User customOAuth2User);
 }

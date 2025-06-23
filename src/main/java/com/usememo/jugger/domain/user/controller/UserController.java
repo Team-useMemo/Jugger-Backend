@@ -27,7 +27,7 @@ public class UserController {
 
 	@Operation(summary = "[DELETE] 회원탈퇴")
 	@DeleteMapping("/signout")
-	public Mono<ResponseEntity<?>> deleteUser(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+	public Mono<ResponseEntity<KakaoLogoutResponse>> deleteUser(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
 		return kakaoOAuthService.deleteUser(customOAuth2User.getUserId())
 			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new KakaoLogoutResponse(200,"회원탈퇴에 성공하였습니다."))));
 	}
