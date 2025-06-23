@@ -37,8 +37,8 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 	private String bucketName;
 
 	public Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId){
-		long MAX_COUNT = 5; //우선 아직 프론트 분들이랑 애기를 더 안나누고 설정해둔거라 빠르게 변경할 수 있을 것 같아서
-		//하드코딩입니다.
+		long MAX_COUNT = 5;
+
 		String userId = customOAuth2User.getUserId();
 		return files
 			.index()
