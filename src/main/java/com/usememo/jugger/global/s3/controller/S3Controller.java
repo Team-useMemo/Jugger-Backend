@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.photo.dto.PhotoDto;
+import com.usememo.jugger.global.s3.dto.FileUploadResponse;
+import com.usememo.jugger.global.s3.dto.FilesUploadResponse;
 import com.usememo.jugger.global.s3.service.S3Service;
 import com.usememo.jugger.global.s3.service.S3ServiceImplementation;
 import com.usememo.jugger.global.security.CustomOAuth2User;
@@ -18,6 +20,7 @@ import com.usememo.jugger.global.security.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -27,9 +30,9 @@ import reactor.core.publisher.Mono;
 public class S3Controller {
 	private final S3Service s3Service;
 
-	@Operation(description = "[POST] 이미지 업로드")
-	@PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public Mono<ResponseEntity<String>> upload(
+	@Operation(summary = "[POST] 이미지 업로드")
+	@PostMapping(value = "/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public Mono<ResponseEntity<FileUploadResponse>> upload(
 		@RequestPart("file") FilePart file,
 		@RequestPart("categoryId") String categoryId,
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
@@ -41,6 +44,17 @@ public class S3Controller {
 			.build();
 
 		return s3Service.uploadFile(dto)
-			.map(url -> ResponseEntity.ok(url));
+			.map(url -> ResponseEntity.ok().body(new FileUploadResponse(200,"이미지가 업로드되었습니다.",url)));
 	}
+
+
+	@Operation(summary = "[POST] 이미지 여러 장 업로드")
+	@PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public Mono<ResponseEntity<FilesUploadResponse>> uploadPhotos( @AuthenticationPrincipal CustomOAuth2User customOAuth2User, @RequestPart("files") Flux<FilePart> files,
+		@RequestPart("categoryId") String categoryId
+	){
+		return s3Service.uploadFiles(files,customOAuth2User,categoryId)
+			.map(ans ->  ResponseEntity.ok().body(ans));
+	}
+
 }
