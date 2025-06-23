@@ -79,7 +79,7 @@ public class ChatController {
 
 
 	@Operation(summary = "[DELETE] 전체 채팅 삭제")
-	@DeleteMapping()
+	@DeleteMapping("/all")
 	public Mono<ResponseEntity<DeleteResponse>> deleteAll(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
 		return chatService.deleteAllChats(customOAuth2User)
 			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new DeleteResponse(200,"전체 메모가 삭제되었습니다."))));
