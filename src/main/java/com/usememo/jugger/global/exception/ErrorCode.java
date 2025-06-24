@@ -36,13 +36,6 @@ public enum ErrorCode {
 
 	DUPLICATE_USER(BAD_REQUEST,428,"중복된 회원정보입니다."),
 
-
-	GOOGLE_LOGIN_FAIL(BAD_REQUEST,404,"로그인에 실패하였습니다."),
-	GOOGLE_NO_EMAIL(BAD_REQUEST,404,"이메일이 존재하지 않습니다."),
-	GOOGLE_USER_NOT_FOUND(BAD_REQUEST,404,"구글 유저가 존재하지 않습니다."),
-	GOOGLE_NO_NAME(BAD_REQUEST,404,"이름이 존재하지 않습니다."),
-
-
 	JWT_KEY_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 422, "JWT 키 생성에 실패했습니다."),
 	JWT_ACCESS_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 423, "액세스 토큰 생성 실패"),
 	JWT_REFRESH_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 424, "리프레시 토큰 생성 실패"),

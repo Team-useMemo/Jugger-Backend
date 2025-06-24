@@ -33,13 +33,7 @@ jobs:
           # 공통 Kakao 설정
           echo "kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }}" >> src/main/resources/application.properties
           echo "kakao.client-secret=${{ secrets.KAKAO_SECRET }}" >> src/main/resources/application.properties
-          
-          # 공통 Google 설정
-          echo "google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}" >> src/main/resources/application.properties
-          echo "google.client-secret=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> src/main/resources/application.properties
-          echo "google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URL }}" >> src/main/resources/application.properties
-          echo "google.scope=email profile" >> src/main/resources/application.properties
-                  
+
           # 브랜치에 따라 redirect-uri만 분기
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}" >> src/main/resources/application.properties
