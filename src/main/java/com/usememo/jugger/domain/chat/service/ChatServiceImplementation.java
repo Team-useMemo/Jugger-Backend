@@ -257,6 +257,7 @@ public class ChatServiceImplementation implements ChatService {
 										Link link = tuple.getT3();
 
 										return GetChatByCategoryDto.ChatItem.builder()
+											.chatId(chat.getId())
 											.data(chat.getData())
 											.scheduleName(calendar.getTitle())
 											.scheduleStartDate(calendar.getStartDateTime())
@@ -297,5 +298,27 @@ public class ChatServiceImplementation implements ChatService {
 			linkRepository.deleteByUserUuid(userId)
 			).onErrorResume(e->  Mono.error(new BaseException(ErrorCode.DELETE_ERROR)));
 	}
+
+	@Override
+	public Mono<Void> changeChat(CustomOAuth2User customOAuth2User, String chatId, String text) {
+		String userId = customOAuth2User.getUserId();
+
+		return chatRepository.findByUuidAndUserUuid(chatId, userId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
+			.flatMap(chat -> {
+				chat.setData(text);
+				return chatRepository.save(chat);
+			})
+			.then();
+	}
+
+	@Override
+	public Mono<Void> deleteSingleChat(CustomOAuth2User customOAuth2User, String chatId){
+		String userId = customOAuth2User.getUserId();
+
+		return chatRepository.deleteByUuidAndUserUuid(chatId,userId)
+			.then();
+	}
+
 }
 

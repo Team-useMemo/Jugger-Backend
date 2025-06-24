@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 @Document(collection = "chats")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +24,7 @@ public class Chat extends BaseTimeEntity implements Persistable<String> {
 	private String userUuid;
 
 	private String categoryUuid;
+	@Setter
 	private String data;
 	private Refs refs;
 
