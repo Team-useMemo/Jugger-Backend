@@ -24,4 +24,8 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
 
 	Mono<Void> deleteByUserUuid(String userId);
 
+	Mono<Chat> findByUuidAndUserUuid(String chatId, String userId);
+
+	Mono<Void> deleteByUuidAndUserUuid(String chatId,String userId);
+
 }

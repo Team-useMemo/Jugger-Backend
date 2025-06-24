@@ -33,4 +33,8 @@ public interface ChatService {
 	Mono<Chat> getLatestChatByCategoryId(String categoryId);
 
 	Mono<Void> deleteAllChats(CustomOAuth2User customOAuth2User);
+
+	Mono<Void> changeChat(CustomOAuth2User customOAuth2User, String chatId, String text);
+
+	Mono<Void> deleteSingleChat(CustomOAuth2User customOAuth2User, String chatId);
 }

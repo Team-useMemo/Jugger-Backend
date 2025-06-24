@@ -24,7 +24,8 @@ public class GetChatByCategoryDto {
 	@Data
 	@Builder
 	public static class ChatItem {
-
+		@Schema(description = "채팅 id")
+		private String chatId;
 		@Schema(description = "채팅 텍스트")
 		private String data;
 		@Schema(description = "이미지 URL")

@@ -8,13 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.usememo.jugger.domain.chat.dto.DeleteResponse;
+import com.usememo.jugger.domain.chat.dto.ChatResponse;
 import com.usememo.jugger.domain.chat.dto.GetChatByCategoryDto;
 import com.usememo.jugger.domain.chat.dto.PostChatDto;
 import com.usememo.jugger.domain.chat.dto.PostChatTextDto;
@@ -80,8 +81,25 @@ public class ChatController {
 
 	@Operation(summary = "[DELETE] 전체 채팅 삭제")
 	@DeleteMapping("/all")
-	public Mono<ResponseEntity<DeleteResponse>> deleteAll(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+	public Mono<ResponseEntity<ChatResponse>> deleteAll(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
 		return chatService.deleteAllChats(customOAuth2User)
-			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new DeleteResponse(200,"전체 메모가 삭제되었습니다."))));
+			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new ChatResponse(200,"전체 메모가 삭제되었습니다."))));
+	}
+
+
+	@Operation(summary = "[PATCH] 채팅 내용 수정",description = "텍스트로 된 채팅 내용 수정")
+	@PatchMapping()
+	public Mono<ResponseEntity<ChatResponse>> patchChat(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, @RequestParam String chatId,@RequestParam String text){
+		return chatService.changeChat(customOAuth2User,chatId,text)
+			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new ChatResponse(200,"채팅 내용을 수정하였습니다."))));
+	}
+
+
+	@Operation(summary = "[DELETE] 채팅 삭제")
+	@DeleteMapping()
+	public Mono<ResponseEntity<ChatResponse>> deleteChat(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,@RequestParam String chatId){
+
+		return chatService.deleteSingleChat(customOAuth2User,chatId)
+			.then(Mono.fromCallable(()->ResponseEntity.ok().body(new ChatResponse(200,"채팅이 삭제되었습니다."))));
 	}
 }
