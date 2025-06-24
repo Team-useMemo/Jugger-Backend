@@ -37,16 +37,17 @@ jobs:
           # 공통 Google 설정
           echo "google.client-id=${{ secrets.GOOGLE_CLIENT_ID }}" >> src/main/resources/application.properties
           echo "google.client-secret=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> src/main/resources/application.properties
-          echo "google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URL }}" >> src/main/resources/application.properties
           echo "google.scope=email profile" >> src/main/resources/application.properties
                   
           # 브랜치에 따라 redirect-uri만 분기
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}" >> src/main/resources/application.properties
             echo "master.id=${{ secrets.MASTER_ID }}" >> src/main/resources/application.properties
+            echo "google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URL }}" >> src/main/resources/application.properties
           else
             echo "kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> src/main/resources/application.properties
             echo "master.id=${{ secrets.MASTER_ID_DEV }}" >> src/main/resources/application.properties
+            echo "google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URL_DEV }}" >> src/main/resources/application.properties
           fi
         shell: bash
 
