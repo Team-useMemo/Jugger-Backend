@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.apache.el.parser.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -26,6 +27,8 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 import com.usememo.jugger.global.security.JwtTokenProvider;
+import com.usememo.jugger.global.security.token.domain.GoogleLoginRequest;
+import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
 import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
 
 import com.usememo.jugger.global.security.token.domain.KakaoLogoutResponse;
@@ -37,6 +40,7 @@ import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
 import com.usememo.jugger.global.security.token.domain.RefreshTokenRequest;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
+import com.usememo.jugger.global.security.token.service.GoogleOAuthService;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,10 +53,10 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/auth")
 @Tag(name = "로그인 API", description = "로그인/로그아웃 API에 대한 설명입니다.")
 public class AuthController {
-	private final RefreshTokenRepository refreshTokenRepository;
-	private final UserRepository userRepository;
-	private final JwtTokenProvider jwtTokenProvider;
+
 	private final KakaoOAuthService kakaoService;
+	private final GoogleOAuthService googleOAuthService;
+
 
 	@Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
 	@PostMapping(value = "/refresh")
@@ -82,12 +86,27 @@ public class AuthController {
 			.map(token -> ResponseEntity.ok().body(token));
 	}
 
-	@Operation(summary = "[POST] 회원가입")
+	@Operation(summary = "[POST] 카카오 회원가입")
 	@PostMapping("/kakao/signup")
 	public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
 		return kakaoService.signUpKakao(kakaoSignUpRequest)
 			.map(token -> ResponseEntity.ok().body(token));
 
+	}
+
+	@Operation(summary = "[POST] 구글 로그인")
+	@PostMapping("/google")
+	public Mono<ResponseEntity<TokenResponse>> loginByGoogle(@RequestBody GoogleLoginRequest googleLoginRequest){
+		return googleOAuthService.loginWithGoogle(googleLoginRequest.code())
+			.map(token -> ResponseEntity.ok().body(token));
+	}
+
+
+	@Operation(summary = "[POST] 구글 회원가입")
+	@PostMapping("/google/signup")
+	public Mono<ResponseEntity<TokenResponse>> signUpGoogle(@RequestBody GoogleSignupRequest googleSignupRequest){
+		return googleOAuthService.signUpGoogle(googleSignupRequest)
+			.map(token-> ResponseEntity.ok().body(token));
 	}
 
 }
