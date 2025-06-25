@@ -24,22 +24,20 @@ import reactor.core.publisher.Flux;
 public class PhotoServiceImplementation implements PhotoService {
 
 	private final PhotoRepository photoRepository;
-	private final CategoryRepository categoryRepository;
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
 
 	@Override
 	public Flux<GetPhotoDto> getPhotoDto(GetPhotoRequestDto photoRequestDto, CustomOAuth2User customOAuth2User) {
-		return categoryRepository.findByUuid(photoRequestDto.getCategoryId())
-			.flatMapMany(category ->
-				photoRepository
+		return photoRepository
 					.findByUserUuidAndCategoryUuid(customOAuth2User.getUserId(), photoRequestDto.getCategoryId())
 					.map(photo -> GetPhotoDto.builder()
 						.url(photo.getUrl())
-						.categoryName(category.getName())
+						.categoryId(photo.getCategoryUuid())
+						.description(photo.getDescription())
 						.timestamp(photo.getCreatedAt())
-						.build())
-			);
+						.build());
 	}
+
 	@Override
 	public Flux<GetPhotoDto> getPhotoDuration(Instant before, int page, int size, CustomOAuth2User customOAuth2User){
 		String userId = customOAuth2User.getUserId();
@@ -51,16 +49,14 @@ public class PhotoServiceImplementation implements PhotoService {
 			.skip((long) page * size)
 			.limit(size);
 
-		return reactiveMongoTemplate.findAll(Category.class)
-			.collectMap(Category::getUuid, Category::getName)
-			.flatMapMany(categoryMap ->
-				reactiveMongoTemplate.find(query, Photo.class)
+		return reactiveMongoTemplate.find(query, Photo.class)
 					.map(photo -> GetPhotoDto.builder()
 						.url(photo.getUrl())
-						.categoryName(categoryMap.getOrDefault(photo.getCategoryUuid(), "미지정"))
+						.description(photo.getDescription())
+						.categoryId(photo.getCategoryUuid())
 						.timestamp(photo.getUpdatedAt())
-						.build())
-			);
+						.build());
+
 	}
 
 }

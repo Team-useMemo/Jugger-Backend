@@ -12,7 +12,8 @@ import lombok.Data;
 @Builder
 public class GetPhotoDto {
 	private String url;
-	private String categoryName;
+	private String categoryId;
+	private String description;
 	private Instant timestamp;
 
 
