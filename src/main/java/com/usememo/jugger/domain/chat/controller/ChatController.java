@@ -83,7 +83,7 @@ public class ChatController {
 	@DeleteMapping("/all")
 	public Mono<ResponseEntity<ChatResponse>> deleteAll(@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
 		return chatService.deleteAllChats(customOAuth2User)
-			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new ChatResponse(200,"전체 메모가 삭제되었습니다."))));
+			.thenReturn(ResponseEntity.ok().body(new ChatResponse(200,"전체 메모가 삭제되었습니다.")));
 	}
 
 
@@ -91,7 +91,7 @@ public class ChatController {
 	@PatchMapping()
 	public Mono<ResponseEntity<ChatResponse>> patchChat(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, @RequestParam String chatId,@RequestParam String text){
 		return chatService.changeChat(customOAuth2User,chatId,text)
-			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new ChatResponse(200,"채팅 내용을 수정하였습니다."))));
+			.thenReturn(ResponseEntity.ok().body(new ChatResponse(200,"채팅 내용을 수정하였습니다.")));
 	}
 
 
@@ -100,6 +100,16 @@ public class ChatController {
 	public Mono<ResponseEntity<ChatResponse>> deleteChat(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,@RequestParam String chatId){
 
 		return chatService.deleteSingleChat(customOAuth2User,chatId)
-			.then(Mono.fromCallable(()->ResponseEntity.ok().body(new ChatResponse(200,"채팅이 삭제되었습니다."))));
+			.thenReturn(ResponseEntity.ok().body(new ChatResponse(200,"채팅이 삭제되었습니다.")));
 	}
+
+
+	@Operation(summary = "[PATCH] 채팅 카테고리 변경",description = "채팅의 카테고리를 변경하는데 사용하는 메소드입니다.")
+	@PatchMapping("/category")
+	public Mono<ResponseEntity<ChatResponse>> patchChatCategory(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, @RequestParam String chatId, @RequestParam String newCategoryId){
+
+		return chatService.changeCategory(customOAuth2User, chatId, newCategoryId)
+			.thenReturn(ResponseEntity.ok().body(new ChatResponse(200,"카테고리가 변경되었습니다.")));
+	}
+
 }

@@ -11,4 +11,5 @@ public class PhotoDto {
 	private String userId;
 	private String categoryId;
 	private FilePart filePart;
+	private String description;
 }

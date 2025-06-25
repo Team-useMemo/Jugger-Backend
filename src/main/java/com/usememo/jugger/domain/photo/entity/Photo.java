@@ -29,6 +29,9 @@ public class Photo extends BaseTimeEntity {
 	@Field("category_uuid")
 	private String categoryUuid;
 
+	@Field("description")
+	private String description;
+
 	public Photo() {
 	}
 

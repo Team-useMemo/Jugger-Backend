@@ -70,7 +70,7 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 					s3Template.upload(bucketName, newFileName, inputStream);
 					String saveUrl = "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/" + newFileName;
 
-					return savePhoto(saveUrl, photoDto.getUserId(), photoDto.getCategoryId())
+					return savePhoto(saveUrl, photoDto.getUserId(), photoDto.getCategoryId(),photoDto.getDescription())
 						.flatMap(success -> {
 							if (success) {
 								return Mono.just(saveUrl);
@@ -84,11 +84,18 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 			});
 	}
 
-	private Mono<Boolean> savePhoto(String saveUrl, String userUuid, String categoryUuid) {
+	private Mono<Boolean> savePhoto(String saveUrl, String userUuid, String categoryUuid,String description) {
+		String realDes = description;
+
+		if(description == null){
+			realDes = "";
+		}
+
 		Photo photo = Photo.builder()
 			.photoUuid(UUID.randomUUID().toString())
 			.url(saveUrl)
 			.userUuid(userUuid)
+			.description(realDes)
 			.categoryUuid(categoryUuid)
 			.build();
 
@@ -98,7 +105,7 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 					.uuid(UUID.randomUUID().toString())
 					.userUuid(userUuid)
 					.categoryUuid(categoryUuid)
-					.data(null)
+					.data(savedPhoto.getDescription())
 					.refs(Chat.Refs.builder()
 						.photoUuid(savedPhoto.getPhotoUuid())
 						.build())

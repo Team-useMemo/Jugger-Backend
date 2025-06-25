@@ -31,12 +31,12 @@ public class GetChatByCategoryDto {
 		private String type;
 		@Schema(description = "채팅 텍스트")
 		private String content;
-		// @Schema(description = "이미지 URL")
-		// private String imgUrl;
-		// @Schema(description = "링크 URL")
-		// private String linkUrl;
-		// @Schema(description = "일정 제목")
-		// private String scheduleName;
+		@Schema(description = "이미지 URL")
+		private String imgUrl;
+		@Schema(description = "링크 URL")
+		private String linkUrl;
+		@Schema(description = "일정 제목")
+		private String scheduleName;
 		@Schema(description = "일정 시작 날짜")
 		private Instant scheduleStartDate;
 		@Schema(description = "일정 종료 날짜")

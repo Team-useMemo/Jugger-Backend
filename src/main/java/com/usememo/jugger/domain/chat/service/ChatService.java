@@ -26,15 +26,17 @@ public interface ChatService {
 	Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size,
 		CustomOAuth2User customOAuth2User);
 
-	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(String categoryId, Instant before, int page, int size);
+	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User, String categoryId, Instant before, int page, int size);
 
-	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(String categoryId, Instant after, int page, int size);
+	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(CustomOAuth2User customOAuth2User, String categoryId, Instant after, int page, int size);
 
-	Mono<Chat> getLatestChatByCategoryId(String categoryId);
+	Mono<Chat> getLatestChatByCategoryId(CustomOAuth2User customOAuth2User,String categoryId);
 
 	Mono<Void> deleteAllChats(CustomOAuth2User customOAuth2User);
 
 	Mono<Void> changeChat(CustomOAuth2User customOAuth2User, String chatId, String text);
 
 	Mono<Void> deleteSingleChat(CustomOAuth2User customOAuth2User, String chatId);
+
+	Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId);
 }

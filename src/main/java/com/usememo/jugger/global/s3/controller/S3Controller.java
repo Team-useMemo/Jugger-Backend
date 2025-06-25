@@ -35,12 +35,14 @@ public class S3Controller {
 	public Mono<ResponseEntity<FileUploadResponse>> upload(
 		@RequestPart("file") FilePart file,
 		@RequestPart("categoryId") String categoryId,
+		@RequestPart("description") String description,
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
 	) {
 		PhotoDto dto = PhotoDto.builder()
 			.userId(customOAuth2User.getUserId())
 			.categoryId(categoryId)
 			.filePart(file)
+			.description(description)
 			.build();
 
 		return s3Service.uploadFile(dto)
@@ -50,8 +52,10 @@ public class S3Controller {
 
 	@Operation(summary = "[POST] 이미지 여러 장 업로드")
 	@PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public Mono<ResponseEntity<FilesUploadResponse>> uploadPhotos( @AuthenticationPrincipal CustomOAuth2User customOAuth2User, @RequestPart("files") Flux<FilePart> files,
-		@RequestPart("categoryId") String categoryId
+	public Mono<ResponseEntity<FilesUploadResponse>> uploadPhotos( @AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+		@RequestPart("files") Flux<FilePart> files,
+		@RequestPart("categoryId") String categoryId,
+		@RequestPart("description") String description
 	){
 		return s3Service.uploadFiles(files,customOAuth2User,categoryId)
 			.map(ans ->  ResponseEntity.ok().body(ans));
