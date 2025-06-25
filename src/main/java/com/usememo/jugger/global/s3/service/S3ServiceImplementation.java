@@ -36,7 +36,7 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucketName;
 
-	public Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId){
+	public Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId, String description){
 		long MAX_COUNT = 5;
 
 		String userId = customOAuth2User.getUserId();
@@ -52,6 +52,7 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 				.categoryId(categoryId)
 				.filePart(filePart)
 				.userId(userId)
+				.description(description)
 				.build();
 			return uploadFile(photoDto);
 		}).collectList()

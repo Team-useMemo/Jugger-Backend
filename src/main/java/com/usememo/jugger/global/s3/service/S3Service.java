@@ -12,5 +12,5 @@ import reactor.core.publisher.Mono;
 public interface S3Service {
 	Mono<String> uploadFile(PhotoDto photoDto);
 
-	Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId);
+	Mono<FilesUploadResponse> uploadFiles(Flux<FilePart> files, CustomOAuth2User customOAuth2User, String categoryId,String description);
 }
