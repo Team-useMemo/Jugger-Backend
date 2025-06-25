@@ -57,7 +57,7 @@ public class S3Controller {
 		@RequestPart("categoryId") String categoryId,
 		@RequestPart("description") String description
 	){
-		return s3Service.uploadFiles(files,customOAuth2User,categoryId)
+		return s3Service.uploadFiles(files,customOAuth2User,categoryId,description)
 			.map(ans ->  ResponseEntity.ok().body(ans));
 	}
 

@@ -7,10 +7,11 @@ import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
-import com.usememo.jugger.domain.photo.dto.GetPhotoDto;
+import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
@@ -31,7 +32,8 @@ class PhotoServiceImplementationTest {
 		// given
 		PhotoRepository photoRepository = mock(PhotoRepository.class);
 		CategoryRepository categoryRepository = mock(CategoryRepository.class);
-		PhotoServiceImplementation photoService = new PhotoServiceImplementation(photoRepository, categoryRepository);
+		ReactiveMongoTemplate reactiveMongoTemplate = mock(ReactiveMongoTemplate.class);
+		PhotoServiceImplementation photoService = new PhotoServiceImplementation(photoRepository,reactiveMongoTemplate);
 
 		String userUuid = "123456789a";
 		String categoryUuid = "여행";
@@ -42,8 +44,8 @@ class PhotoServiceImplementationTest {
 		Photo photo1 = Photo.builder().url(url1).build();
 		Photo photo2 = Photo.builder().url(url2).build();
 
-		String categoryName = "여행";
-		Category mockCategoty = Category.builder().name(categoryName).build();
+		String categoryId = "123";
+		Category mockCategoty = Category.builder().uuid(categoryId).build();
 
 		when(categoryRepository.findByUuid(categoryUuid)).thenReturn(Mono.just(mockCategoty));
 
@@ -51,16 +53,16 @@ class PhotoServiceImplementationTest {
 			.thenReturn(Flux.just(photo1, photo2));
 
 		GetPhotoRequestDto requestDto = GetPhotoRequestDto.builder()
-			.categoryUuid(categoryUuid)
+			.categoryId(categoryUuid)
 			.build();
 
 		// when
-		Flux<GetPhotoDto> result = photoService.getPhotoDto(requestDto, customOAuth2User);
+		Flux<PhotoResponse> result = photoService.getPhotoDto(requestDto, customOAuth2User);
 
 		// then
 		StepVerifier.create(result)
-			.expectNext(GetPhotoDto.builder().url(url1).categoryName(categoryName).build())
-			.expectNext(GetPhotoDto.builder().url(url2).categoryName(categoryName).build())
+			.expectNext(PhotoResponse.builder().url(url1).categoryId(categoryId).build())
+			.expectNext(PhotoResponse.builder().url(url2).categoryId(categoryId).build())
 			.verifyComplete();
 
 		verify(photoRepository, times(1)).findByUserUuidAndCategoryUuid(userUuid, categoryUuid);
