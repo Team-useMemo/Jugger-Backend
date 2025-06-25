@@ -256,14 +256,33 @@ public class ChatServiceImplementation implements ChatService {
 										Photo photo = tuple.getT2();
 										Link link = tuple.getT3();
 
+
+										String content;
+										String type;
+										if (photo.getPhotoUuid() != null) {
+											content = photo.getUrl();
+											type = "PHOTO";
+										} else if (calendar.getUuid() != null) {
+											content = calendar.getTitle();
+											type = "CALENDAR";
+										} else if (link.getUuid() != null) {
+											content = link.getUrl();
+											type = "LINK";
+										} else {
+											content = chat.getData();
+											type = "TEXT";
+										}
+
+
 										return GetChatByCategoryDto.ChatItem.builder()
 											.chatId(chat.getId())
-											.data(chat.getData())
-											.scheduleName(calendar.getTitle())
+											.type(type)
+											.content(content)
 											.scheduleStartDate(calendar.getStartDateTime())
 											.scheduleEndDate(calendar.getEndDateTime())
-											.imgUrl(photo.getUrl())
-											.linkUrl(link.getUrl())
+											.place(calendar.getPlace())
+											.alarm(calendar.getAlarm())
+											.description(calendar.getDescription())
 											.timestamp(chat.getCreatedAt())
 											.build();
 									});
