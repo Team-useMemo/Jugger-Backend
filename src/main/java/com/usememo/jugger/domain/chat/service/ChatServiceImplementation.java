@@ -261,7 +261,7 @@ public class ChatServiceImplementation implements ChatService {
 
 										String content;
 										String type;
-										if (photo.getPhotoUuid() != null) {
+										if (photo.getUuid() != null) {
 											content = photo.getUrl();
 											type = "PHOTO";
 										} else if (calendar.getUuid() != null) {

@@ -10,14 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.usememo.jugger.domain.photo.dto.GetPhotoDto;
+import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.service.PhotoService;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 
@@ -31,7 +30,7 @@ public class PhotoController {
 
 	@Operation(summary = "[GET] 사진 조회")
 	@GetMapping()
-	public Flux<GetPhotoDto> getPhotos(
+	public Flux<PhotoResponse> getPhotos(
 		@RequestParam String categoryId, @AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return photoService.getPhotoDto(GetPhotoRequestDto.builder()
 			.categoryId(categoryId)
@@ -40,7 +39,7 @@ public class PhotoController {
 
 	@Operation(summary = "[GET] 이전 기간별 사진 조회")
 	@GetMapping("/duration")
-	public ResponseEntity<Flux<GetPhotoDto>> getPhotoDuration(@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
+	public ResponseEntity<Flux<PhotoResponse>> getPhotoDuration(@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size,@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
 		return ResponseEntity.ok().body(photoService.getPhotoDuration(before,page,size,customOAuth2User));

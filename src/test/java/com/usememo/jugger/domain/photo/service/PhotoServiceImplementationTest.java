@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
-import com.usememo.jugger.domain.photo.dto.GetPhotoDto;
+import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
@@ -57,12 +57,12 @@ class PhotoServiceImplementationTest {
 			.build();
 
 		// when
-		Flux<GetPhotoDto> result = photoService.getPhotoDto(requestDto, customOAuth2User);
+		Flux<PhotoResponse> result = photoService.getPhotoDto(requestDto, customOAuth2User);
 
 		// then
 		StepVerifier.create(result)
-			.expectNext(GetPhotoDto.builder().url(url1).categoryId(categoryId).build())
-			.expectNext(GetPhotoDto.builder().url(url2).categoryId(categoryId).build())
+			.expectNext(PhotoResponse.builder().url(url1).categoryId(categoryId).build())
+			.expectNext(PhotoResponse.builder().url(url2).categoryId(categoryId).build())
 			.verifyComplete();
 
 		verify(photoRepository, times(1)).findByUserUuidAndCategoryUuid(userUuid, categoryUuid);

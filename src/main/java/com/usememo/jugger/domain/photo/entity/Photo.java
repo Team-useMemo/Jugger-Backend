@@ -17,8 +17,7 @@ import lombok.Getter;
 @Getter
 public class Photo extends BaseTimeEntity {
 	@Id
-	@Field("photo_uuid")
-	private String photoUuid;
+	private String uuid;
 
 	@Field("user_uuid")
 	private String userUuid;

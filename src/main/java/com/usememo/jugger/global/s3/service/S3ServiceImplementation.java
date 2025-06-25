@@ -93,7 +93,7 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 		}
 
 		Photo photo = Photo.builder()
-			.photoUuid(UUID.randomUUID().toString())
+			.uuid(UUID.randomUUID().toString())
 			.url(saveUrl)
 			.userUuid(userUuid)
 			.description(realDes)
@@ -108,7 +108,7 @@ public class S3ServiceImplementation extends BaseTimeEntity implements S3Service
 					.categoryUuid(categoryUuid)
 					.data(savedPhoto.getDescription())
 					.refs(Chat.Refs.builder()
-						.photoUuid(savedPhoto.getPhotoUuid())
+						.photoUuid(savedPhoto.getUuid())
 						.build())
 					.build();
 

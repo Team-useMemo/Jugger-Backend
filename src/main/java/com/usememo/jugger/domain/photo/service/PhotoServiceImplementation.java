@@ -8,17 +8,17 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import com.usememo.jugger.domain.category.entity.Category;
-import com.usememo.jugger.domain.category.repository.CategoryRepository;
-import com.usememo.jugger.domain.photo.dto.GetPhotoDto;
+import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PhotoServiceImplementation implements PhotoService {
@@ -27,35 +27,37 @@ public class PhotoServiceImplementation implements PhotoService {
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
 
 	@Override
-	public Flux<GetPhotoDto> getPhotoDto(GetPhotoRequestDto photoRequestDto, CustomOAuth2User customOAuth2User) {
+	public Flux<PhotoResponse> getPhotoDto(GetPhotoRequestDto photoRequestDto, CustomOAuth2User customOAuth2User) {
 		return photoRepository
 					.findByUserUuidAndCategoryUuid(customOAuth2User.getUserId(), photoRequestDto.getCategoryId())
-					.map(photo -> GetPhotoDto.builder()
+					.map(photo -> PhotoResponse.builder()
 						.url(photo.getUrl())
 						.categoryId(photo.getCategoryUuid())
 						.description(photo.getDescription())
-						.timestamp(photo.getCreatedAt())
+						.timestamp(photo.getUpdatedAt())
 						.build());
 	}
 
 	@Override
-	public Flux<GetPhotoDto> getPhotoDuration(Instant before, int page, int size, CustomOAuth2User customOAuth2User){
+	public Flux<PhotoResponse> getPhotoDuration(Instant before, int page, int size, CustomOAuth2User customOAuth2User){
 		String userId = customOAuth2User.getUserId();
 
 		Query query = new Query()
-			.addCriteria(Criteria.where("userUuid").is(userId))
-			.addCriteria(Criteria.where("updatedAt").lt(before))
-			.with(Sort.by(Sort.Direction.DESC, "updatedAt"))
+			.addCriteria(Criteria.where("user_uuid").is(userId))
+			.addCriteria(Criteria.where("updated_at").lt(before))
+			.with(Sort.by(Sort.Direction.DESC, "updated_at"))
 			.skip((long) page * size)
 			.limit(size);
 
 		return reactiveMongoTemplate.find(query, Photo.class)
-					.map(photo -> GetPhotoDto.builder()
-						.url(photo.getUrl())
-						.description(photo.getDescription())
-						.categoryId(photo.getCategoryUuid())
-						.timestamp(photo.getUpdatedAt())
-						.build());
+					.map(photo ->
+							 PhotoResponse.builder()
+								.url(photo.getUrl())
+								.categoryId(photo.getCategoryUuid())
+								.timestamp(photo.getUpdatedAt())
+								.description(photo.getDescription())
+								.build()
+					);
 
 	}
 
