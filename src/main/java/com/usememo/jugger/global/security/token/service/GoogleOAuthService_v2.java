@@ -106,7 +106,7 @@
 // 			.switchIfEmpty(
 // 				userRepository.save(User.builder()
 // 						.email(email)
-// 						// .status(UserStatus.PENDING)
+//// 						.status(UserStatus.PENDING)
 // 						.domain("Google")
 // 						.build())
 // 					.thenReturn(Map.of(
@@ -141,7 +141,7 @@
 // 				return Map.of(
 // 					"accessToken", token.accessToken(),
 // 					"message", "회원가입 완료"
-// 				);
+// 				 );
 // 			});
 // 	}
 //
