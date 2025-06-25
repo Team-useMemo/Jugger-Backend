@@ -73,7 +73,7 @@ public class CategoryServiceImplementation implements CategoryService {
 
 		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(userId)
 			.flatMap(category ->
-				chatService.getLatestChatByCategoryId(category.getUuid())
+				chatService.getLatestChatByCategoryId(customOAuth2User,category.getUuid())
 					.map(Chat::getData)
 					.defaultIfEmpty("")
 					.map(recentMessage -> GetRecentCategoryDto.builder()
@@ -135,4 +135,6 @@ public class CategoryServiceImplementation implements CategoryService {
 			});
 
 	}
+
+
 }

@@ -93,7 +93,7 @@ public class ChatServiceImplementation implements ChatService {
 	private Mono<Category> createDefaultCategory(CustomOAuth2User user) {
 		return Mono.defer(() -> {
 			Category newCategory = Category.builder()
-				.uuid(UUID.randomUUID().toString())
+				.uuid("temp")
 				.name("")
 				.color("")
 				.userUuid(user.getUserId())
@@ -165,11 +165,12 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(String categoryId, Instant before, int page,
+	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User, String categoryId, Instant before, int page,
 		int size) {
 		int skip = page * size;
+		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.findByCategoryUuidAndCreatedAtBeforeOrderByCreatedAtDesc(categoryId, before)
+		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(userId,categoryId, before)
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -177,11 +178,12 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(String categoryId, Instant after, int page,
+	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(CustomOAuth2User customOAuth2User,String categoryId, Instant after, int page,
 		int size) {
 		int skip = page * size;
+		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.findByCategoryUuidAndCreatedAtAfterOrderByCreatedAtDesc(categoryId, after)
+		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(userId,categoryId, after)
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -263,7 +265,7 @@ public class ChatServiceImplementation implements ChatService {
 											content = photo.getUrl();
 											type = "PHOTO";
 										} else if (calendar.getUuid() != null) {
-											content = calendar.getTitle();
+											content = calendar.getDescription();
 											type = "CALENDAR";
 										} else if (link.getUuid() != null) {
 											content = link.getUrl();
@@ -273,11 +275,13 @@ public class ChatServiceImplementation implements ChatService {
 											type = "TEXT";
 										}
 
-
 										return GetChatByCategoryDto.ChatItem.builder()
 											.chatId(chat.getId())
 											.type(type)
 											.content(content)
+											.linkUrl(link.getUrl())
+											.imgUrl(photo.getUrl())
+											.scheduleName(calendar.getTitle())
 											.scheduleStartDate(calendar.getStartDateTime())
 											.scheduleEndDate(calendar.getEndDateTime())
 											.place(calendar.getPlace())
@@ -301,8 +305,9 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<Chat> getLatestChatByCategoryId(String categoryId) {
-		return chatRepository.findFirstByCategoryUuidOrderByCreatedAtDesc(categoryId);
+	public Mono<Chat> getLatestChatByCategoryId(CustomOAuth2User customOAuth2User, String categoryId) {
+		String userId = customOAuth2User.getUserId();
+		return chatRepository.findFirstByCategoryUuidAndUserUuidOrderByCreatedAtDesc(userId,categoryId);
 	}
 
 	@Override
@@ -337,6 +342,19 @@ public class ChatServiceImplementation implements ChatService {
 
 		return chatRepository.deleteByUuidAndUserUuid(chatId,userId)
 			.then();
+	}
+
+	@Override
+	public Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId){
+		String userId = customOAuth2User.getUserId();
+
+		return chatRepository.findByUuidAndUserUuid(chatId,userId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
+			.flatMap( chat ->{
+					chat.setCategoryUuid(newCategoryId);
+					return chatRepository.save(chat);
+				}
+			).then();
 	}
 
 }

@@ -23,6 +23,7 @@ public class Chat extends BaseTimeEntity implements Persistable<String> {
 	private String uuid;
 	private String userUuid;
 
+	@Setter
 	private String categoryUuid;
 	@Setter
 	private String data;

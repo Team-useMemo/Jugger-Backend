@@ -71,11 +71,12 @@ public class CategoryController {
 	@Operation(summary = "[GET] 카테고리별 채팅 조회 (이전 메세지 불러오기) ")
 	@GetMapping("/chat/before")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsByCategoryBefore(
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestParam("categoryId") String categoryId,
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size) {
-		return chatService.getChatsByCategoryIdBefore(categoryId, before, page, size)
+		return chatService.getChatsByCategoryIdBefore(customOAuth2User,categoryId, before, page, size)
 			.map(list -> ResponseEntity.ok().body(list));
 
 	}
@@ -83,11 +84,12 @@ public class CategoryController {
 	@Operation(summary = "[GET] 카테고리별 채팅 조회 (이후 메세지 불러오기)")
 	@GetMapping("/chat/after")
 	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsByCategoryAfter(
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestParam("categoryId") String categoryId,
 		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size) {
-		return chatService.getChatsByCategoryIdAfter(categoryId, after, page, size)
+		return chatService.getChatsByCategoryIdAfter(customOAuth2User,categoryId, after, page, size)
 			.map(list -> ResponseEntity.ok().body(list));
 
 	}
