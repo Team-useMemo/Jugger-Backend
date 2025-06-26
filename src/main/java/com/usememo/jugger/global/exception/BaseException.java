@@ -12,4 +12,10 @@ public class BaseException extends RuntimeException {
 		this.errorCode = errorCode;
 		this.message = errorCode.getMessage();
 	}
+
+	public BaseException(ErrorCode errorCode, Throwable cause) {
+		super(errorCode.getMessage(), cause); // RuntimeException에 메시지 + 원인 등록
+		this.errorCode = errorCode;
+		this.message = errorCode.getMessage();
+	}
 }

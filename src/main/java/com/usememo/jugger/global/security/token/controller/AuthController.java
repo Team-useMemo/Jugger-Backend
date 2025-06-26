@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.usememo.jugger.global.security.token.domain.*;
+import com.usememo.jugger.global.security.token.service.AppleOAuthService;
 import org.apache.el.parser.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,18 +29,7 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 import com.usememo.jugger.global.security.JwtTokenProvider;
-import com.usememo.jugger.global.security.token.domain.GoogleLoginRequest;
-import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
-import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
 
-import com.usememo.jugger.global.security.token.domain.KakaoLogoutResponse;
-import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
-
-import com.usememo.jugger.global.security.token.domain.LogOutRequest;
-import com.usememo.jugger.global.security.token.domain.LogOutResponse;
-import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
-import com.usememo.jugger.global.security.token.domain.RefreshTokenRequest;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 import com.usememo.jugger.global.security.token.service.GoogleOAuthService;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
@@ -56,6 +47,7 @@ public class AuthController {
 
 	private final KakaoOAuthService kakaoService;
 	private final GoogleOAuthService googleOAuthService;
+	private final AppleOAuthService appleOAuthService;
 
 
 	@Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
@@ -109,4 +101,18 @@ public class AuthController {
 			.map(token-> ResponseEntity.ok().body(token));
 	}
 
+
+	@Operation(summary = "[POST] 애플 로그인")
+	@PostMapping("/apple")
+	public Mono<ResponseEntity<TokenResponse>> loginByApple(@RequestBody AppleLoginRequest appleLoginRequest){
+		return appleOAuthService.loginWithApple(appleLoginRequest.code())
+				.map(token -> ResponseEntity.ok().body(token));
+	}
+
+	@Operation(summary = "[POST] 애플 회원가입")
+	@PostMapping("/apple/signup")
+	public Mono<ResponseEntity<TokenResponse>> signUpApple(@RequestBody AppleSignUpRequest appleSignUpRequest){
+		return appleOAuthService.signUpApple(appleSignUpRequest)
+				.map(token -> ResponseEntity.ok().body(token));
+	}
 }

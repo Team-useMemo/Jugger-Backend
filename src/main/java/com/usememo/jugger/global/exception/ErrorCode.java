@@ -42,6 +42,13 @@ public enum ErrorCode {
 	GOOGLE_USER_NOT_FOUND(BAD_REQUEST,404,"구글 유저가 존재하지 않습니다."),
 	GOOGLE_NO_NAME(BAD_REQUEST,404,"이름이 존재하지 않습니다."),
 
+	APPLE_USER_NOT_FOUND(BAD_REQUEST, 430, "존재하지 않는 Apple 회원입니다."),
+	APPLE_TOKEN_REQUEST_FAILED(BAD_REQUEST, 431, "Apple 인가 코드로 토큰을 요청하는 데 실패했습니다."),
+	APPLE_CLIENT_SECRET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 432, "Apple client secret 생성에 실패했습니다."),
+	APPLE_USERINFO_MISSING(BAD_REQUEST, 433, "Apple 사용자 정보가 불완전합니다."),
+	APPLE_TOKEN_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 434, "Apple id_token 파싱에 실패했습니다."),
+
+
 
 	JWT_KEY_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 422, "JWT 키 생성에 실패했습니다."),
 	JWT_ACCESS_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 423, "액세스 토큰 생성 실패"),
