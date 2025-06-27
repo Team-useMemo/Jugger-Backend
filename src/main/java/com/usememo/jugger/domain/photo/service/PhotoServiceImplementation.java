@@ -61,4 +61,28 @@ public class PhotoServiceImplementation implements PhotoService {
 
 	}
 
+	@Override
+	public Flux<PhotoResponse> getPhotoCategoryAndDuration(String categoryId, Instant before, int page, int size, CustomOAuth2User customOAuth2User){
+		String userId = customOAuth2User.getUserId();
+
+		Query query = new Query()
+			.addCriteria(Criteria.where("user_uuid").is(userId))
+			.addCriteria(Criteria.where("category_uuid").is(categoryId))
+			.addCriteria(Criteria.where("updated_at").lt(before))
+			.with(Sort.by(Sort.Direction.DESC, "updated_at"))
+			.skip((long) page * size)
+			.limit(size);
+
+		return reactiveMongoTemplate.find(query, Photo.class)
+			.map(photo ->
+				PhotoResponse.builder()
+					.url(photo.getUrl())
+					.categoryId(photo.getCategoryUuid())
+					.timestamp(photo.getUpdatedAt())
+					.description(photo.getDescription())
+					.build()
+			);
+
+	}
+
 }
