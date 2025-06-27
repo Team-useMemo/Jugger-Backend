@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class GetLinkDto {
-	private String categoryUuid;
+	private String categoryId;
 	private String categoryName;
 
 	private List<LinkData> linkData;
