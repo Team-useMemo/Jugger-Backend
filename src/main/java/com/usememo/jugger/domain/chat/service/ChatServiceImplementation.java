@@ -107,6 +107,7 @@ public class ChatServiceImplementation implements ChatService {
 	private Mono<Void> saveLinkChat(String text, String categoryUuid, CustomOAuth2User customOAuth2User) {
 		String chatUuid = UUID.randomUUID().toString();
 		String linkUuid = UUID.randomUUID().toString();
+		Instant now = Instant.now();
 
 		Link link = Link.builder()
 			.uuid(linkUuid)
@@ -125,11 +126,17 @@ public class ChatServiceImplementation implements ChatService {
 
 		return linkRepository.save(link)
 			.then(chatRepository.save(chat))
+			.then(categoryRepository.findByUuid(categoryUuid)
+				.flatMap(category -> {
+					category.setUpdatedAt(now);
+					return categoryRepository.save(category);
+				}))
 			.then(); // Mono<Void>
 	}
 
 	private Mono<Void> saveTextChat(String text, String categoryUuid, CustomOAuth2User customOAuth2User) {
 		String chatUuid = UUID.randomUUID().toString();
+		Instant now = Instant.now();
 
 		Chat chat = Chat.builder()
 			.uuid(chatUuid)
@@ -138,7 +145,11 @@ public class ChatServiceImplementation implements ChatService {
 			.data(text)
 			.build();
 
-		return chatRepository.save(chat).then();
+		return chatRepository.save(chat).then(categoryRepository.findByUuid(categoryUuid)
+			.flatMap(category -> {
+				category.setUpdatedAt(now);
+				return categoryRepository.save(category);
+			})).then();
 	}
 
 	@Override
@@ -165,12 +176,14 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User, String categoryId, Instant before, int page,
+	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User,
+		String categoryId, Instant before, int page,
 		int size) {
 		int skip = page * size;
 		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(userId,categoryId, before)
+		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(userId, categoryId,
+				before)
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -178,12 +191,14 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(CustomOAuth2User customOAuth2User,String categoryId, Instant after, int page,
+	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(CustomOAuth2User customOAuth2User,
+		String categoryId, Instant after, int page,
 		int size) {
 		int skip = page * size;
 		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(userId,categoryId, after)
+		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(userId, categoryId,
+				after)
 			.skip(skip)
 			.take(size)
 			.collectList()
@@ -258,7 +273,6 @@ public class ChatServiceImplementation implements ChatService {
 										Photo photo = tuple.getT2();
 										Link link = tuple.getT3();
 
-
 										String content;
 										String type;
 										if (photo.getUuid() != null) {
@@ -307,11 +321,11 @@ public class ChatServiceImplementation implements ChatService {
 	@Override
 	public Mono<Chat> getLatestChatByCategoryId(CustomOAuth2User customOAuth2User, String categoryId) {
 		String userId = customOAuth2User.getUserId();
-		return chatRepository.findFirstByCategoryUuidAndUserUuidOrderByCreatedAtDesc(userId,categoryId);
+		return chatRepository.findFirstByCategoryUuidAndUserUuidOrderByCreatedAtDesc(userId, categoryId);
 	}
 
 	@Override
-	public Mono<Void> deleteAllChats(CustomOAuth2User customOAuth2User){
+	public Mono<Void> deleteAllChats(CustomOAuth2User customOAuth2User) {
 		String userId = customOAuth2User.getUserId();
 
 		return Mono.when(
@@ -320,7 +334,7 @@ public class ChatServiceImplementation implements ChatService {
 			categoryRepository.deleteByUserUuid(userId),
 			photoRepository.deleteByUserUuid(userId),
 			linkRepository.deleteByUserUuid(userId)
-			).onErrorResume(e->  Mono.error(new BaseException(ErrorCode.DELETE_ERROR)));
+		).onErrorResume(e -> Mono.error(new BaseException(ErrorCode.DELETE_ERROR)));
 	}
 
 	@Override
@@ -337,20 +351,20 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<Void> deleteSingleChat(CustomOAuth2User customOAuth2User, String chatId){
+	public Mono<Void> deleteSingleChat(CustomOAuth2User customOAuth2User, String chatId) {
 		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.deleteByUuidAndUserUuid(chatId,userId)
+		return chatRepository.deleteByUuidAndUserUuid(chatId, userId)
 			.then();
 	}
 
 	@Override
-	public Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId){
+	public Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId) {
 		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.findByUuidAndUserUuid(chatId,userId)
+		return chatRepository.findByUuidAndUserUuid(chatId, userId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
-			.flatMap( chat ->{
+			.flatMap(chat -> {
 					chat.setCategoryUuid(newCategoryId);
 					return chatRepository.save(chat);
 				}

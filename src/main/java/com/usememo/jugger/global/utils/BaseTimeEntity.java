@@ -18,4 +18,8 @@ public abstract class BaseTimeEntity {
 	@LastModifiedDate
 	@Field("updated_at")
 	private Instant updatedAt;
+
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 }

@@ -27,4 +27,5 @@ public class Category extends BaseTimeEntity {
 	public void setPinned(Boolean pinned) {
 		isPinned = pinned;
 	}
+
 }
