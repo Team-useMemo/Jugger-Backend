@@ -39,24 +39,6 @@ public class AppleOAuthService {
                 .switchIfEmpty(Mono.error(new BaseException(ErrorCode.APPLE_USER_NOT_FOUND)));
     }
 
-    public Mono<Object> signUpApple(AppleUserResponse userInfo, String name, User.Terms terms) {
-        return userRepository.findByEmailAndDomain(userInfo.email(), "apple")
-                .flatMap(user -> Mono.error(new BaseException(ErrorCode.DUPLICATE_USER)))
-                .switchIfEmpty(Mono.defer(() -> {
-                    String uuid = UUID.randomUUID().toString();
-                    User newUser = User.builder()
-                            .uuid(uuid)
-                            .email(userInfo.email())
-                            .name(name)
-                            .domain("apple")
-                            .terms(terms)
-                            .build();
-
-                    return userRepository.save(newUser)
-                            .flatMap(saved -> jwtTokenProvider.createTokenBundle(saved.getUuid()));
-                }));
-    }
-
     public Mono<TokenResponse> signUpApple(AppleSignUpRequest request) {
         String email = request.email();
         String name = request.name();
