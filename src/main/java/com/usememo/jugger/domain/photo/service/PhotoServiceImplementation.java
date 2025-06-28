@@ -68,8 +68,8 @@ public class PhotoServiceImplementation implements PhotoService {
 		Query query = new Query()
 			.addCriteria(Criteria.where("user_uuid").is(userId))
 			.addCriteria(Criteria.where("category_uuid").is(categoryId))
-			.addCriteria(Criteria.where("updated_at").lt(before))
-			.with(Sort.by(Sort.Direction.DESC, "updated_at"))
+			.addCriteria(Criteria.where("created_at").lt(before))
+			.with(Sort.by(Sort.Direction.DESC, "created_at"))
 			.skip((long) page * size)
 			.limit(size);
 
