@@ -13,4 +13,6 @@ public interface PhotoService {
 
 	Flux<PhotoResponse> getPhotoDuration(Instant before,int page, int size,CustomOAuth2User customOAuth2User);
 
+	Flux<PhotoResponse> getPhotoCategoryAndDuration(String categoryId, Instant before, int page, int size, CustomOAuth2User customOAuth2User);
+
 }

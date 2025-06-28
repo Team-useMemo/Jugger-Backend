@@ -45,4 +45,16 @@ public class PhotoController {
 		return ResponseEntity.ok().body(photoService.getPhotoDuration(before,page,size,customOAuth2User));
 	}
 
+	@Operation(summary = "[GET] 카테고리와 기간별 사진 조회")
+	@GetMapping("/category")
+	public ResponseEntity<Flux<PhotoResponse>> getPhotoCategoryAndDuration(
+		@RequestParam("categoryId") String categoryId,
+		@RequestParam("before")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
+		@RequestParam(value = "page", defaultValue = "0") int page,
+		@RequestParam(value = "size", defaultValue = "20") int size,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
+		){
+		return ResponseEntity.ok().body(photoService.getPhotoCategoryAndDuration(categoryId,before, page, size, customOAuth2User));
+	}
+
 }
