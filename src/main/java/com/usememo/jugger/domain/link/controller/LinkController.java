@@ -7,11 +7,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.link.dto.GetLinkDto;
+import com.usememo.jugger.domain.link.dto.LinkRequest;
+import com.usememo.jugger.domain.link.dto.LinkResponse;
+import com.usememo.jugger.domain.link.dto.LinkUpdateRequest;
 import com.usememo.jugger.domain.link.service.LinkService;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
@@ -37,6 +43,24 @@ public class LinkController {
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return linkService.getLinks(before,page,size,customOAuth2User,categoryUuid)
 			.map(list -> ResponseEntity.ok().body(list));
+	}
+
+	@Operation(summary = "[POST] 링크 등록")
+	@PostMapping()
+	public Mono<ResponseEntity<LinkResponse>> postLink(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+		@RequestBody LinkRequest request
+		){
+		return linkService.postLink(customOAuth2User,request)
+			.map( e-> ResponseEntity.ok().body(e));
+
+	}
+
+	@Operation(summary = "[PATCH] 링크 변경")
+	@PatchMapping()
+	public Mono<ResponseEntity<LinkResponse>> updateLink(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+		@RequestBody LinkUpdateRequest linkUpdateRequest){
+		return linkService.updateLink(customOAuth2User,linkUpdateRequest)
+			.map(e-> ResponseEntity.ok().body(e));
 	}
 
 }

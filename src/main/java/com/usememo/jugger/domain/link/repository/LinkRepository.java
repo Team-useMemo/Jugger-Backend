@@ -12,4 +12,6 @@ public interface LinkRepository extends ReactiveMongoRepository<Link, String> {
 	Flux<Link> findByCategoryUuidAndUserUuid(String categoryUuid,String userUuid);
 
 	Mono<Void> deleteByUserUuid(String userId);
+
+	Mono<Link> findByUuidAndUserUuid(String linkId,String userId);
 }
