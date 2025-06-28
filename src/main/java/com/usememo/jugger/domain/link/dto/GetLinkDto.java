@@ -9,14 +9,12 @@ import lombok.Data;
 @Builder
 public class GetLinkDto {
 	private String categoryId;
-	private String categoryName;
 
 	private List<LinkData> linkData;
 
 	@Data
 	@Builder
 	public static class LinkData {
-		private String caption;
 		private String link;
 	}
 }
