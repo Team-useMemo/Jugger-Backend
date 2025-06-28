@@ -16,6 +16,7 @@ import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.link.dto.GetLinkDto;
+import com.usememo.jugger.domain.link.dto.LinkListResponse;
 import com.usememo.jugger.domain.link.dto.LinkRequest;
 import com.usememo.jugger.domain.link.dto.LinkResponse;
 import com.usememo.jugger.domain.link.dto.LinkUpdateRequest;
@@ -68,6 +69,29 @@ public class LinkServiceImplementation implements LinkService {
 	}
 
 	@Override
+	public  Mono<List<LinkListResponse>> getLinksNoCategory(Instant before, int page, int size, CustomOAuth2User customOAuth2User){
+		String userId = customOAuth2User.getUserId();
+				Query query = new Query()
+					.addCriteria(Criteria.where("userUuid").is(userId))
+					.addCriteria(Criteria.where("created_at").lt(before))
+					.with(Sort.by(Sort.Direction.DESC, "created_at"))
+					.skip((long) page * size)
+					.limit(size);
+
+				return reactiveMongoTemplate.find(query, Link.class)
+					.map(link -> LinkListResponse.LinkData.builder()
+						.categoryId(link.getCategoryUuid())
+						.linkId(link.getId())
+						.link(link.getUrl())
+						.build())
+					.collectList()
+					.map(linkDataList -> LinkListResponse.builder()
+						.linkData(linkDataList)
+						.build()).map(List::of);
+	}
+
+
+	@Override
 	public Mono<LinkResponse> postLink(CustomOAuth2User customOAuth2User, LinkRequest request){
 		String userId = customOAuth2User.getUserId();
 		String categoryId = request.categoryId();
@@ -107,5 +131,7 @@ public class LinkServiceImplementation implements LinkService {
 				}
 			).thenReturn(new LinkResponse(200,"링크를 수정하였습니다."));
 	}
+
+
 
 }

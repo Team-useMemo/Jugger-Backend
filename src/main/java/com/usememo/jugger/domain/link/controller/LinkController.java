@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.link.dto.GetLinkDto;
+import com.usememo.jugger.domain.link.dto.LinkListResponse;
 import com.usememo.jugger.domain.link.dto.LinkRequest;
 import com.usememo.jugger.domain.link.dto.LinkResponse;
 import com.usememo.jugger.domain.link.dto.LinkUpdateRequest;
@@ -34,7 +35,7 @@ public class LinkController {
 
 	private final LinkService linkService;
 
-	@Operation(summary = "[GET] 링크 조회")
+	@Operation(summary = "[GET] 카테고리 포함 링크 조회")
 	@GetMapping
 	public Mono<ResponseEntity<List<GetLinkDto>>> getLinks(@RequestParam("categoryId") String categoryUuid,
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
@@ -45,13 +46,24 @@ public class LinkController {
 			.map(list -> ResponseEntity.ok().body(list));
 	}
 
+	@Operation(summary = "[GET] 카테고리 없이 링크 조회")
+	@GetMapping("/no")
+	public Mono<ResponseEntity<List<LinkListResponse>>> getLinksNoCategory(@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
+		@RequestParam(value = "page", defaultValue = "0") int page,
+		@RequestParam(value = "size", defaultValue = "20") int size,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User){
+		return linkService.getLinksNoCategory(before, page, size, customOAuth2User)
+			.map(responses->ResponseEntity.ok().body(responses));
+	}
+
+
 	@Operation(summary = "[POST] 링크 등록")
 	@PostMapping()
 	public Mono<ResponseEntity<LinkResponse>> postLink(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestBody LinkRequest request
 		){
 		return linkService.postLink(customOAuth2User,request)
-			.map( e-> ResponseEntity.ok().body(e));
+			.map( response-> ResponseEntity.ok().body(response));
 
 	}
 
@@ -60,7 +72,7 @@ public class LinkController {
 	public Mono<ResponseEntity<LinkResponse>> updateLink(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestBody LinkUpdateRequest linkUpdateRequest){
 		return linkService.updateLink(customOAuth2User,linkUpdateRequest)
-			.map(e-> ResponseEntity.ok().body(e));
+			.map(response-> ResponseEntity.ok().body(response));
 	}
 
 }
