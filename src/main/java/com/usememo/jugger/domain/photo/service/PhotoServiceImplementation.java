@@ -31,6 +31,7 @@ public class PhotoServiceImplementation implements PhotoService {
 		return photoRepository
 					.findByUserUuidAndCategoryUuid(customOAuth2User.getUserId(), photoRequestDto.getCategoryId())
 					.map(photo -> PhotoResponse.builder()
+						.photoId(photo.getId())
 						.url(photo.getUrl())
 						.categoryId(photo.getCategoryUuid())
 						.description(photo.getDescription())
@@ -52,6 +53,7 @@ public class PhotoServiceImplementation implements PhotoService {
 		return reactiveMongoTemplate.find(query, Photo.class)
 					.map(photo ->
 							 PhotoResponse.builder()
+								 .photoId(photo.getId())
 								.url(photo.getUrl())
 								.categoryId(photo.getCategoryUuid())
 								.timestamp(photo.getUpdatedAt())
@@ -76,6 +78,7 @@ public class PhotoServiceImplementation implements PhotoService {
 		return reactiveMongoTemplate.find(query, Photo.class)
 			.map(photo ->
 				PhotoResponse.builder()
+					.photoId(photo.getId())
 					.url(photo.getUrl())
 					.categoryId(photo.getCategoryUuid())
 					.timestamp(photo.getUpdatedAt())
