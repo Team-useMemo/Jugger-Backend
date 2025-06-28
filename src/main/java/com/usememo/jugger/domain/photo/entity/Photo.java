@@ -1,6 +1,7 @@
 package com.usememo.jugger.domain.photo.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -15,7 +16,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
-public class Photo extends BaseTimeEntity {
+public class Photo extends BaseTimeEntity  implements Persistable<String> {
 	@Id
 	private String uuid;
 
@@ -33,5 +34,16 @@ public class Photo extends BaseTimeEntity {
 
 	public Photo() {
 	}
+
+	@Override
+	public String getId() {
+		return getUuid();
+	}
+
+	@Override
+	public boolean isNew() {
+		return getCreatedAt() == null;
+	}
+
 
 }
