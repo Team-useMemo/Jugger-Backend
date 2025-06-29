@@ -7,11 +7,15 @@ import org.springframework.stereotype.Service;
 
 import com.usememo.jugger.domain.calendar.dto.GetCalendarDto;
 import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
+import com.usememo.jugger.domain.calendar.dto.CalendarUpdateRequest;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
 import com.usememo.jugger.domain.chat.entity.Chat;
 import com.usememo.jugger.domain.chat.repository.ChatRepository;
+import com.usememo.jugger.global.exception.BaseException;
+import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.response.BaseResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
@@ -65,6 +69,7 @@ public class CalendarServiceImplementation implements CalendarService {
 			.flatMap(calendar ->
 				categoryRepository.findByUuid(calendar.getCategoryUuid())
 					.map(category -> GetCalendarDto.builder()
+						.calendarId(calendar.getUuid())
 						.categoryId(calendar.getCategoryUuid())
 						.categoryColor(category.getColor())
 						.title(calendar.getTitle())
@@ -77,4 +82,46 @@ public class CalendarServiceImplementation implements CalendarService {
 					)
 			);
 	}
+
+	@Override
+	public Flux<GetCalendarDto> getCalendarWithCategory(String categoryId,Instant start, Instant end, CustomOAuth2User customOAuth2User ){
+		return calendarRepository.findByUserUuidAndCategoryUuidAndStartDateTimeBetween(customOAuth2User.getUserId(),categoryId, start, end)
+			.flatMap(calendar ->
+				categoryRepository.findByUuid(calendar.getCategoryUuid())
+					.map(category -> GetCalendarDto.builder()
+						.calendarId(calendar.getUuid())
+						.categoryId(calendar.getCategoryUuid())
+						.categoryColor(category.getColor())
+						.title(calendar.getTitle())
+						.startDateTime(calendar.getStartDateTime())
+						.endDateTime(calendar.getEndDateTime())
+						.alarm(calendar.getAlarm())
+						.place(calendar.getPlace())
+						.description(calendar.getDescription())
+						.build()
+					)
+			);
+	}
+
+
+	@Override
+	public Mono<BaseResponse> updateCalendar(CustomOAuth2User customOAuth2User, CalendarUpdateRequest request) {
+
+		return calendarRepository.findByUuidAndUserUuid(request.calendarId(), customOAuth2User.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
+			.flatMap(calendar -> {
+				calendar.setTitle(request.title());
+				calendar.setAlarm(request.alarm());
+				calendar.setCategoryUuid(request.categoryId());
+				calendar.setDescription(request.description());
+				calendar.setStartDateTime(request.start());
+				calendar.setEndDateTime(request.end());
+				calendar.setPlace(request.place());
+
+				return calendarRepository.save(calendar)
+					.thenReturn(new BaseResponse(200, "일정이 변경되었습니다."));
+			});
+
+	}
+
 }

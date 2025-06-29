@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class PhotoResponse {
+	private String photoId;
 	private String url;
 	private String categoryId;
 	private String description;
