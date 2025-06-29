@@ -8,6 +8,7 @@ import lombok.Data;
 @Builder
 @Data
 public class GetCalendarDto {
+	private String calendarId;
 	private Instant startDateTime;
 	private Instant endDateTime;
 	private String categoryId;
