@@ -12,4 +12,5 @@ import reactor.core.publisher.Mono;
 public interface CalendarRepository extends ReactiveMongoRepository<Calendar, String> {
 	Flux<Calendar> findByUserUuidAndStartDateTimeBetween(String userUuid, Instant start, Instant end);
 	Mono<Void> deleteByUserUuid(String userId);
+	Flux<Calendar> findByUserUuidAndCategoryUuidAndStartDateTimeBetween(String userUuid, String categoryId, Instant start, Instant end);
 }

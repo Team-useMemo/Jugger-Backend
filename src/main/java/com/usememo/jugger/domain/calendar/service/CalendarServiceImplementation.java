@@ -77,4 +77,25 @@ public class CalendarServiceImplementation implements CalendarService {
 					)
 			);
 	}
+
+	@Override
+	public Flux<GetCalendarDto> getCalendarWithCategory(String categoryId,Instant start, Instant end, CustomOAuth2User customOAuth2User ){
+		return calendarRepository.findByUserUuidAndCategoryUuidAndStartDateTimeBetween(customOAuth2User.getUserId(),categoryId, start, end)
+			.flatMap(calendar ->
+				categoryRepository.findByUuid(calendar.getCategoryUuid())
+					.map(category -> GetCalendarDto.builder()
+						.categoryId(calendar.getCategoryUuid())
+						.categoryColor(category.getColor())
+						.title(calendar.getTitle())
+						.startDateTime(calendar.getStartDateTime())
+						.endDateTime(calendar.getEndDateTime())
+						.alarm(calendar.getAlarm())
+						.place(calendar.getPlace())
+						.description(calendar.getDescription())
+						.build()
+					)
+			);
+	}
+
+
 }

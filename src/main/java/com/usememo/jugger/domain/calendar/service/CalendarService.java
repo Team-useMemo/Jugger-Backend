@@ -14,4 +14,6 @@ public interface CalendarService {
 	Mono<Calendar> postCalendar(PostCalendarDto postCalendarDto, CustomOAuth2User customOAuth2User);
 
 	Flux<GetCalendarDto> getCalendar(Instant start, Instant end, CustomOAuth2User customOAuth2User);
+
+	Flux<GetCalendarDto> getCalendarWithCategory(String categoryId,Instant start, Instant end, CustomOAuth2User customOAuth2User );
 }

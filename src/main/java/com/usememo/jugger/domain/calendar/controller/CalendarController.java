@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nimbusds.oauth2.sdk.Response;
 import com.usememo.jugger.domain.calendar.dto.GetCalendarDto;
 import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
@@ -55,4 +56,17 @@ public class CalendarController {
 			.map(list -> ResponseEntity.ok().body(list));
 
 	}
+
+	@Operation(summary = "[GET] 카테고리 별 일정조회")
+	@GetMapping("/category")
+	public Mono<ResponseEntity<List<GetCalendarDto>>> getCalendarWithCategory(
+		@RequestParam("categoryId") String categoryId,
+		@RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
+		@RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
+	){
+		return  calendarService.getCalendarWithCategory(categoryId, start, end, customOAuth2User).collectList()
+			.map(list -> ResponseEntity.ok().body(list));
+	}
+
 }
