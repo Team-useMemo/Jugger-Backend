@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Document
 public class RefreshToken {
 
+
 	@Id
 	private String id;
 	private String userId;

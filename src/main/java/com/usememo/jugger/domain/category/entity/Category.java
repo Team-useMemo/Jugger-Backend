@@ -18,6 +18,7 @@ import lombok.Setter;
 @Builder
 @Setter
 public class Category extends BaseTimeEntity implements Persistable<String> {
+
 	@Id
 	private String uuid;
 	private String name;
