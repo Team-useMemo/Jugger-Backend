@@ -10,13 +10,18 @@ import org.springframework.stereotype.Service;
 
 import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
+import com.usememo.jugger.domain.photo.dto.PhotoUpdateRequest;
 import com.usememo.jugger.domain.photo.entity.Photo;
 import com.usememo.jugger.domain.photo.repository.PhotoRepository;
+import com.usememo.jugger.global.exception.BaseException;
+import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.response.BaseResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -87,5 +92,20 @@ public class PhotoServiceImplementation implements PhotoService {
 			);
 
 	}
+
+	@Override
+	public Mono<BaseResponse> updatePhotoDescription(CustomOAuth2User customOAuth2User, PhotoUpdateRequest request){
+
+		return photoRepository.findByUuidAndUserUuid(request.photoId(), customOAuth2User.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_PHOTO)))
+			.flatMap(photo -> {
+
+				photo.setCategoryUuid(request.categoryId());
+				photo.setDescription(request.description());
+				return photoRepository.save(photo);
+				}).thenReturn(new BaseResponse(200,"사진을 수정하였습니다."));
+
+	}
+
 
 }

@@ -11,4 +11,6 @@ public interface PhotoRepository extends ReactiveMongoRepository<Photo, String> 
 	Flux<Photo> findByUserUuidAndCategoryUuid(String userUuid, String categoryUuid);
 
 	Mono<Void> deleteByUserUuid(String userId);
+
+	Mono<Photo> findByUuidAndUserUuid(String photoId, String userId);
 }

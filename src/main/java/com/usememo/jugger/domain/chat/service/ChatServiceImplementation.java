@@ -289,6 +289,13 @@ public class ChatServiceImplementation implements ChatService {
 											type = "TEXT";
 										}
 
+										String description = null;
+										if(calendar.getDescription() == null && photo.getDescription() != null){
+											description = photo.getDescription();
+										}else if(calendar.getDescription() != null && photo.getDescription() == null){
+											description = calendar.getDescription();
+										}
+
 										return GetChatByCategoryDto.ChatItem.builder()
 											.chatId(chat.getId())
 											.type(type)
@@ -300,7 +307,7 @@ public class ChatServiceImplementation implements ChatService {
 											.scheduleEndDate(calendar.getEndDateTime())
 											.place(calendar.getPlace())
 											.alarm(calendar.getAlarm())
-											.description(calendar.getDescription())
+											.description(description)
 											.timestamp(chat.getCreatedAt())
 											.build();
 									});
