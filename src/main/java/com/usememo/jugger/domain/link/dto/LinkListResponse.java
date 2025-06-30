@@ -8,14 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 public class LinkListResponse {
-
-	private List<LinkData> linkData;
-
-	@Data
-	@Builder
-	public static class LinkData {
 		private String categoryId;
 		private String linkId;
 		private String link;
-	}
 }

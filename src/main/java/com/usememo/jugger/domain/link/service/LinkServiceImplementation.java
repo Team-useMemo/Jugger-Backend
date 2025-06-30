@@ -79,15 +79,12 @@ public class LinkServiceImplementation implements LinkService {
 					.limit(size);
 
 				return reactiveMongoTemplate.find(query, Link.class)
-					.map(link -> LinkListResponse.LinkData.builder()
+					.map(link -> LinkListResponse.builder()
 						.categoryId(link.getCategoryUuid())
 						.linkId(link.getId())
 						.link(link.getUrl())
 						.build())
-					.collectList()
-					.map(linkDataList -> LinkListResponse.builder()
-						.linkData(linkDataList)
-						.build()).map(List::of);
+					.collectList();
 	}
 
 
