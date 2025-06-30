@@ -14,6 +14,7 @@ public enum ErrorCode {
 	NO_CATEGORY(BAD_REQUEST,404,"잘못된 categoryId 입니다."),
 	NO_AUTHORITY(BAD_REQUEST,404,"해당 사용자의 카테고리가 아닙니다."),
 	NO_CHAT(BAD_REQUEST,404,"채팅이 존재하지 않습니다."),
+	NO_PHOTO(BAD_REQUEST,404,"사진이 존재하지 않습니다."),
 
 	CATEGORY_ALREADY_EXIST(BAD_REQUEST, 400, "이미 존재하는 카테고리입니다."),
 	CATEGORY_IS_NULL(BAD_REQUEST, 401, "카테고리는 NULL값일 수 없습니다."),
