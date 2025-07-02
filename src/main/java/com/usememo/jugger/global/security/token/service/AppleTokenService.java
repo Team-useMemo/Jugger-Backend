@@ -15,17 +15,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AppleTokenService {
-    private final WebClient webClient = WebClient.create();
+    private final WebClient webClient;
     private final AppleJwtGenerator appleJwtGenerator;
     private final AppleProperties appleProperties;
 
@@ -44,12 +39,11 @@ public class AppleTokenService {
                                 .retrieve()
                                 .onStatus(status -> !status.is2xxSuccessful(),
                                         response -> Mono.error(new BaseException(ErrorCode.APPLE_TOKEN_REQUEST_FAILED)))
-                                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                                })
                 )
                 .onErrorResume(e -> Mono.error(new BaseException(ErrorCode.APPLE_CLIENT_SECRET_FAILED, e)));
     }
-
-
 
     // 2. id_token 검증 및 사용자 정보 추출
     public Mono<AppleUserResponse> extractUserFromIdToken(Map<String, Object> tokenMap) {

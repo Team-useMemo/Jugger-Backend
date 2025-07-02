@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import com.usememo.jugger.global.security.token.domain.*;
 import com.usememo.jugger.global.security.token.service.AppleOAuthService;
-import org.apache.el.parser.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
