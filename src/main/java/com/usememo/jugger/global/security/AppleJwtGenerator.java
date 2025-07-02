@@ -35,10 +35,9 @@ public class AppleJwtGenerator {
     public String createClientSecret()
             throws java.io.IOException,
             NoSuchAlgorithmException,
-            InvalidKeySpecException,
-            InvalidKeyException {
+            InvalidKeySpecException{
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + 3600_000); // 유효시간: 1시간
+        Date expiration = new Date(now.getTime() + 3600_000);
 
         return Jwts.builder()
                 .header()

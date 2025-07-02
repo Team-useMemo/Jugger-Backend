@@ -46,6 +46,9 @@ public class AppleOAuthService {
         return userRepository.findByEmailAndDomainAndName(email, "apple", name)
                 .flatMap(existingUser -> Mono.<TokenResponse>error(new BaseException(ErrorCode.DUPLICATE_USER)))
                 .switchIfEmpty(Mono.defer(() -> {
+                    if (!request.terms().isTermsOfService() || !request.terms().isPrivacyPolicy()) {
+                        return Mono.error(new BaseException(ErrorCode.REQUIRED_TERMS_NOT_AGREED));
+                    }
                     String uuid = UUID.randomUUID().toString();
 
                     User.Terms terms = new User.Terms();

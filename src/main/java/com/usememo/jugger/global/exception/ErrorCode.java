@@ -35,6 +35,7 @@ public enum ErrorCode {
 	KAKAO_USER_NOT_FOUND(BAD_REQUEST,427,"존재하지 않는 회원입니다."),
 
 	DUPLICATE_USER(BAD_REQUEST,428,"중복된 회원정보입니다."),
+	REQUIRED_TERMS_NOT_AGREED(BAD_REQUEST, 429, "필수 약관에 동의하지 않았습니다."),
 
 
 	GOOGLE_LOGIN_FAIL(BAD_REQUEST,404,"로그인에 실패하였습니다."),

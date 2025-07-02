@@ -16,6 +16,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtValidator {
 
+    private static final String APPLE_ISSUER = "https://appleid.apple.com";
+
     private final ApplePublicKeyProvider keyProvider;
 
     @Value("${apple.client-id}")
@@ -47,7 +49,7 @@ public class JwtValidator {
                 throw new IllegalArgumentException("Apple ID Token 만료됨");
             }
 
-            if (!"https://appleid.apple.com".equals(claims.getIssuer())) {
+            if (!APPLE_ISSUER.equals(claims.getIssuer())) {
                 throw new IllegalArgumentException("잘못된 iss: " + claims.getIssuer());
             }
 

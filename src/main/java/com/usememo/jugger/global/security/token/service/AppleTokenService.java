@@ -42,7 +42,7 @@ public class AppleTokenService {
                                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
                                 })
                 )
-                .onErrorResume(e -> Mono.error(new BaseException(ErrorCode.APPLE_CLIENT_SECRET_FAILED, e)));
+                .onErrorResume(e -> Mono.error(new BaseException(ErrorCode.APPLE_CLIENT_SECRET_FAILED)));
     }
 
     // 2. id_token 검증 및 사용자 정보 추출
@@ -60,6 +60,6 @@ public class AppleTokenService {
             }
 
             return new AppleUserResponse(sub, email);
-        }).onErrorResume(e -> Mono.error(new BaseException(ErrorCode.APPLE_TOKEN_PARSE_ERROR, e)));
+        }).onErrorResume(e -> Mono.error(new BaseException(ErrorCode.APPLE_TOKEN_PARSE_ERROR)));
     }
 }
