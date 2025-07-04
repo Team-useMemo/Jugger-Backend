@@ -3,9 +3,6 @@ package com.usememo.jugger.global.security.token.service;
 import java.util.Map;
 import java.util.UUID;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,9 +14,7 @@ import com.usememo.jugger.domain.user.entity.User;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
-
 import com.usememo.jugger.global.exception.KakaoException;
-
 import com.usememo.jugger.global.security.JwtTokenProvider;
 import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
 import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
@@ -29,7 +24,9 @@ import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -61,10 +58,11 @@ public class KakaoOAuthService {
 				.with("redirect_uri", kakaoProps.getRedirectUri())
 				.with("code", code))
 			.retrieve()
-			.onStatus(status -> !status.is2xxSuccessful(), response -> Mono.error(new BaseException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
+			.onStatus(status -> !status.is2xxSuccessful(),
+				response -> Mono.error(new BaseException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
 			.bodyToMono(Map.class)
 			.map(body -> {
-				String token = (String) body.get("access_token");
+				String token = (String)body.get("access_token");
 				if (token == null) {
 					throw new BaseException(ErrorCode.KAKAO_TOKEN_MISSING);
 				}
@@ -72,7 +70,6 @@ public class KakaoOAuthService {
 			})
 			.onErrorMap(e -> new BaseException(ErrorCode.KAKAO_CONNECTION_FAILED));
 	}
-
 
 	private Mono<KakaoUserResponse> getUserInfo(String accessToken) {
 
@@ -109,7 +106,6 @@ public class KakaoOAuthService {
 			}));
 	}
 
-
 	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
 		String email = kakaoSignUpRequest.email();
 		String domain = kakaoSignUpRequest.domain();
@@ -140,11 +136,10 @@ public class KakaoOAuthService {
 			}));
 	}
 
-
-	public Mono<Void> userLogOut(String refreshToken){
+	public Mono<Void> userLogOut(String refreshToken) {
 		String userId;
 		userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-		if(userId == null){
+		if (userId == null) {
 			throw new BaseException(ErrorCode.NO_LOGOUT_USER);
 		}
 		return refreshTokenRepository.findByUserId(userId)
@@ -152,9 +147,7 @@ public class KakaoOAuthService {
 			.flatMap(foundToken -> refreshTokenRepository.deleteByUserId(userId));
 	}
 
-
-
-	public Mono<ResponseEntity<NewTokenResponse>> giveNewToken(String refreshToken){
+	public Mono<ResponseEntity<NewTokenResponse>> giveNewToken(String refreshToken) {
 		return refreshTokenRepository.findByToken(refreshToken)
 			.flatMap(savedToken -> {
 				if (!jwtTokenProvider.validateToken(savedToken.getToken())) {
@@ -170,9 +163,4 @@ public class KakaoOAuthService {
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN)));
 	}
 
-	public Mono<Void> deleteUser(String userId){
-		return refreshTokenRepository.deleteByUserId(userId)
-			.then(userRepository.deleteById(userId))
-			.onErrorResume(e->Mono.error(new BaseException(ErrorCode.KAKAO_USER_NOT_FOUND)));
-	}
 }
