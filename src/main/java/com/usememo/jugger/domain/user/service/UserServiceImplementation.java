@@ -23,7 +23,6 @@ public class UserServiceImplementation implements UserService {
 				user.setDeleted(true);
 				return userRepository.save(user);
 			})
-			.then(refreshTokenRepository.deleteByUserId(userId))
-			.then();
+			.then(refreshTokenRepository.deleteByUserId(userId));
 	}
 }
