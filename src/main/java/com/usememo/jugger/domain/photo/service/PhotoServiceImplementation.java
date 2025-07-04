@@ -99,7 +99,7 @@ public class PhotoServiceImplementation implements PhotoService {
 	public Mono<BaseResponse> updatePhotoDescription(CustomOAuth2User customOAuth2User, PhotoUpdateRequest request) {
 		Query query = Query.query(
 			Criteria.where("uuid").is(request.photoId())
-				.and("userUuid").is(customOAuth2User.getUserId())
+				.and("user_uuid").is(customOAuth2User.getUserId())
 		);
 
 		Update update = new Update().set("description", request.description());
