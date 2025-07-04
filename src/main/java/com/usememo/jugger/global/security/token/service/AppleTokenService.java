@@ -4,6 +4,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.security.AppleJwtGenerator;
+import com.usememo.jugger.global.security.JwtValidator;
 import com.usememo.jugger.global.security.token.domain.AppleProperties;
 import com.usememo.jugger.global.security.token.domain.AppleUserResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class AppleTokenService {
     private final WebClient webClient;
     private final AppleJwtGenerator appleJwtGenerator;
     private final AppleProperties appleProperties;
+    private final JwtValidator jwtValidator;
 
     // 1. 인가 코드로 Apple 토큰 요청
     public Mono<Map<String, Object>> exchangeCodeForTokens(String code) {
@@ -49,7 +51,16 @@ public class AppleTokenService {
     public Mono<AppleUserResponse> extractUserFromIdToken(Map<String, Object> tokenMap) {
         return Mono.fromCallable(() -> {
             String idToken = (String) tokenMap.get("id_token");
-            SignedJWT jwt = SignedJWT.parse(idToken);
+            if(idToken == null){
+                throw new BaseException(ErrorCode.APPLE_TOKEN_PARSE_ERROR);
+            }
+            SignedJWT jwt;
+
+            try{
+                jwt = jwtValidator.validate(idToken);
+            } catch (IllegalArgumentException e){
+                throw new BaseException(ErrorCode.APPLE_TOKEN_INVALID);
+            }
             var claims = jwt.getJWTClaimsSet();
 
             String email = claims.getStringClaim("email");

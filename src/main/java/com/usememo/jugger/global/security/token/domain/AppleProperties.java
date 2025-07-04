@@ -15,6 +15,6 @@ public class AppleProperties {
     private String teamId;
     private String keyId;
     private String privateKeyLocation;
-    private String privateKey;
+    //private String privateKey;
     private String redirectUri;
 }

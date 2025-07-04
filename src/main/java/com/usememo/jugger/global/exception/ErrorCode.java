@@ -48,6 +48,7 @@ public enum ErrorCode {
 	APPLE_CLIENT_SECRET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 432, "Apple client secret 생성에 실패했습니다."),
 	APPLE_USERINFO_MISSING(BAD_REQUEST, 433, "Apple 사용자 정보가 불완전합니다."),
 	APPLE_TOKEN_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 434, "Apple id_token 파싱에 실패했습니다."),
+	APPLE_TOKEN_INVALID(BAD_REQUEST, 435, "Apple 토큰이 유효하지 않습니다."),
 
 
 
