@@ -3,6 +3,7 @@ package com.usememo.jugger.global.exception;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 
 @Getter
@@ -11,10 +12,10 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 500, "서버 내부 오류입니다."),
 	FILE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 501, "S3 파일 업로드에 실패했습니다."),
 
-	NO_CATEGORY(BAD_REQUEST,404,"잘못된 categoryId 입니다."),
-	NO_AUTHORITY(BAD_REQUEST,404,"해당 사용자의 카테고리가 아닙니다."),
-	NO_CHAT(BAD_REQUEST,404,"채팅이 존재하지 않습니다."),
-	NO_PHOTO(BAD_REQUEST,404,"사진이 존재하지 않습니다."),
+	NO_CATEGORY(BAD_REQUEST, 404, "잘못된 categoryId 입니다."),
+	NO_AUTHORITY(BAD_REQUEST, 404, "해당 사용자의 카테고리가 아닙니다."),
+	NO_CHAT(BAD_REQUEST, 404, "채팅이 존재하지 않습니다."),
+	NO_PHOTO(BAD_REQUEST, 404, "사진이 존재하지 않습니다."),
 
 	CATEGORY_ALREADY_EXIST(BAD_REQUEST, 400, "이미 존재하는 카테고리입니다."),
 	CATEGORY_IS_NULL(BAD_REQUEST, 401, "카테고리는 NULL값일 수 없습니다."),
@@ -33,16 +34,14 @@ public enum ErrorCode {
 	KAKAO_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 420, "카카오 로그인 중 알 수 없는 오류가 발생했습니다."),
 	KAKAO_JWT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 421, "카카오 jwt 토큰 제공시 에러"),
 
-	KAKAO_USER_NOT_FOUND(BAD_REQUEST,427,"존재하지 않는 회원입니다."),
+	KAKAO_USER_NOT_FOUND(BAD_REQUEST, 427, "존재하지 않는 회원입니다."),
 
-	DUPLICATE_USER(BAD_REQUEST,428,"중복된 회원정보입니다."),
+	DUPLICATE_USER(BAD_REQUEST, 428, "중복된 회원정보입니다."),
 
-
-	GOOGLE_LOGIN_FAIL(BAD_REQUEST,404,"로그인에 실패하였습니다."),
-	GOOGLE_NO_EMAIL(BAD_REQUEST,404,"이메일이 존재하지 않습니다."),
-	GOOGLE_USER_NOT_FOUND(BAD_REQUEST,404,"구글 유저가 존재하지 않습니다."),
-	GOOGLE_NO_NAME(BAD_REQUEST,404,"이름이 존재하지 않습니다."),
-
+	GOOGLE_LOGIN_FAIL(BAD_REQUEST, 404, "로그인에 실패하였습니다."),
+	GOOGLE_NO_EMAIL(BAD_REQUEST, 404, "이메일이 존재하지 않습니다."),
+	GOOGLE_USER_NOT_FOUND(BAD_REQUEST, 404, "구글 유저가 존재하지 않습니다."),
+	GOOGLE_NO_NAME(BAD_REQUEST, 404, "이름이 존재하지 않습니다."),
 
 	JWT_KEY_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 422, "JWT 키 생성에 실패했습니다."),
 	JWT_ACCESS_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 423, "액세스 토큰 생성 실패"),
@@ -50,13 +49,13 @@ public enum ErrorCode {
 	JWT_PARSE_FAILED(HttpStatus.UNAUTHORIZED, 425, "JWT 파싱 실패"),
 	JWT_BUNDLE_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 426, "JWT 번들 생성 실패"),
 
-	NO_LOGOUT_USER(BAD_REQUEST,404,"존재하지 않는 refresh token입니다."),
-	WRONG_LOGOUT(BAD_REQUEST,404,"로그아웃에 실패하였습니다."),
-	UPLOAD_LIMIT(BAD_REQUEST,404,"최대 업로드 개수는 5개입니다."),
+	NO_LOGOUT_USER(BAD_REQUEST, 404, "존재하지 않는 refresh token입니다."),
+	WRONG_LOGOUT(BAD_REQUEST, 404, "로그아웃에 실패하였습니다."),
+	UPLOAD_LIMIT(BAD_REQUEST, 404, "최대 업로드 개수는 5개입니다."),
 
-	NO_CALENDAR(BAD_REQUEST,404,"해당 조건에 대한 캘린더가 존재하지 않습니다."),
-
-	DELETE_ERROR(BAD_REQUEST,404,"전체 게시글 삭제에 문제가 발생하였습니다.");
+	NO_CALENDAR(BAD_REQUEST, 404, "해당 조건에 대한 캘린더가 존재하지 않습니다."),
+	LINK_NOT_FOUND(BAD_REQUEST, 404, "해당 조건에 랑크가 존재하지 않습니다."),
+	DELETE_ERROR(BAD_REQUEST, 404, "전체 게시글 삭제에 문제가 발생하였습니다.");
 
 	private final HttpStatus httpStatus;
 	private final int code;

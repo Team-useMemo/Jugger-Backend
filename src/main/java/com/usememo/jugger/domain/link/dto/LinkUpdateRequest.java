@@ -1,4 +1,4 @@
 package com.usememo.jugger.domain.link.dto;
 
-public record LinkUpdateRequest(String linkId, String categoryId, String url) {
+public record LinkUpdateRequest(String linkId, String url) {
 }
