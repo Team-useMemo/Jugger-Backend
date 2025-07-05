@@ -54,59 +54,55 @@ import reactor.core.publisher.Mono;
 @Tag(name = "로그인 API", description = "로그인/로그아웃 API에 대한 설명입니다.")
 public class AuthController {
 
-	private final KakaoOAuthService kakaoService;
-	private final GoogleOAuthService googleOAuthService;
+    private final KakaoOAuthService kakaoService;
+    private final GoogleOAuthService googleOAuthService;
 
+    @Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
+    @PostMapping(value = "/refresh")
+    public Mono<ResponseEntity<NewTokenResponse>> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
+        String refreshToken = request.refreshToken();
 
-	@Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
-	@PostMapping(value = "/refresh")
-	public Mono<ResponseEntity<NewTokenResponse>> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
-		String refreshToken = request.refreshToken();
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new BaseException(ErrorCode.NO_REFRESH_TOKEN);
+        }
+        return kakaoService.giveNewToken(refreshToken);
+    }
 
-		if (refreshToken == null || refreshToken.isBlank()) {
-			throw new BaseException(ErrorCode.NO_REFRESH_TOKEN);
-		}
-		return kakaoService.giveNewToken(refreshToken);
-	}
+    @Operation(summary = "[POST] 로그아웃")
+    @PostMapping("/logout")
+    public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
 
+        return kakaoService.userLogOut(request.refreshToken())
+                .thenReturn(ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다.")));
+    }
 
-	@Operation(summary = "[POST] 로그아웃")
-	@PostMapping("/logout")
-	public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
+    @Operation(summary = "[POST] 카카오 로그인")
+    @PostMapping("/kakao")
+    public Mono<ResponseEntity<TokenResponse>> loginByKakao(@RequestBody KakaoLoginRequest request) {
+        return kakaoService.loginWithKakao(request.code())
+                .map(token -> ResponseEntity.ok().body(token));
+    }
 
-		return kakaoService.userLogOut(request.refreshToken())
-			.thenReturn(ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다.")));
-	}
+    @Operation(summary = "[POST] 카카오 회원가입")
+    @PostMapping("/kakao/signup")
+    public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
+        return kakaoService.signUpKakao(kakaoSignUpRequest)
+                .map(token -> ResponseEntity.ok().body(token));
 
+    }
 
-	@Operation(summary = "[POST] 카카오 로그인")
-	@PostMapping("/kakao")
-	public Mono<ResponseEntity<TokenResponse>> loginByKakao(@RequestBody KakaoLoginRequest request) {
-		return kakaoService.loginWithKakao(request.code())
-			.map(token -> ResponseEntity.ok().body(token));
-	}
+    @Operation(summary = "[POST] 구글 로그인")
+    @PostMapping("/google")
+    public Mono<ResponseEntity<TokenResponse>> loginByGoogle(@RequestBody GoogleLoginRequest googleLoginRequest) {
+        return googleOAuthService.loginWithGoogle(googleLoginRequest.code())
+                .map(token -> ResponseEntity.ok().body(token));
+    }
 
-	@Operation(summary = "[POST] 카카오 회원가입")
-	@PostMapping("/kakao/signup")
-	public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
-		return kakaoService.signUpKakao(kakaoSignUpRequest)
-			.map(token -> ResponseEntity.ok().body(token));
-
-	}
-
-	@Operation(summary = "[POST] 구글 로그인")
-	@PostMapping("/google")
-	public Mono<ResponseEntity<TokenResponse>> loginByGoogle(@RequestBody GoogleLoginRequest googleLoginRequest){
-		return googleOAuthService.loginWithGoogle(googleLoginRequest.code())
-			.map(token -> ResponseEntity.ok().body(token));
-	}
-
-
-	@Operation(summary = "[POST] 구글 회원가입")
-	@PostMapping("/google/signup")
-	public Mono<ResponseEntity<TokenResponse>> signUpGoogle(@RequestBody GoogleSignupRequest googleSignupRequest){
-		return googleOAuthService.signUpGoogle(googleSignupRequest)
-			.map(token-> ResponseEntity.ok().body(token));
-	}
+    @Operation(summary = "[POST] 구글 회원가입")
+    @PostMapping("/google/signup")
+    public Mono<ResponseEntity<TokenResponse>> signUpGoogle(@RequestBody GoogleSignupRequest googleSignupRequest) {
+        return googleOAuthService.signUpGoogle(googleSignupRequest)
+                .map(token -> ResponseEntity.ok().body(token));
+    }
 
 }

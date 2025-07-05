@@ -1,11 +1,9 @@
 package com.usememo.jugger.global.security.token.domain;
 
-import com.usememo.jugger.domain.user.entity.User;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-public record KakaoSignUpRequest(
+public record NaverSignUpRequest(
 
         @Schema(description = "사용자 이름", example = "홍길동", required = true)
         String name,
@@ -13,7 +11,7 @@ public record KakaoSignUpRequest(
         @Schema(description = "이메일 주소", example = "hong@example.com", required = true)
         String email,
 
-        @Schema(description = "로그인 도메인", example = "kakao", required = true)
+        @Schema(description = "로그인 도메인", example = "naver", required = true)
         String domain,
 
         @Schema(description = "약관 동의 정보", required = true)
