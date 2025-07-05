@@ -101,7 +101,7 @@ public class KakaoOAuthService {
 
 		return userRepository.findByEmailAndDomain(email, "kakao")
 			.switchIfEmpty(Mono.defer(() -> {
-				return Mono.error(new KakaoException(ErrorCode.KAKAO_USER_NOT_FOUND,
+				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
 					Map.of("email", email, "nickname", name)));
 			}));
 	}

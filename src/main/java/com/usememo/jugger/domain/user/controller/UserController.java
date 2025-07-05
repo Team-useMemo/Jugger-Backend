@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.usememo.jugger.domain.user.LogoutResponse;
 import com.usememo.jugger.domain.user.service.UserService;
 import com.usememo.jugger.global.security.CustomOAuth2User;
-import com.usememo.jugger.global.security.token.domain.KakaoLogoutResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +24,9 @@ public class UserController {
 
 	@Operation(summary = "[DELETE] 회원탈퇴")
 	@DeleteMapping("/signout")
-	public Mono<ResponseEntity<KakaoLogoutResponse>> deleteUser(
+	public Mono<ResponseEntity<LogoutResponse>> deleteUser(
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return userService.deleteUser(customOAuth2User.getUserId())
-			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new KakaoLogoutResponse(200, "회원탈퇴에 성공하였습니다."))));
+			.then(Mono.fromCallable(() -> ResponseEntity.ok().body(new LogoutResponse(200, "회원탈퇴에 성공하였습니다."))));
 	}
 }

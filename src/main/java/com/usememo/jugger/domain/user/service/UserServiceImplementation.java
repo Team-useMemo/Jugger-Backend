@@ -18,7 +18,7 @@ public class UserServiceImplementation implements UserService {
 
 	public Mono<Void> deleteUser(String userId) {
 		return userRepository.findById(userId)
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.KAKAO_USER_NOT_FOUND)))
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT_FOUND)))
 			.flatMap(user -> {
 				user.setDeleted(true);
 				return userRepository.save(user);
