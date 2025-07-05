@@ -1,7 +1,5 @@
 package com.usememo.jugger.domain.link.service;
 
-import static java.awt.SystemColor.*;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -39,19 +37,19 @@ public class LinkServiceImplementation implements LinkService {
 	private final ChatRepository chatRepository;
 
 	@Override
-	public Mono<List<GetLinkDto>> getLinks(Instant before, int page, int size, CustomOAuth2User customOAuth2User, String categoryUuid) {
+	public Mono<List<GetLinkDto>> getLinks(Instant before, int page, int size, CustomOAuth2User customOAuth2User,
+		String categoryUuid) {
 		String userId = customOAuth2User.getUserId();
 
 		return categoryRepository.findByUuid(categoryUuid)
 			.flatMap(category -> {
-
 
 				Query query = new Query()
 					.addCriteria(Criteria.where("userUuid").is(userId))
 					.addCriteria(Criteria.where("categoryUuid").is(categoryUuid))
 					.addCriteria(Criteria.where("created_at").lt(before))
 					.with(Sort.by(Sort.Direction.DESC, "created_at"))
-					.skip((long) page * size)
+					.skip((long)page * size)
 					.limit(size);
 
 				return reactiveMongoTemplate.find(query, Link.class)
@@ -69,66 +67,61 @@ public class LinkServiceImplementation implements LinkService {
 	}
 
 	@Override
-	public  Mono<List<LinkListResponse>> getLinksNoCategory(Instant before, int page, int size, CustomOAuth2User customOAuth2User){
+	public Mono<List<LinkListResponse>> getLinksNoCategory(Instant before, int page, int size,
+		CustomOAuth2User customOAuth2User) {
 		String userId = customOAuth2User.getUserId();
-				Query query = new Query()
-					.addCriteria(Criteria.where("userUuid").is(userId))
-					.addCriteria(Criteria.where("created_at").lt(before))
-					.with(Sort.by(Sort.Direction.DESC, "created_at"))
-					.skip((long) page * size)
-					.limit(size);
+		Query query = new Query()
+			.addCriteria(Criteria.where("userUuid").is(userId))
+			.addCriteria(Criteria.where("created_at").lt(before))
+			.with(Sort.by(Sort.Direction.DESC, "created_at"))
+			.skip((long)page * size)
+			.limit(size);
 
-				return reactiveMongoTemplate.find(query, Link.class)
-					.map(link -> LinkListResponse.builder()
-						.categoryId(link.getCategoryUuid())
-						.linkId(link.getId())
-						.link(link.getUrl())
-						.build())
-					.collectList();
+		return reactiveMongoTemplate.find(query, Link.class)
+			.map(link -> LinkListResponse.builder()
+				.categoryId(link.getCategoryUuid())
+				.linkId(link.getId())
+				.link(link.getUrl())
+				.build())
+			.collectList();
 	}
 
-
 	@Override
-	public Mono<LinkResponse> postLink(CustomOAuth2User customOAuth2User, LinkRequest request){
+	public Mono<LinkResponse> postLink(CustomOAuth2User customOAuth2User, LinkRequest request) {
 		String userId = customOAuth2User.getUserId();
 		String categoryId = request.categoryId();
 		String chatId = UUID.randomUUID().toString();
 
-		return 	categoryRepository.findByUuid(categoryId)
-				.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
-				.then(chatRepository.save(Chat.builder()
-					.uuid(chatId)
-					.userUuid(customOAuth2User.getUserId())
-					.categoryUuid(categoryId)
-					.data(request.link())
-					.build())).then(
-						linkRepository.save(
-							Link.builder()
-								.uuid(UUID.randomUUID().toString())
-								.categoryUuid(categoryId)
-								.url(request.link())
-								.userUuid(userId)
-								.chatUuid(chatId)
-								.build()))
-				.thenReturn(new LinkResponse(201,"링크가 등록되었습니다."));
+		return categoryRepository.findByUuid(categoryId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
+			.then(chatRepository.save(Chat.builder()
+				.uuid(chatId)
+				.userUuid(customOAuth2User.getUserId())
+				.categoryUuid(categoryId)
+				.data(request.link())
+				.build())).then(
+				linkRepository.save(
+					Link.builder()
+						.uuid(UUID.randomUUID().toString())
+						.categoryUuid(categoryId)
+						.url(request.link())
+						.userUuid(userId)
+						.chatUuid(chatId)
+						.build()))
+			.thenReturn(new LinkResponse(201, "링크가 등록되었습니다."));
 	}
 
 	@Override
-	public Mono<LinkResponse> updateLink(CustomOAuth2User customOAuth2User, LinkUpdateRequest request){
+	public Mono<LinkResponse> updateLink(CustomOAuth2User customOAuth2User, LinkUpdateRequest request) {
 		String userId = customOAuth2User.getUserId();
-		String categoryId = request.categoryId();
 
-		return categoryRepository.findByUuid(categoryId)
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
-			.then(linkRepository.findByUuidAndUserUuid(request.linkId(),userId)
-			).flatMap(link -> {
-				link.setCategoryUuid(categoryId);
-				link.setUrl(request.url());
-				return linkRepository.save(link);
+		return linkRepository.findByUuidAndUserUuid(request.linkId(), userId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.LINK_NOT_FOUND)))
+			.flatMap(link -> {
+					link.setUrl(request.url());
+					return linkRepository.save(link);
 				}
-			).thenReturn(new LinkResponse(200,"링크를 수정하였습니다."));
+			).thenReturn(new LinkResponse(200, "링크를 수정하였습니다."));
 	}
-
-
 
 }
