@@ -18,6 +18,7 @@ import lombok.Setter;
 @Builder
 @Getter
 public class Photo extends BaseTimeEntity  implements Persistable<String> {
+
 	@Id
 	private String uuid;
 

@@ -17,6 +17,7 @@ import lombok.Setter;
 @Builder
 @Getter
 public class Link extends BaseTimeEntity implements Persistable<String> {
+
 	@Id
 	private String uuid;
 	private String userUuid;

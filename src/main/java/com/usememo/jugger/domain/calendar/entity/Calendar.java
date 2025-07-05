@@ -16,6 +16,7 @@ import lombok.Setter;
 @Builder
 @Getter
 public class Calendar {
+
 	@Id
 	private String uuid;
 	private String userUuid;
