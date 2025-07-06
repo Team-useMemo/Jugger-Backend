@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.usememo.jugger.domain.calendar.dto.CalendarUpdateRequest;
 import com.usememo.jugger.domain.calendar.dto.GetCalendarDto;
 import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
-import com.usememo.jugger.domain.calendar.dto.CalendarUpdateRequest;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.repository.CalendarRepository;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
@@ -84,8 +84,10 @@ public class CalendarServiceImplementation implements CalendarService {
 	}
 
 	@Override
-	public Flux<GetCalendarDto> getCalendarWithCategory(String categoryId,Instant start, Instant end, CustomOAuth2User customOAuth2User ){
-		return calendarRepository.findByUserUuidAndCategoryUuidAndStartDateTimeBetween(customOAuth2User.getUserId(),categoryId, start, end)
+	public Flux<GetCalendarDto> getCalendarWithCategory(String categoryId, Instant start, Instant end,
+		CustomOAuth2User customOAuth2User) {
+		return calendarRepository.findByUserUuidAndCategoryUuidAndStartDateTimeBetween(customOAuth2User.getUserId(),
+				categoryId, start, end)
 			.flatMap(calendar ->
 				categoryRepository.findByUuid(calendar.getCategoryUuid())
 					.map(category -> GetCalendarDto.builder()
@@ -103,7 +105,6 @@ public class CalendarServiceImplementation implements CalendarService {
 			);
 	}
 
-
 	@Override
 	public Mono<BaseResponse> updateCalendar(CustomOAuth2User customOAuth2User, CalendarUpdateRequest request) {
 
@@ -112,7 +113,6 @@ public class CalendarServiceImplementation implements CalendarService {
 			.flatMap(calendar -> {
 				calendar.setTitle(request.title());
 				calendar.setAlarm(request.alarm());
-				calendar.setCategoryUuid(request.categoryId());
 				calendar.setDescription(request.description());
 				calendar.setStartDateTime(request.start());
 				calendar.setEndDateTime(request.end());

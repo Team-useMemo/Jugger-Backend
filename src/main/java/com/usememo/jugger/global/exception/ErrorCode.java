@@ -55,6 +55,7 @@ public enum ErrorCode {
 
 	NO_CALENDAR(BAD_REQUEST, 404, "해당 조건에 대한 캘린더가 존재하지 않습니다."),
 
+	LINK_NOT_FOUND(BAD_REQUEST, 404, "해당 조건에 링크가 존재하지 않습니다."),
 	DELETE_ERROR(BAD_REQUEST, 404, "전체 게시글 삭제에 문제가 발생하였습니다.");
 
 	private final HttpStatus httpStatus;
