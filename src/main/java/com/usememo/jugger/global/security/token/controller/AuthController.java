@@ -70,8 +70,8 @@ public class AuthController {
             throw new BaseException(ErrorCode.NO_REFRESH_TOKEN);
         }
 
-        if(provider == null )
-        throw new BaseException(ErrorCode.INVALID_PROVIDER);
+        if (provider == null)
+            throw new BaseException(ErrorCode.INVALID_PROVIDER);
 
         return getOAuthService(provider).giveNewToken(refreshToken);
     }
@@ -114,8 +114,8 @@ public class AuthController {
                 .map(token -> ResponseEntity.ok().body(token));
     }
 
-    private OAuthService getOAuthService(String provider){
-        return switch (provider.toLowerCase()){
+    private OAuthService getOAuthService(String provider) {
+        return switch (provider.toLowerCase()) {
             case "kakao" -> kakaoService;
             case "google" -> googleOAuthService;
             case "naver" -> naverOAuthService;
