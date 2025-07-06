@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GoogleOAuthService {
+public class GoogleOAuthService  {
 	private final WebClient webClient = WebClient.create();
 	private final UserRepository userRepository;
 	private final JwtTokenProvider jwtTokenProvider;

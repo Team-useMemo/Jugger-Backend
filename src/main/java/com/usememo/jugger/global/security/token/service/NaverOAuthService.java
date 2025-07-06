@@ -25,7 +25,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NaverOAuthService {
+public class NaverOAuthService implements OAuthService {
     private final WebClient webClient = WebClient.create();
     private final NaverOAuthProperties naverProps;
     private final UserRepository userRepository;

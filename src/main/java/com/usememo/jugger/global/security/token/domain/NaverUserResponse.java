@@ -1,7 +1,6 @@
 package com.usememo.jugger.global.security.token.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.nimbusds.oauth2.sdk.Response;
 import lombok.Getter;
 import lombok.Setter;
 

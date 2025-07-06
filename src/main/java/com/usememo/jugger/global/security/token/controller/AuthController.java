@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.usememo.jugger.global.security.token.service.NaverOAuthService;
+import com.usememo.jugger.global.security.token.service.OAuthService;
 import org.apache.el.parser.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,23 +58,30 @@ public class AuthController {
 
     private final KakaoOAuthService kakaoService;
     private final GoogleOAuthService googleOAuthService;
+    private final NaverOAuthService naverOAuthService;
 
     @Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
     @PostMapping(value = "/refresh")
     public Mono<ResponseEntity<NewTokenResponse>> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
         String refreshToken = request.refreshToken();
+        String provider = request.provider();
 
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new BaseException(ErrorCode.NO_REFRESH_TOKEN);
         }
-        return kakaoService.giveNewToken(refreshToken);
+
+        if(provider == null )
+        throw new BaseException(ErrorCode.INVALID_PROVIDER);
+
+        return getOAuthService(provider).giveNewToken(refreshToken);
     }
 
     @Operation(summary = "[POST] 로그아웃")
     @PostMapping("/logout")
     public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
+        String provider = request.provider();
 
-        return kakaoService.userLogOut(request.refreshToken())
+        return getOAuthService(provider).userLogOut(request.refreshToken())
                 .thenReturn(ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다.")));
     }
 
@@ -105,4 +114,12 @@ public class AuthController {
                 .map(token -> ResponseEntity.ok().body(token));
     }
 
+    private OAuthService getOAuthService(String provider){
+        return switch (provider.toLowerCase()){
+            case "kakao" -> kakaoService;
+            case "google" -> googleOAuthService;
+            case "naver" -> naverOAuthService;
+            default -> throw new BaseException(ErrorCode.UNSUPPORTED_PROVIDER);
+        };
+    }
 }

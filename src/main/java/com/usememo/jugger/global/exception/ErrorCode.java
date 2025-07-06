@@ -43,6 +43,8 @@ public enum ErrorCode {
     NAVER_NAME_MISSING(BAD_REQUEST, 455, "네이버 응답에 이름이 존재하지 않습니다."),
     NAVER_USER_NOT_FOUND(BAD_REQUEST, 456, "존재하지 않는 네이버 회원입니다."),
     REQUIRED_TERMS_NOT_AGREED(BAD_REQUEST, 457, "필수 약관에 동의하지 않았습니다."),
+    INVALID_PROVIDER(BAD_REQUEST, 458, "지원하지 않는 OAuth 제공자입니다."),
+    UNSUPPORTED_PROVIDER(BAD_REQUEST, 459, "지원하지 않는 소셜 로그인 제공자입니다."),
 
 
     DUPLICATE_USER(BAD_REQUEST, 428, "중복된 회원정보입니다."),

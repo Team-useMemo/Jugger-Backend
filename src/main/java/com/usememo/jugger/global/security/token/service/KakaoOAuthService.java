@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoOAuthService {
+public class KakaoOAuthService implements OAuthService{
 	private final WebClient webClient = WebClient.create();
 	private final KakaoOAuthProperties kakaoProps;
 	private final UserRepository userRepository;
