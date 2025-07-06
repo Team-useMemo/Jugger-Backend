@@ -1,6 +1,7 @@
 package com.usememo.jugger.global.security.token.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.nimbusds.oauth2.sdk.Response;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,21 +9,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NaverUserResponse {
-    private long id;
-    private NaverAccount naver_account;
-    private Properties properties;
+    private String resultcode;
+    private String message;
+    private Response response;
 
     @Getter
     @Setter
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class NaverAccount {
+    public static class Response {
+        private String id;
         private String email;
-    }
-
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Properties {
         private String nickname;
     }
 }

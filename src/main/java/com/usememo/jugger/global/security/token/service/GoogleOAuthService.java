@@ -14,6 +14,7 @@ import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 
 import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
+import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -126,5 +128,4 @@ public class GoogleOAuthService {
 					.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
 			}));
 	}
-
 }

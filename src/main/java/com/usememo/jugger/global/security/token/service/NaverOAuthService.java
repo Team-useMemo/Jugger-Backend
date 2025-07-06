@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NaverOAuthService {
     private final WebClient webClient = WebClient.create();
-    private final naverOAuthProperties naverProps;
+    private final NaverOAuthProperties naverProps;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -49,6 +49,7 @@ public class NaverOAuthService {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
                         .with("client_id", naverProps.getClientId())
+                        .with("client_secret", naverProps.getClientSecret())
                         .with("redirect_uri", naverProps.getRedirectUri())
                         .with("code", code))
                 .retrieve()
@@ -80,9 +81,9 @@ public class NaverOAuthService {
                 });
     }
 
-    private Mono<User> saveOrFindUser(NaverUserResponse responsea) {
-        String email = responsea.getNaver_account().getEmail();
-        String name = responsea.getProperties().getNickname();
+    private Mono<User> saveOrFindUser(NaverUserResponse response) {
+        String email = response.getResponse().getEmail();
+        String name = response.getResponse().getNickname();
 
         if (email == null) {
             return Mono.error(new BaseException(ErrorCode.NAVER_EMAIL_MISSING));
@@ -93,8 +94,7 @@ public class NaverOAuthService {
 
         return userRepository.findByEmailAndDomain(email, "naver")
                 .switchIfEmpty(Mono.defer(() -> {
-                    return Mono.error(new KakaoException(ErrorCode.NAVER_USER_NOT_FOUND,
-                            Map.of("email", email, "nickname", name)));
+                    return Mono.error(new BaseException(ErrorCode.NAVER_USER_NOT_FOUND));
                 }));
     }
 
@@ -102,6 +102,11 @@ public class NaverOAuthService {
         String email = naverSignUpRequest.email();
         String domain = naverSignUpRequest.domain();
         String name = naverSignUpRequest.name();
+
+        if (!naverSignUpRequest.terms().isTermsOfService() || !naverSignUpRequest.terms().isPrivacyPolicy()) {
+            return Mono.error(new BaseException(ErrorCode.REQUIRED_TERMS_NOT_AGREED));
+        }
+
 
         return userRepository.findByEmailAndDomainAndName(email, domain, name)
                 .flatMap(existingUser ->
