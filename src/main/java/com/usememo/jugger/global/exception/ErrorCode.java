@@ -34,7 +34,7 @@ public enum ErrorCode {
 	KAKAO_UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 420, "카카오 로그인 중 알 수 없는 오류가 발생했습니다."),
 	KAKAO_JWT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 421, "카카오 jwt 토큰 제공시 에러"),
 
-	KAKAO_USER_NOT_FOUND(BAD_REQUEST, 427, "존재하지 않는 회원입니다."),
+	USER_NOT_FOUND(BAD_REQUEST, 427, "존재하지 않는 회원입니다."),
 
 	DUPLICATE_USER(BAD_REQUEST, 428, "중복된 회원정보입니다."),
 
@@ -54,6 +54,7 @@ public enum ErrorCode {
 	UPLOAD_LIMIT(BAD_REQUEST, 404, "최대 업로드 개수는 5개입니다."),
 
 	NO_CALENDAR(BAD_REQUEST, 404, "해당 조건에 대한 캘린더가 존재하지 않습니다."),
+
 	LINK_NOT_FOUND(BAD_REQUEST, 404, "해당 조건에 링크가 존재하지 않습니다."),
 	DELETE_ERROR(BAD_REQUEST, 404, "전체 게시글 삭제에 문제가 발생하였습니다.");
 
