@@ -2,7 +2,7 @@ package com.usememo.jugger.global.security.token.repository;
 
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
-import com.usememo.jugger.global.security.token.domain.RefreshToken;
+import com.usememo.jugger.global.security.token.domain.token.RefreshToken;
 
 import reactor.core.publisher.Mono;
 

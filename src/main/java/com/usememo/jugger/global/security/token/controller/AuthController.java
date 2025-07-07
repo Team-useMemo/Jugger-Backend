@@ -1,47 +1,27 @@
 package com.usememo.jugger.global.security.token.controller;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.*;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
-
+import com.usememo.jugger.global.security.token.domain.logOutResponse.LogOutRequest;
+import com.usememo.jugger.global.security.token.domain.logOutResponse.LogOutResponse;
+import com.usememo.jugger.global.security.token.domain.login.GoogleLoginRequest;
+import com.usememo.jugger.global.security.token.domain.login.KakaoLoginRequest;
+import com.usememo.jugger.global.security.token.domain.login.NaverLoginRequest;
+import com.usememo.jugger.global.security.token.domain.signUp.GoogleSignupRequest;
+import com.usememo.jugger.global.security.token.domain.signUp.KakaoSignUpRequest;
+import com.usememo.jugger.global.security.token.domain.signUp.NaverSignUpRequest;
+import com.usememo.jugger.global.security.token.domain.token.NewTokenResponse;
+import com.usememo.jugger.global.security.token.domain.token.RefreshTokenRequest;
+import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
 import com.usememo.jugger.global.security.token.service.NaverOAuthService;
 import com.usememo.jugger.global.security.token.service.OAuthService;
-import org.apache.el.parser.Token;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
-import com.usememo.jugger.global.exception.KakaoException;
-import com.usememo.jugger.global.security.CustomOAuth2User;
-import com.usememo.jugger.global.security.JwtTokenProvider;
-import com.usememo.jugger.global.security.token.domain.GoogleLoginRequest;
-import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
-import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
 
-import com.usememo.jugger.global.security.token.domain.KakaoLogoutResponse;
-import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
-
-import com.usememo.jugger.global.security.token.domain.LogOutRequest;
-import com.usememo.jugger.global.security.token.domain.LogOutResponse;
-import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
-import com.usememo.jugger.global.security.token.domain.RefreshTokenRequest;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
-import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 import com.usememo.jugger.global.security.token.service.GoogleOAuthService;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
 
@@ -97,7 +77,6 @@ public class AuthController {
     public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
         return kakaoService.signUpKakao(kakaoSignUpRequest)
                 .map(token -> ResponseEntity.ok().body(token));
-
     }
 
     @Operation(summary = "[POST] 구글 로그인")
@@ -111,6 +90,20 @@ public class AuthController {
     @PostMapping("/google/signup")
     public Mono<ResponseEntity<TokenResponse>> signUpGoogle(@RequestBody GoogleSignupRequest googleSignupRequest) {
         return googleOAuthService.signUpGoogle(googleSignupRequest)
+                .map(token -> ResponseEntity.ok().body(token));
+    }
+
+    @Operation(summary = "[POST] 네이버 로그인")
+    @PostMapping("/naver")
+    public Mono<ResponseEntity<TokenResponse>> loginByNaver(@RequestBody NaverLoginRequest naverLoginRequest) {
+        return naverOAuthService.loginWithNaver(naverLoginRequest.code())
+                .map(token -> ResponseEntity.ok().body(token));
+    }
+
+    @Operation(summary = "[POST] 네이버 회원가입")
+    @PostMapping("/naver")
+    public Mono<ResponseEntity<TokenResponse>> signUpNaver(@RequestBody NaverSignUpRequest naverSignUpRequest) {
+        return naverOAuthService.signUpNaver(naverSignUpRequest)
                 .map(token -> ResponseEntity.ok().body(token));
     }
 

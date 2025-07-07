@@ -2,7 +2,6 @@ package com.usememo.jugger.global.security.token.service;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,9 +12,9 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 
-import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
-import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
+import com.usememo.jugger.global.security.token.domain.signUp.GoogleSignupRequest;
+import com.usememo.jugger.global.security.token.domain.token.NewTokenResponse;
+import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;

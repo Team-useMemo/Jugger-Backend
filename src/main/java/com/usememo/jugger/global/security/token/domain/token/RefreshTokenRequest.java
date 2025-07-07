@@ -1,4 +1,4 @@
-package com.usememo.jugger.global.security.token.domain;
+package com.usememo.jugger.global.security.token.domain.token;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

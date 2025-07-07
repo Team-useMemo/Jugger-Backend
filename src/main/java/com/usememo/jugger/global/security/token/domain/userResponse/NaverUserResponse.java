@@ -1,4 +1,4 @@
-package com.usememo.jugger.global.security.token.domain;
+package com.usememo.jugger.global.security.token.domain.userResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

@@ -6,10 +6,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.usememo.jugger.global.exception.BaseException;
-import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.security.CustomOAuth2User;
-import com.usememo.jugger.global.security.token.domain.KakaoLogoutResponse;
+import com.usememo.jugger.global.security.token.domain.logOutResponse.KakaoLogoutResponse;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;

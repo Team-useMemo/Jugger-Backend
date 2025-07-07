@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,11 +20,11 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 
 import com.usememo.jugger.global.security.JwtTokenProvider;
-import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
-import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
-import com.usememo.jugger.global.security.token.domain.KakaoUserResponse;
-import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
+import com.usememo.jugger.global.security.token.domain.oAuthProperties.KakaoOAuthProperties;
+import com.usememo.jugger.global.security.token.domain.signUp.KakaoSignUpRequest;
+import com.usememo.jugger.global.security.token.domain.userResponse.KakaoUserResponse;
+import com.usememo.jugger.global.security.token.domain.token.NewTokenResponse;
+import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -48,7 +47,6 @@ public class KakaoOAuthService implements OAuthService {
                 .flatMap(user -> {
                             return jwtTokenProvider.createTokenBundle(user.getUuid());
                         }
-
                 );
     }
 
@@ -109,7 +107,6 @@ public class KakaoOAuthService implements OAuthService {
                             Map.of("email", email, "nickname", name)));
                 }));
     }
-
 
     public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
         String email = kakaoSignUpRequest.email();
