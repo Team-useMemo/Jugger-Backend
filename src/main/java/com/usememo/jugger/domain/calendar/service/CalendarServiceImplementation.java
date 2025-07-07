@@ -113,7 +113,7 @@ public class CalendarServiceImplementation implements CalendarService {
 					.flatMap(chat -> {
 						String calendarId = chat.getRefs().getCalendarUuid();
 						if(calendarId.isBlank()){
-							throw new BaseException(ErrorCode.NO_CALENDAR);
+							return Mono.error(new BaseException(ErrorCode.NO_CALENDAR));
 						}
 						return calendarRepository.findByUuidAndUserUuid(calendarId, customOAuth2User.getUserId())
 							.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
