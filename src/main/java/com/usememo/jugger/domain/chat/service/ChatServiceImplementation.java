@@ -365,7 +365,7 @@ public class ChatServiceImplementation implements ChatService {
 			.then();
 	}
 
-	//chat의 카테고리 변경
+
 	@Override
 	public Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId) {
 		String userId = customOAuth2User.getUserId();
