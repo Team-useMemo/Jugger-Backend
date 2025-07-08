@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 import com.usememo.jugger.domain.category.entity.Category;
 import com.usememo.jugger.domain.category.repository.CategoryRepository;
+import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.entity.Photo;
@@ -33,7 +34,8 @@ class PhotoServiceImplementationTest {
 		PhotoRepository photoRepository = mock(PhotoRepository.class);
 		CategoryRepository categoryRepository = mock(CategoryRepository.class);
 		ReactiveMongoTemplate reactiveMongoTemplate = mock(ReactiveMongoTemplate.class);
-		PhotoServiceImplementation photoService = new PhotoServiceImplementation(photoRepository,reactiveMongoTemplate);
+		ChatRepository chatRepository = mock(ChatRepository.class);
+		PhotoServiceImplementation photoService = new PhotoServiceImplementation(photoRepository,reactiveMongoTemplate,chatRepository);
 
 		String userUuid = "123456789a";
 		String categoryUuid = "여행";

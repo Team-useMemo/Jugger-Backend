@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.usememo.jugger.domain.chat.repository.ChatRepository;
 import com.usememo.jugger.domain.photo.dto.GetPhotoRequestDto;
 import com.usememo.jugger.domain.photo.dto.PhotoResponse;
 import com.usememo.jugger.domain.photo.dto.PhotoUpdateRequest;
@@ -31,6 +32,7 @@ public class PhotoServiceImplementation implements PhotoService {
 
 	private final PhotoRepository photoRepository;
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
+	private final ChatRepository chatRepository;
 
 	@Override
 	public Flux<PhotoResponse> getPhotoDto(GetPhotoRequestDto photoRequestDto, CustomOAuth2User customOAuth2User) {
@@ -97,19 +99,25 @@ public class PhotoServiceImplementation implements PhotoService {
 
 	@Override
 	public Mono<BaseResponse> updatePhotoDescription(CustomOAuth2User customOAuth2User, PhotoUpdateRequest request) {
-		Query query = Query.query(
-			Criteria.where("uuid").is(request.photoId())
-				.and("user_uuid").is(customOAuth2User.getUserId())
-		);
 
-		Update update = new Update().set("description", request.description());
+		return chatRepository.findById(request.chatId())
+			.flatMap(chat -> {
 
-		return reactiveMongoTemplate.updateFirst(query, update, Photo.class)
-			.flatMap(result -> {
-				if (result.getMatchedCount() == 0) {
-					return Mono.error(new BaseException(ErrorCode.NO_PHOTO));
-				}
-				return Mono.just(new BaseResponse(200, "사진을 수정하였습니다."));
+				String photoId = chat.getRefs().getPhotoUuid();
+				Query query = Query.query(
+					Criteria.where("uuid").is(photoId)
+						.and("user_uuid").is(customOAuth2User.getUserId())
+				);
+
+				Update update = new Update().set("description", request.description());
+
+				return reactiveMongoTemplate.updateFirst(query, update, Photo.class)
+					.flatMap(result -> {
+						if (result.getMatchedCount() == 0) {
+							return Mono.error(new BaseException(ErrorCode.NO_PHOTO));
+						}
+						return Mono.just(new BaseResponse(200, "사진을 수정하였습니다."));
+					});
 			});
 
 	}

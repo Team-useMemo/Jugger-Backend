@@ -108,20 +108,27 @@ public class CalendarServiceImplementation implements CalendarService {
 	@Override
 	public Mono<BaseResponse> updateCalendar(CustomOAuth2User customOAuth2User, CalendarUpdateRequest request) {
 
-		return calendarRepository.findByUuidAndUserUuid(request.calendarId(), customOAuth2User.getUserId())
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
-			.flatMap(calendar -> {
-				calendar.setTitle(request.title());
-				calendar.setAlarm(request.alarm());
-				calendar.setDescription(request.description());
-				calendar.setStartDateTime(request.start());
-				calendar.setEndDateTime(request.end());
-				calendar.setPlace(request.place());
+		return chatRepository.findById(request.chatId())
+				.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
+					.flatMap(chat -> {
+						String calendarId = chat.getRefs().getCalendarUuid();
+						if(calendarId.isBlank()){
+							return Mono.error(new BaseException(ErrorCode.NO_CALENDAR));
+						}
+						return calendarRepository.findByUuidAndUserUuid(calendarId, customOAuth2User.getUserId())
+							.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
+							.flatMap(calendar -> {
+								calendar.setTitle(request.title());
+								calendar.setAlarm(request.alarm());
+								calendar.setDescription(request.description());
+								calendar.setStartDateTime(request.start());
+								calendar.setEndDateTime(request.end());
+								calendar.setPlace(request.place());
 
-				return calendarRepository.save(calendar)
-					.thenReturn(new BaseResponse(200, "일정이 변경되었습니다."));
-			});
-
+								return calendarRepository.save(calendar)
+									.thenReturn(new BaseResponse(200, "일정이 변경되었습니다."));
+							});
+					});
 	}
 
 }

@@ -107,7 +107,6 @@ public class ChatController {
 	@Operation(summary = "[PATCH] 채팅 카테고리 변경",description = "채팅의 카테고리를 변경하는데 사용하는 메소드입니다.")
 	@PatchMapping("/category")
 	public Mono<ResponseEntity<ChatResponse>> patchChatCategory(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, @RequestParam String chatId, @RequestParam String newCategoryId){
-
 		return chatService.changeCategory(customOAuth2User, chatId, newCategoryId)
 			.thenReturn(ResponseEntity.ok().body(new ChatResponse(200,"카테고리가 변경되었습니다.")));
 	}

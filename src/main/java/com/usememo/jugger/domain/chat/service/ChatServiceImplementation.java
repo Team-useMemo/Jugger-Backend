@@ -365,6 +365,7 @@ public class ChatServiceImplementation implements ChatService {
 			.then();
 	}
 
+
 	@Override
 	public Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId) {
 		String userId = customOAuth2User.getUserId();
@@ -372,10 +373,44 @@ public class ChatServiceImplementation implements ChatService {
 		return chatRepository.findByUuidAndUserUuid(chatId, userId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
 			.flatMap(chat -> {
-					chat.setCategoryUuid(newCategoryId);
-					return chatRepository.save(chat);
+				chat.setCategoryUuid(newCategoryId);
+				Chat.Refs refs = chat.getRefs();
+
+				Mono<?> updateMono;
+
+				if (refs.getCalendarUuid() != null && !refs.getCalendarUuid().isEmpty()) {
+					String calendarUuid = refs.getCalendarUuid();
+					updateMono = calendarRepository.findById(calendarUuid)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
+						.flatMap(calendar -> {
+							calendar.setCategoryUuid(newCategoryId);
+							return calendarRepository.save(calendar);
+						});
+
+				} else if (refs.getLinkUuid() != null && !refs.getLinkUuid().isEmpty()) {
+					String linkUuid = refs.getLinkUuid();
+					updateMono = linkRepository.findById(linkUuid)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.LINK_NOT_FOUND)))
+						.flatMap(link -> {
+							link.setCategoryUuid(newCategoryId);
+							return linkRepository.save(link);
+						});
+
+				} else if (refs.getPhotoUuid() != null && !refs.getPhotoUuid().isEmpty()) {
+					String photoUuid = refs.getPhotoUuid();
+					updateMono = photoRepository.findById(photoUuid)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_PHOTO)))
+						.flatMap(photo -> {
+							photo.setCategoryUuid(newCategoryId);
+							return photoRepository.save(photo);
+						});
+
+				} else {
+					updateMono = Mono.empty();
 				}
-			).then();
+
+				return updateMono.then(chatRepository.save(chat)).then();
+			});
 	}
 
 }
