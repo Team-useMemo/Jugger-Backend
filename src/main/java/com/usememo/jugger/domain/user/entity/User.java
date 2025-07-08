@@ -24,6 +24,8 @@ public class User {
 	}
 
 	private Terms terms;
+	private UserStatus status;
+	private Gender gender;
 
 	@Data
 	public static class Terms {
@@ -36,13 +38,15 @@ public class User {
 	}
 
 	@Builder
-	public User(String uuid, String name, String email, String domain, Terms terms) {
+	public User(String uuid, String name, String email, String domain, Terms terms,UserStatus status, Gender gender) {
 		this.uuid = uuid;
 		this.name = name;
 		this.email = email;
 		this.domain = domain;
 		this.isDeleted = false;
 		this.terms = terms;
+		this.status = status;
+		this.gender = gender;
 	}
 
 }
