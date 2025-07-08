@@ -115,13 +115,19 @@ public class LinkServiceImplementation implements LinkService {
 	public Mono<LinkResponse> updateLink(CustomOAuth2User customOAuth2User, LinkUpdateRequest request) {
 		String userId = customOAuth2User.getUserId();
 
-		return linkRepository.findByUuidAndUserUuid(request.linkId(), userId)
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.LINK_NOT_FOUND)))
-			.flatMap(link -> {
-					link.setUrl(request.url());
-					return linkRepository.save(link);
-				}
-			).thenReturn(new LinkResponse(200, "링크를 수정하였습니다."));
+		return chatRepository.findById(request.chatId())
+				.flatMap(chat ->
+				{
+					String linkId = chat.getRefs().getLinkUuid();
+					return linkRepository.findByUuidAndUserUuid(linkId, userId)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.LINK_NOT_FOUND)))
+						.flatMap(link -> {
+								link.setUrl(request.url());
+								return linkRepository.save(link);
+							}
+						).thenReturn(new LinkResponse(200, "링크를 수정하였습니다."));
+				});
+
 	}
 
 }
