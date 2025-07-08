@@ -12,6 +12,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class User {
+
 	@Id
 	private String uuid;
 	private String name;
