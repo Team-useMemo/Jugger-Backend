@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usememo.jugger.domain.user.entity.User;
+import com.usememo.jugger.domain.user.entity.UserStatus;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
@@ -101,11 +102,21 @@ public class KakaoOAuthService {
 
 		return userRepository.findByEmailAndDomain(email, "kakao")
 			.switchIfEmpty(Mono.defer(() -> {
+				String uuid = UUID.randomUUID().toString();
+				User user = User.builder()
+					.uuid(uuid)
+					.name(name)
+					.email(email)
+					.domain("kakao")
+					.status(UserStatus.PENDING)
+					.build();
+				userRepository.save(user);
 				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
 					Map.of("email", email, "nickname", name)));
 			}));
 	}
 
+	//signup 부분도 겹치게 사용되어서 그냥 도메인만 입력받고 똑같이 동작되게끔 변경해야 한다.
 	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
 		String email = kakaoSignUpRequest.email();
 		String domain = kakaoSignUpRequest.domain();
