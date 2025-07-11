@@ -116,62 +116,6 @@ public class KakaoOAuthService {
 			}));
 	}
 
-	//signup 부분도 겹치게 사용되어서 그냥 도메인만 입력받고 똑같이 동작되게끔 변경해야 한다.
-	public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
-		String email = kakaoSignUpRequest.email();
-		String domain = kakaoSignUpRequest.domain();
-		String name = kakaoSignUpRequest.name();
 
-		return userRepository.findByEmailAndDomainAndName(email, domain, name)
-			.flatMap(existingUser ->
-				Mono.<TokenResponse>error(new BaseException(ErrorCode.DUPLICATE_USER))
-			)
-			.switchIfEmpty(Mono.defer(() -> {
-				String uuid = UUID.randomUUID().toString();
-
-				User.Terms terms = new User.Terms();
-				terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
-				terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
-				terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
-
-				User user = User.builder()
-					.uuid(uuid)
-					.name(name)
-					.email(email)
-					.domain(domain)
-					.terms(terms)
-					.build();
-
-				return userRepository.save(user)
-					.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
-			}));
-	}
-
-	public Mono<Void> userLogOut(String refreshToken) {
-		String userId;
-		userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-		if (userId == null) {
-			throw new BaseException(ErrorCode.NO_LOGOUT_USER);
-		}
-		return refreshTokenRepository.findByUserId(userId)
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_LOGOUT_USER)))
-			.flatMap(foundToken -> refreshTokenRepository.deleteByUserId(userId));
-	}
-
-	public Mono<ResponseEntity<NewTokenResponse>> giveNewToken(String refreshToken) {
-		return refreshTokenRepository.findByToken(refreshToken)
-			.flatMap(savedToken -> {
-				if (!jwtTokenProvider.validateToken(savedToken.getToken())) {
-					return Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN));
-				}
-				String userId = jwtTokenProvider.getUserIdFromToken(savedToken.getToken());
-				return userRepository.findById(userId)
-					.map(user -> {
-						String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-						return ResponseEntity.ok().body(new NewTokenResponse(newAccessToken));
-					});
-			})
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN)));
-	}
 
 }

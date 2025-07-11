@@ -19,6 +19,7 @@ import com.usememo.jugger.global.security.token.domain.RefreshTokenRequest;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.service.GoogleOAuthService;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
+import com.usememo.jugger.global.security.token.service.SignService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,7 @@ public class AuthController {
 
 	private final KakaoOAuthService kakaoService;
 	private final GoogleOAuthService googleOAuthService;
+	private final SignService signService;
 
 	@Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
 	@PostMapping(value = "/refresh")
@@ -42,14 +44,14 @@ public class AuthController {
 		if (refreshToken == null || refreshToken.isBlank()) {
 			throw new BaseException(ErrorCode.NO_REFRESH_TOKEN);
 		}
-		return kakaoService.giveNewToken(refreshToken);
+		return signService.giveNewToken(refreshToken);
 	}
 
 	@Operation(summary = "[POST] 로그아웃")
 	@PostMapping("/logout")
 	public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
 
-		return kakaoService.userLogOut(request.refreshToken())
+		return signService.userLogOut(request.refreshToken())
 			.thenReturn(ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다.")));
 	}
 
@@ -63,7 +65,7 @@ public class AuthController {
 	@Operation(summary = "[POST] 카카오 회원가입")
 	@PostMapping("/kakao/signup")
 	public Mono<ResponseEntity<TokenResponse>> signUpKakao(@RequestBody KakaoSignUpRequest kakaoSignUpRequest) {
-		return kakaoService.signUpKakao(kakaoSignUpRequest)
+		return signService.signUp(kakaoSignUpRequest)
 			.map(token -> ResponseEntity.ok().body(token));
 
 	}
