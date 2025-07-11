@@ -9,7 +9,7 @@ import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.security.JwtTokenProvider;
-import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
+import com.usememo.jugger.global.security.token.domain.SignUpRequest;
 import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
@@ -27,17 +27,17 @@ public class SignService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRepository refreshTokenRepository;
 
-	public Mono<TokenResponse> signUp(KakaoSignUpRequest kakaoSignUpRequest) {
-		String email = kakaoSignUpRequest.email();
-		String domain = kakaoSignUpRequest.domain();
-		String name = kakaoSignUpRequest.name();
+	public Mono<TokenResponse> signUp(SignUpRequest signUpRequest) {
+		String email = signUpRequest.email();
+		String domain = signUpRequest.domain();
+		String name = signUpRequest.name();
 
 		return userRepository.findByEmailAndDomainAndName(email, domain, name)
 			.flatMap(existingUser -> {
 					User.Terms terms = new User.Terms();
-					terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
-					terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
-					terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
+					terms.setMarketing(signUpRequest.terms().isMarketing());
+					terms.setPrivacyPolicy(signUpRequest.terms().isPrivacyPolicy());
+					terms.setTermsOfService(signUpRequest.terms().isTermsOfService());
 
 					existingUser.setTerms(terms);
 					existingUser.setStatus(UserStatus.SUCCESS);
@@ -77,4 +77,7 @@ public class SignService {
 			})
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN)));
 	}
+
+
+
 }

@@ -18,7 +18,6 @@ import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
-import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -98,31 +97,6 @@ public class GoogleOAuthService {
 			}));
 	}
 
-	public Mono<TokenResponse> signUpGoogle(GoogleSignupRequest request) {
-		String email = request.email();
-		String name = request.name();
 
-		return userRepository.findByEmailAndDomainAndName(email, "google", name)
-			.flatMap(existingUser -> Mono.<TokenResponse>error(new BaseException(ErrorCode.DUPLICATE_USER)))
-			.switchIfEmpty(Mono.defer(() -> {
-				String uuid = UUID.randomUUID().toString();
-
-				User.Terms terms = new User.Terms();
-				terms.setMarketing(request.terms().isMarketing());
-				terms.setPrivacyPolicy(request.terms().isPrivacyPolicy());
-				terms.setTermsOfService(request.terms().isTermsOfService());
-
-				User user = User.builder()
-					.uuid(uuid)
-					.name(name)
-					.email(email)
-					.terms(terms)
-					.domain("google")
-					.build();
-
-				return userRepository.save(user)
-					.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
-			}));
-	}
 
 }
