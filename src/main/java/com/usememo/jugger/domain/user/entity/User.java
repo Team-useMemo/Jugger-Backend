@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Document(collection = "users")
@@ -23,15 +24,19 @@ public class User {
 		isDeleted = deleted;
 	}
 
+	@Setter
 	private Terms terms;
+	@Setter
 	private UserStatus status;
 	private Gender gender;
 
 	@Data
 	public static class Terms {
-		private boolean termsOfService;
+		private boolean ageOver;
 		private boolean privacyPolicy;
+		private boolean termsOfService;
 		private boolean marketing;
+		private boolean termsOfAd;
 	}
 
 	public User() {
