@@ -35,6 +35,7 @@ public enum ErrorCode {
 	KAKAO_JWT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 421, "카카오 jwt 토큰 제공시 에러"),
 
 	USER_NOT_FOUND(BAD_REQUEST, 427, "존재하지 않는 회원입니다."),
+	FAIL_SIGNUP(BAD_REQUEST,404,"회원가입에 실패했습니다."),
 
 	DUPLICATE_USER(BAD_REQUEST, 428, "중복된 회원정보입니다."),
 
