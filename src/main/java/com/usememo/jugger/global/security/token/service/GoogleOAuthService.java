@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.usememo.jugger.domain.user.entity.User;
+import com.usememo.jugger.domain.user.entity.UserStatus;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
@@ -31,6 +32,7 @@ public class GoogleOAuthService {
 	private final WebClient webClient = WebClient.create();
 	private final UserRepository userRepository;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final SignService signService;
 
 	@Value("${google.client-id}")
 	private String clientId;
@@ -44,7 +46,7 @@ public class GoogleOAuthService {
 	public Mono<TokenResponse> loginWithGoogle(String code) {
 		return getAccessToken(code)
 			.flatMap(this::getUserInfo)
-			.flatMap(this::saveOrFindUser)
+			.flatMap(stringObjectMap -> signService.saveOrFindUser(stringObjectMap,"google"))
 			.flatMap(user -> jwtTokenProvider.createTokenBundle(user.getUuid()));
 	}
 
@@ -80,22 +82,6 @@ public class GoogleOAuthService {
 			});
 	}
 
-	private Mono<User> saveOrFindUser(Map<String, Object> userInfo) {
-		String email = (String)userInfo.get("email");
-		String name = (String)userInfo.get("name");
-		if (email == null) {
-			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
-		}
-		if (name == null) {
-			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_NAME));
-		}
-
-		return userRepository.findByEmailAndDomain(email, "google")
-			.switchIfEmpty(Mono.defer(() -> {
-				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
-					Map.of("email", email, "nickname", name)));
-			}));
-	}
 
 
 

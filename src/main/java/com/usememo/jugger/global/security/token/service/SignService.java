@@ -1,5 +1,8 @@
 package com.usememo.jugger.global.security.token.service;
 
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +11,9 @@ import com.usememo.jugger.domain.user.entity.UserStatus;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
+import com.usememo.jugger.global.security.token.domain.KakaoUserResponse;
 import com.usememo.jugger.global.security.token.domain.SignUpRequest;
 import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
@@ -77,6 +82,66 @@ public class SignService {
 			})
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_REFRESH_TOKEN)));
 	}
+
+
+	public Mono<User> saveOrFindUser(Map<String, Object> userInfo,String domain) {
+		String email = (String)userInfo.get("email");
+		String name = (String)userInfo.get("name");
+		if (email == null) {
+			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
+		}
+		if (name == null) {
+			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_NAME));
+		}
+
+		return userRepository.findByEmailAndDomain(email, domain)
+			.switchIfEmpty(Mono.defer(() -> {
+				String uuid = UUID.randomUUID().toString();
+
+				User user = User.builder()
+					.uuid(uuid)
+					.name(name)
+					.email(email)
+					.domain(domain)
+					.status(UserStatus.PENDING)
+					.build();
+
+				userRepository.save(user);
+
+				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
+					Map.of("email", email, "nickname", name)));
+			}));
+	}
+
+	public Mono<User> saveOrFindUserKakao(KakaoUserResponse response,String domain) {
+		String email = response.getKakao_account().getEmail();
+		String name = response.getProperties().getNickname();
+		if (email == null) {
+			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
+		}
+		if (name == null) {
+			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_NAME));
+		}
+
+		return userRepository.findByEmailAndDomain(email, domain)
+			.switchIfEmpty(Mono.defer(() -> {
+				String uuid = UUID.randomUUID().toString();
+
+				User user = User.builder()
+					.uuid(uuid)
+					.name(name)
+					.email(email)
+					.domain(domain)
+					.status(UserStatus.PENDING)
+					.build();
+
+				userRepository.save(user);
+
+				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
+					Map.of("email", email, "nickname", name)));
+			}));
+	}
+
 
 
 

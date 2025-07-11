@@ -1,6 +1,7 @@
 package com.usememo.jugger.global.security.token.service;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usememo.jugger.domain.user.entity.User;
+import com.usememo.jugger.domain.user.entity.UserStatus;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
@@ -29,14 +31,13 @@ import reactor.core.publisher.Mono;
 public class KakaoOAuthService {
 	private final WebClient webClient = WebClient.create();
 	private final KakaoOAuthProperties kakaoProps;
-	private final UserRepository userRepository;
 	private final JwtTokenProvider jwtTokenProvider;
-	private final RefreshTokenRepository refreshTokenRepository;
+	private final SignService signService;
 
 	public Mono<TokenResponse> loginWithKakao(String code) {
 		return getAccessToken(code)
 			.flatMap(this::getUserInfo)
-			.flatMap(this::saveOrFindUser)
+			.flatMap(kakaoUserResponse -> signService.saveOrFindUserKakao(kakaoUserResponse,"kakao"))
 			.flatMap(user -> {
 					return jwtTokenProvider.createTokenBundle(user.getUuid());
 				}
@@ -84,23 +85,7 @@ public class KakaoOAuthService {
 			});
 	}
 
-	private Mono<User> saveOrFindUser(KakaoUserResponse response) {
-		String email = response.getKakao_account().getEmail();
-		String name = response.getProperties().getNickname();
 
-		if (email == null) {
-			return Mono.error(new BaseException(ErrorCode.KAKAO_EMAIL_MISSING));
-		}
-		if (name == null) {
-			return Mono.error(new BaseException(ErrorCode.KAKAO_NAME_MISSING));
-		}
-
-		return userRepository.findByEmailAndDomain(email, "kakao")
-			.switchIfEmpty(Mono.defer(() -> {
-				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
-					Map.of("email", email, "nickname", name)));
-			}));
-	}
 
 
 
