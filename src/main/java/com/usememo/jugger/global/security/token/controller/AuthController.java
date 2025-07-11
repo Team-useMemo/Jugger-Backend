@@ -11,25 +11,32 @@ import com.usememo.jugger.global.security.token.service.AppleOAuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
+
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
+
+import com.usememo.jugger.global.security.token.domain.GoogleLoginRequest;
+import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
+import com.usememo.jugger.global.security.token.domain.KakaoLoginRequest;
+import com.usememo.jugger.global.security.token.domain.KakaoSignUpRequest;
+import com.usememo.jugger.global.security.token.domain.LogOutRequest;
+import com.usememo.jugger.global.security.token.domain.LogOutResponse;
+import com.usememo.jugger.global.security.token.domain.NewTokenResponse;
+import com.usememo.jugger.global.security.token.domain.RefreshTokenRequest;
+import com.usememo.jugger.global.security.token.domain.TokenResponse;
+
 import com.usememo.jugger.global.security.token.service.GoogleOAuthService;
 import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
 
@@ -48,7 +55,6 @@ public class AuthController {
 	private final GoogleOAuthService googleOAuthService;
 	private final AppleOAuthService appleOAuthService;
 
-
 	@Operation(summary = "[POST] refresh token으로 새로운 access token 발급")
 	@PostMapping(value = "/refresh")
 	public Mono<ResponseEntity<NewTokenResponse>> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
@@ -60,7 +66,6 @@ public class AuthController {
 		return kakaoService.giveNewToken(refreshToken);
 	}
 
-
 	@Operation(summary = "[POST] 로그아웃")
 	@PostMapping("/logout")
 	public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
@@ -68,7 +73,6 @@ public class AuthController {
 		return kakaoService.userLogOut(request.refreshToken())
 			.thenReturn(ResponseEntity.ok().body(new LogOutResponse("로그아웃이 성공적으로 되었습니다.")));
 	}
-
 
 	@Operation(summary = "[POST] 카카오 로그인")
 	@PostMapping("/kakao")
@@ -87,17 +91,16 @@ public class AuthController {
 
 	@Operation(summary = "[POST] 구글 로그인")
 	@PostMapping("/google")
-	public Mono<ResponseEntity<TokenResponse>> loginByGoogle(@RequestBody GoogleLoginRequest googleLoginRequest){
+	public Mono<ResponseEntity<TokenResponse>> loginByGoogle(@RequestBody GoogleLoginRequest googleLoginRequest) {
 		return googleOAuthService.loginWithGoogle(googleLoginRequest.code())
 			.map(token -> ResponseEntity.ok().body(token));
 	}
 
-
 	@Operation(summary = "[POST] 구글 회원가입")
 	@PostMapping("/google/signup")
-	public Mono<ResponseEntity<TokenResponse>> signUpGoogle(@RequestBody GoogleSignupRequest googleSignupRequest){
+	public Mono<ResponseEntity<TokenResponse>> signUpGoogle(@RequestBody GoogleSignupRequest googleSignupRequest) {
 		return googleOAuthService.signUpGoogle(googleSignupRequest)
-			.map(token-> ResponseEntity.ok().body(token));
+			.map(token -> ResponseEntity.ok().body(token));
 	}
 
 

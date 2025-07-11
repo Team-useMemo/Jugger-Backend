@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.usememo.jugger.domain.calendar.dto.GetCalendarDto;
 import com.usememo.jugger.domain.calendar.dto.PostCalendarDto;
+import com.usememo.jugger.domain.calendar.dto.CalendarUpdateRequest;
 import com.usememo.jugger.domain.calendar.entity.Calendar;
 import com.usememo.jugger.domain.calendar.service.CalendarService;
+import com.usememo.jugger.global.response.BaseResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,4 +58,28 @@ public class CalendarController {
 			.map(list -> ResponseEntity.ok().body(list));
 
 	}
+
+	@Operation(summary = "[GET] 카테고리 별 일정조회")
+	@GetMapping("/category")
+	public Mono<ResponseEntity<List<GetCalendarDto>>> getCalendarWithCategory(
+		@RequestParam("categoryId") String categoryId,
+		@RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
+		@RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant end,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
+	){
+		return  calendarService.getCalendarWithCategory(categoryId, start, end, customOAuth2User).collectList()
+			.map(list -> ResponseEntity.ok().body(list));
+	}
+
+
+	@Operation(summary = "[PUT] 일정 수정하기")
+	@PutMapping
+	public Mono<ResponseEntity<BaseResponse>> updateCalendar(
+		@RequestBody CalendarUpdateRequest request,
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User
+	){
+		return calendarService.updateCalendar(customOAuth2User,request)
+			.map(response -> ResponseEntity.ok().body(response));
+	}
+
 }

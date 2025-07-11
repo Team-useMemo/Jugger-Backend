@@ -1,6 +1,8 @@
 package com.usememo.jugger.domain.category.service;
 
+import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -71,9 +73,17 @@ public class CategoryServiceImplementation implements CategoryService {
 	public Flux<GetRecentCategoryDto> getRecentCategories(CustomOAuth2User customOAuth2User) {
 		String userId = customOAuth2User.getUserId();
 
-		return categoryRepository.findAllByUserUuidOrderByUpdatedAtDesc(userId)
+		return categoryRepository.findAllByUserUuid(userId)
+			.collectList()
+			.map(categories -> categories.stream()
+				.sorted(
+					Comparator.comparing(Category::getIsPinned)// isPinned=true 우선
+						.thenComparing(Category::getUpdatedAt).reversed()   // updatedAt 최신 우선
+				)
+				.collect(Collectors.toList()))
+			.flatMapMany(sortedCategories -> Flux.fromIterable(sortedCategories))
 			.flatMap(category ->
-				chatService.getLatestChatByCategoryId(customOAuth2User,category.getUuid())
+				chatService.getLatestChatByCategoryId(customOAuth2User, category.getUuid())
 					.map(Chat::getData)
 					.defaultIfEmpty("")
 					.map(recentMessage -> GetRecentCategoryDto.builder()
@@ -135,6 +145,5 @@ public class CategoryServiceImplementation implements CategoryService {
 			});
 
 	}
-
 
 }

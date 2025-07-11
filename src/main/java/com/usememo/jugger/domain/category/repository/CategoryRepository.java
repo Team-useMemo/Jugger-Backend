@@ -7,13 +7,12 @@ import com.usememo.jugger.domain.category.entity.Category;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
 public interface CategoryRepository extends ReactiveMongoRepository<Category, String> {
 	Mono<Category> findByName(String name);
 
 	Mono<Category> findByUuid(String uuid);
 
-	Flux<Category> findAllByUserUuidOrderByUpdatedAtDesc(String userId);
+	Flux<Category> findAllByUserUuid(String userUuid);
 
 	Mono<Void> deleteByUuid(String categoryId);
 

@@ -2,9 +2,15 @@ package com.usememo.jugger.global.security.token.service;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.usememo.jugger.domain.user.entity.User;
 import com.usememo.jugger.domain.user.repository.UserRepository;
@@ -12,20 +18,11 @@ import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
-
 import com.usememo.jugger.global.security.token.domain.GoogleSignupRequest;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
-import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.core.ParameterizedTypeReference;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -36,14 +33,14 @@ public class GoogleOAuthService {
 	private final UserRepository userRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 
-		@Value("${google.client-id}")
-		private String clientId;
+	@Value("${google.client-id}")
+	private String clientId;
 
-		@Value("${google.client-secret}")
-		private String clientSecret;
+	@Value("${google.client-secret}")
+	private String clientSecret;
 
-		@Value("${google.redirect-uri}")
-		private String redirectUri;
+	@Value("${google.redirect-uri}")
+	private String redirectUri;
 
 	public Mono<TokenResponse> loginWithGoogle(String code) {
 		return getAccessToken(code)
@@ -60,13 +57,13 @@ public class GoogleOAuthService {
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.body(BodyInserters.fromFormData("grant_type", "authorization_code")
 				.with("client_id", clientId)
-				.with("client_secret",clientSecret)
+				.with("client_secret", clientSecret)
 				.with("redirect_uri", redirectUri)
 				.with("code", decodedCode))
 			.retrieve()
 			.bodyToMono(Map.class)
 			.map(body -> {
-				String token = (String) body.get("access_token");
+				String token = (String)body.get("access_token");
 				if (token == null) {
 					throw new BaseException(ErrorCode.GOOGLE_LOGIN_FAIL);
 				}
@@ -80,12 +77,13 @@ public class GoogleOAuthService {
 			.uri("https://www.googleapis.com/oauth2/v3/userinfo")
 			.headers(headers -> headers.setBearerAuth(accessToken))
 			.retrieve()
-			.bodyToMono(new ParameterizedTypeReference<>() {});
+			.bodyToMono(new ParameterizedTypeReference<>() {
+			});
 	}
 
 	private Mono<User> saveOrFindUser(Map<String, Object> userInfo) {
-		String email = (String) userInfo.get("email");
-		String name = (String) userInfo.get("name");
+		String email = (String)userInfo.get("email");
+		String name = (String)userInfo.get("name");
 		if (email == null) {
 			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
 		}
@@ -95,7 +93,7 @@ public class GoogleOAuthService {
 
 		return userRepository.findByEmailAndDomain(email, "google")
 			.switchIfEmpty(Mono.defer(() -> {
-				return Mono.error(new KakaoException(ErrorCode.KAKAO_USER_NOT_FOUND,
+				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
 					Map.of("email", email, "nickname", name)));
 			}));
 	}

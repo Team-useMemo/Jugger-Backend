@@ -7,14 +7,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GetLinkDto {
-	private String categoryId;
-	private List<LinkData> linkData;
-
-	@Data
-	@Builder
-	public static class LinkData {
+public class LinkListResponse {
+		private String categoryId;
 		private String linkId;
 		private String link;
-	}
 }
