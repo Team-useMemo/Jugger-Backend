@@ -28,7 +28,6 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
-		OAuth2AuthenticationSuccessHandler successHandler,
 		JwtAuthenticationManager jwtAuthenticationManager,
 		JwtAuthenticationConverter jwtAuthenticationConverter) {
 
