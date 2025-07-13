@@ -19,6 +19,7 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.security.token.domain.RefreshToken;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
+import com.usememo.jugger.global.utils.UserUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -47,6 +48,7 @@ public class JwtTokenProvider {
 	private final MacAlgorithm alg = Jwts.SIG.HS512;
 	private SecretKey key;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final UserUtil userUtil;
 
 	@PostConstruct
 	public void init() {
@@ -146,6 +148,9 @@ public class JwtTokenProvider {
 				.getPayload();
 
 			String userId = claims.getSubject();
+
+			userUtil.findUserValid(userId);
+
 			Map<String, Object> attributes = Map.of("userId", userId);
 			CustomOAuth2User principal = new CustomOAuth2User(attributes, userId);
 			Authentication auth = new UsernamePasswordAuthenticationToken(principal, token, List.of());

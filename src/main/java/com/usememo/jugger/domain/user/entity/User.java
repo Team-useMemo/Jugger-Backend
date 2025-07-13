@@ -18,6 +18,7 @@ public class User {
 	private String name;
 	private String email;
 	private String domain;
+
 	private boolean isDeleted = false;
 
 	public void setDeleted(boolean deleted) {
