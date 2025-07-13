@@ -30,7 +30,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GoogleOAuthService {
 	private final WebClient webClient = WebClient.create();
-	private final UserRepository userRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final SignService signService;
 
