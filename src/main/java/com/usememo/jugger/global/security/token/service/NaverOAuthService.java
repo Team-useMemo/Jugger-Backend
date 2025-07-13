@@ -1,45 +1,40 @@
 package com.usememo.jugger.global.security.token.service;
 
-import java.util.Map;
-import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.usememo.jugger.domain.user.entity.User;
 import com.usememo.jugger.domain.user.repository.UserRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
-import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
-import com.usememo.jugger.global.security.token.domain.oAuthProperties.KakaoOAuthProperties;
-import com.usememo.jugger.global.security.token.domain.signUp.KakaoSignUpRequest;
-import com.usememo.jugger.global.security.token.domain.userResponse.KakaoUserResponse;
+import com.usememo.jugger.global.security.token.domain.oAuthProperties.NaverOAuthProperties;
+import com.usememo.jugger.global.security.token.domain.signUp.NaverSignUpRequest;
 import com.usememo.jugger.global.security.token.domain.token.NewTokenResponse;
 import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
+import com.usememo.jugger.global.security.token.domain.userResponse.NaverUserResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoOAuthService implements OAuthService {
+public class NaverOAuthService implements OAuthService {
     private final WebClient webClient = WebClient.create();
-    private final KakaoOAuthProperties kakaoProps;
+    private final NaverOAuthProperties naverProps;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public Mono<TokenResponse> loginWithKakao(String code) {
+    public Mono<TokenResponse> loginWithNaver(String code) {
         return getAccessToken(code)
                 .flatMap(this::getUserInfo)
                 .flatMap(this::saveOrFindUser)
@@ -52,85 +47,68 @@ public class KakaoOAuthService implements OAuthService {
     private Mono<String> getAccessToken(String code) {
 
         return webClient.post()
-                .uri("https://kauth.kakao.com/oauth/token")
+                .uri("https://nid.naver.com/oauth2.0/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-                        .with("client_id", kakaoProps.getClientId())
-                        .with("redirect_uri", kakaoProps.getRedirectUri())
+                        .with("client_id", naverProps.getClientId())
+                        .with("client_secret", naverProps.getClientSecret())
+                        .with("redirect_uri", naverProps.getRedirectUri())
                         .with("code", code))
                 .retrieve()
-                .onStatus(status -> !status.is2xxSuccessful(), response -> Mono.error(new BaseException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
+                .onStatus(status -> !status.is2xxSuccessful(), response -> Mono.error(new BaseException(ErrorCode.NAVER_TOKEN_REQUEST_FAILED)))
                 .bodyToMono(Map.class)
                 .map(body -> {
                     String token = (String) body.get("access_token");
                     if (token == null) {
-                        throw new BaseException(ErrorCode.KAKAO_TOKEN_MISSING);
+                        throw new BaseException(ErrorCode.NAVER_TOKEN_MISSING);
                     }
                     return token;
                 })
-                .onErrorMap(e -> new BaseException(ErrorCode.KAKAO_CONNECTION_FAILED));
+                .onErrorMap(e -> new BaseException(ErrorCode.NAVER_CONNECTION_FAILED));
     }
 
-		return webClient.post()
-			.uri("https://kauth.kakao.com/oauth/token")
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.body(BodyInserters.fromFormData("grant_type", "authorization_code")
-				.with("client_id", kakaoProps.getClientId())
-				.with("redirect_uri", kakaoProps.getRedirectUri())
-				.with("code", code))
-			.retrieve()
-			.onStatus(status -> !status.is2xxSuccessful(),
-				response -> Mono.error(new BaseException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
-			.bodyToMono(Map.class)
-			.map(body -> {
-				String token = (String)body.get("access_token");
-				if (token == null) {
-					throw new BaseException(ErrorCode.KAKAO_TOKEN_MISSING);
-				}
-				return token;
-			})
-			.onErrorMap(e -> new BaseException(ErrorCode.KAKAO_CONNECTION_FAILED));
-	}
-
-    private Mono<KakaoUserResponse> getUserInfo(String accessToken) {
-
+    private Mono<NaverUserResponse> getUserInfo(String accessToken) {
         return webClient.get()
-                .uri("https://kapi.kakao.com/v2/user/me")
+                .uri("https://openapi.naver.com/v1/nid/me")
                 .headers(headers -> headers.setBearerAuth(accessToken))
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(raw -> {
                     try {
-                        KakaoUserResponse parsed = new ObjectMapper().readValue(raw, KakaoUserResponse.class);
+                        NaverUserResponse parsed = new ObjectMapper().readValue(raw, NaverUserResponse.class);
                         return Mono.just(parsed);
                     } catch (Exception e) {
-                        return Mono.error(new BaseException(ErrorCode.KAKAO_JSON_PARSE_ERROR));
+                        return Mono.error(new BaseException(ErrorCode.NAVER_JSON_PARSE_ERROR));
                     }
                 });
     }
 
-    private Mono<User> saveOrFindUser(KakaoUserResponse response) {
-        String email = response.getKakao_account().getEmail();
-        String name = response.getProperties().getNickname();
+    private Mono<User> saveOrFindUser(NaverUserResponse response) {
+        String email = response.getResponse().getEmail();
+        String name = response.getResponse().getNickname();
 
         if (email == null) {
-            return Mono.error(new BaseException(ErrorCode.KAKAO_EMAIL_MISSING));
+            return Mono.error(new BaseException(ErrorCode.NAVER_EMAIL_MISSING));
         }
         if (name == null) {
-            return Mono.error(new BaseException(ErrorCode.KAKAO_NAME_MISSING));
+            return Mono.error(new BaseException(ErrorCode.NAVER_NAME_MISSING));
         }
 
-        return userRepository.findByEmailAndDomain(email, "kakao")
+        return userRepository.findByEmailAndDomain(email, "naver")
                 .switchIfEmpty(Mono.defer(() -> {
-                    return Mono.error(new KakaoException(ErrorCode.KAKAO_USER_NOT_FOUND,
-                            Map.of("email", email, "nickname", name)));
+                    return Mono.error(new BaseException(ErrorCode.NAVER_USER_NOT_FOUND));
                 }));
     }
 
-    public Mono<TokenResponse> signUpKakao(KakaoSignUpRequest kakaoSignUpRequest) {
-        String email = kakaoSignUpRequest.email();
-        String domain = kakaoSignUpRequest.domain();
-        String name = kakaoSignUpRequest.name();
+    public Mono<TokenResponse> signUpNaver(NaverSignUpRequest naverSignUpRequest) {
+        String email = naverSignUpRequest.email();
+        String domain = naverSignUpRequest.domain();
+        String name = naverSignUpRequest.name();
+
+        if (!naverSignUpRequest.terms().isTermsOfService() || !naverSignUpRequest.terms().isPrivacyPolicy()) {
+            return Mono.error(new BaseException(ErrorCode.REQUIRED_TERMS_NOT_AGREED));
+        }
+
 
         return userRepository.findByEmailAndDomainAndName(email, domain, name)
                 .flatMap(existingUser ->
@@ -140,9 +118,9 @@ public class KakaoOAuthService implements OAuthService {
                     String uuid = UUID.randomUUID().toString();
 
                     User.Terms terms = new User.Terms();
-                    terms.setMarketing(kakaoSignUpRequest.terms().isMarketing());
-                    terms.setPrivacyPolicy(kakaoSignUpRequest.terms().isPrivacyPolicy());
-                    terms.setTermsOfService(kakaoSignUpRequest.terms().isTermsOfService());
+                    terms.setMarketing(naverSignUpRequest.terms().isMarketing());
+                    terms.setPrivacyPolicy(naverSignUpRequest.terms().isPrivacyPolicy());
+                    terms.setTermsOfService(naverSignUpRequest.terms().isTermsOfService());
 
                     User user = User.builder()
                             .uuid(uuid)
@@ -157,7 +135,6 @@ public class KakaoOAuthService implements OAuthService {
                 }));
     }
 
-
     public Mono<Void> userLogOut(String refreshToken) {
         String userId;
         userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
@@ -168,7 +145,6 @@ public class KakaoOAuthService implements OAuthService {
                 .switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_LOGOUT_USER)))
                 .flatMap(foundToken -> refreshTokenRepository.deleteByUserId(userId));
     }
-
 
     public Mono<ResponseEntity<NewTokenResponse>> giveNewToken(String refreshToken) {
         return refreshTokenRepository.findByToken(refreshToken)
@@ -189,6 +165,6 @@ public class KakaoOAuthService implements OAuthService {
     public Mono<Void> deleteUser(String userId) {
         return refreshTokenRepository.deleteByUserId(userId)
                 .then(userRepository.deleteById(userId))
-                .onErrorResume(e -> Mono.error(new BaseException(ErrorCode.KAKAO_USER_NOT_FOUND)));
+                .onErrorResume(e -> Mono.error(new BaseException(ErrorCode.NAVER_USER_NOT_FOUND)));
     }
 }

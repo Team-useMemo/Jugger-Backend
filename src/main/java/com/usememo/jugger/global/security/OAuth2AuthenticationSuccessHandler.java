@@ -16,7 +16,7 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.usememo.jugger.global.security.token.domain.RefreshToken;
+import com.usememo.jugger.global.security.token.domain.token.RefreshToken;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.NonNull;
