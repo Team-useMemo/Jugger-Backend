@@ -43,10 +43,12 @@ public class GoogleOAuthService {
 	@Value("${google.redirect-uri}")
 	private String redirectUri;
 
+	private final String domain = "google";
+
 	public Mono<TokenResponse> loginWithGoogle(String code) {
 		return getAccessToken(code)
 			.flatMap(this::getUserInfo)
-			.flatMap(stringObjectMap -> signService.saveOrFindUser(stringObjectMap,"google"))
+			.flatMap(stringObjectMap -> signService.saveOrFindUser(stringObjectMap,domain))
 			.flatMap(user -> jwtTokenProvider.createTokenBundle(user.getUuid()));
 	}
 

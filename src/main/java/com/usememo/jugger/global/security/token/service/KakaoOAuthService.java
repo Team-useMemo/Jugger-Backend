@@ -34,10 +34,12 @@ public class KakaoOAuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final SignService signService;
 
+	private final String domain = "kakao";
+
 	public Mono<TokenResponse> loginWithKakao(String code) {
 		return getAccessToken(code)
 			.flatMap(this::getUserInfo)
-			.flatMap(kakaoUserResponse -> signService.saveOrFindUserKakao(kakaoUserResponse,"kakao"))
+			.flatMap(kakaoUserResponse -> signService.saveOrFindUserKakao(kakaoUserResponse,domain))
 			.flatMap(user -> {
 					return jwtTokenProvider.createTokenBundle(user.getUuid());
 				}
