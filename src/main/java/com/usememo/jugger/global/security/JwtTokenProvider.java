@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
-import com.usememo.jugger.global.security.token.domain.RefreshToken;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
+import com.usememo.jugger.global.security.token.domain.token.RefreshToken;
+import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 import com.usememo.jugger.global.utils.UserUtil;
 
@@ -35,6 +35,7 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
+
 
 	@Value("${spring.jwt.secret}")
 	private String secret;

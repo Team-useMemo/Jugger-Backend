@@ -3,6 +3,8 @@ package com.usememo.jugger.global.security.token.service;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -16,9 +18,11 @@ import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
+
 import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
 import com.usememo.jugger.global.security.token.domain.KakaoUserResponse;
 import com.usememo.jugger.global.security.token.domain.TokenResponse;
+
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+
 public class KakaoOAuthService {
 	private final WebClient webClient = WebClient.create();
 	private final KakaoOAuthProperties kakaoProps;
@@ -48,7 +53,6 @@ public class KakaoOAuthService {
 	}
 
 	private Mono<String> getAccessToken(String code) {
-
 		return webClient.post()
 			.uri("https://kauth.kakao.com/oauth/token")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -86,6 +90,8 @@ public class KakaoOAuthService {
 				}
 			});
 	}
+
+
 
 
 

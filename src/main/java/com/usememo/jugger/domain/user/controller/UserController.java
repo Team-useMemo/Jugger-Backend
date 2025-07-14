@@ -11,6 +11,8 @@ import com.usememo.jugger.domain.user.LogoutResponse;
 import com.usememo.jugger.domain.user.dto.WithdrawalRequest;
 import com.usememo.jugger.domain.user.service.UserService;
 import com.usememo.jugger.global.security.CustomOAuth2User;
+import com.usememo.jugger.global.security.token.domain.logOutResponse.KakaoLogoutResponse;
+import com.usememo.jugger.global.security.token.service.KakaoOAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
