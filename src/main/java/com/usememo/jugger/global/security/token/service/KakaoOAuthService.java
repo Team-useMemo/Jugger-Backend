@@ -19,10 +19,9 @@ import com.usememo.jugger.global.exception.ErrorCode;
 import com.usememo.jugger.global.exception.KakaoException;
 import com.usememo.jugger.global.security.JwtTokenProvider;
 
-import com.usememo.jugger.global.security.token.domain.KakaoOAuthProperties;
-import com.usememo.jugger.global.security.token.domain.KakaoUserResponse;
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
-
+import com.usememo.jugger.global.security.token.domain.oAuthProperties.KakaoOAuthProperties;
+import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
+import com.usememo.jugger.global.security.token.domain.userResponse.KakaoUserResponse;
 import com.usememo.jugger.global.security.token.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -90,11 +89,6 @@ public class KakaoOAuthService {
 				}
 			});
 	}
-
-
-
-
-
 
 
 }

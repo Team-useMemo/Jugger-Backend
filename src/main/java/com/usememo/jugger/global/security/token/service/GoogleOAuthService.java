@@ -12,27 +12,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.usememo.jugger.domain.user.entity.User;
-import com.usememo.jugger.domain.user.entity.UserStatus;
-import com.usememo.jugger.domain.user.repository.UserRepository;
+
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
-import com.usememo.jugger.global.exception.KakaoException;
+
 import com.usememo.jugger.global.security.JwtTokenProvider;
-
-import com.usememo.jugger.global.security.token.domain.TokenResponse;
-
+import com.usememo.jugger.global.security.token.domain.token.TokenResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.core.ParameterizedTypeReference;
+
 import reactor.core.publisher.Mono;
 
 @Slf4j

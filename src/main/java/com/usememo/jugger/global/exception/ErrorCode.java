@@ -62,13 +62,9 @@ public enum ErrorCode {
 	JWT_REFRESH_TOKEN_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 424, "리프레시 토큰 생성 실패"),
 	JWT_PARSE_FAILED(HttpStatus.UNAUTHORIZED, 425, "JWT 파싱 실패"),
 	JWT_BUNDLE_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 426, "JWT 번들 생성 실패"),
-    DUPLICATE_USER(BAD_REQUEST, 428, "중복된 회원정보입니다."),
 
 
-    GOOGLE_LOGIN_FAIL(BAD_REQUEST, 404, "로그인에 실패하였습니다."),
-    GOOGLE_NO_EMAIL(BAD_REQUEST, 404, "이메일이 존재하지 않습니다."),
-    GOOGLE_USER_NOT_FOUND(BAD_REQUEST, 404, "구글 유저가 존재하지 않습니다."),
-    GOOGLE_NO_NAME(BAD_REQUEST, 404, "이름이 존재하지 않습니다."),
+
 
 	NO_LOGOUT_USER(BAD_REQUEST, 404, "존재하지 않는 refresh token입니다."),
 	WRONG_LOGOUT(BAD_REQUEST, 404, "로그아웃에 실패하였습니다."),
@@ -76,15 +72,10 @@ public enum ErrorCode {
 
 	NO_CALENDAR(BAD_REQUEST, 404, "해당 조건에 대한 캘린더가 존재하지 않습니다."),
 
-    NO_LOGOUT_USER(BAD_REQUEST, 404, "존재하지 않는 refresh token입니다."),
-    WRONG_LOGOUT(BAD_REQUEST, 404, "로그아웃에 실패하였습니다."),
-    UPLOAD_LIMIT(BAD_REQUEST, 404, "최대 업로드 개수는 5개입니다."),
+
 	LINK_NOT_FOUND(BAD_REQUEST, 404, "해당 조건에 링크가 존재하지 않습니다."),
 	DELETE_ERROR(BAD_REQUEST, 404, "전체 게시글 삭제에 문제가 발생하였습니다.");
 
-    NO_CALENDAR(BAD_REQUEST, 404, "해당 조건에 대한 캘린더가 존재하지 않습니다."),
-
-    DELETE_ERROR(BAD_REQUEST, 404, "전체 게시글 삭제에 문제가 발생하였습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
