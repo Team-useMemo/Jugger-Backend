@@ -150,12 +150,13 @@ public class JwtTokenProvider {
 
 			String userId = claims.getSubject();
 
-			userUtil.findUserValid(userId);
+			return userUtil.findUserValid(userId)
+				.map(user -> {
+					Map<String, Object> attributes = Map.of("userId", userId);
+					CustomOAuth2User principal = new CustomOAuth2User(attributes, userId);
+					return new UsernamePasswordAuthenticationToken(principal, token, List.of());
+				});
 
-			Map<String, Object> attributes = Map.of("userId", userId);
-			CustomOAuth2User principal = new CustomOAuth2User(attributes, userId);
-			Authentication auth = new UsernamePasswordAuthenticationToken(principal, token, List.of());
-			return Mono.just(auth);
 		} catch (Exception e) {
 			return Mono.empty();
 		}
