@@ -63,23 +63,30 @@ public class CalendarServiceImplementation implements CalendarService {
 	}
 
 	@Override
-	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end,
-		CustomOAuth2User customOAuth2User) {
+	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end, CustomOAuth2User customOAuth2User) {
 		return calendarRepository.findByUserUuidAndStartDateTimeBetween(customOAuth2User.getUserId(), start, end)
 			.flatMap(calendar ->
 				categoryRepository.findByUuid(calendar.getCategoryUuid())
-					.map(category -> GetCalendarDto.builder()
-						.calendarId(calendar.getUuid())
-						.categoryId(calendar.getCategoryUuid())
-						.categoryColor(category.getColor())
-						.title(calendar.getTitle())
-						.startDateTime(calendar.getStartDateTime())
-						.endDateTime(calendar.getEndDateTime())
-						.alarm(calendar.getAlarm())
-						.place(calendar.getPlace())
-						.description(calendar.getDescription())
-						.build()
-					)
+					.flatMap(category -> {
+						GetCalendarDto dto = GetCalendarDto.builder()
+							.calendarId(calendar.getUuid())
+							.categoryId(calendar.getCategoryUuid())
+							.categoryColor(category.getColor())
+							.title(calendar.getTitle())
+							.startDateTime(calendar.getStartDateTime())
+							.endDateTime(calendar.getEndDateTime())
+							.alarm(calendar.getAlarm())
+							.place(calendar.getPlace())
+							.description(calendar.getDescription())
+							.build();
+
+						return chatRepository.findByRefs_CalendarUuid(dto.getCalendarId())
+							.map(chat -> {
+								dto.setChatId(chat.getUuid());
+								return dto;
+							})
+							.defaultIfEmpty(dto);
+					})
 			);
 	}
 
@@ -90,17 +97,26 @@ public class CalendarServiceImplementation implements CalendarService {
 				categoryId, start, end)
 			.flatMap(calendar ->
 				categoryRepository.findByUuid(calendar.getCategoryUuid())
-					.map(category -> GetCalendarDto.builder()
-						.calendarId(calendar.getUuid())
-						.categoryId(calendar.getCategoryUuid())
-						.categoryColor(category.getColor())
-						.title(calendar.getTitle())
-						.startDateTime(calendar.getStartDateTime())
-						.endDateTime(calendar.getEndDateTime())
-						.alarm(calendar.getAlarm())
-						.place(calendar.getPlace())
-						.description(calendar.getDescription())
-						.build()
+					.flatMap(category -> {
+							GetCalendarDto dto = GetCalendarDto.builder()
+								.calendarId(calendar.getUuid())
+								.categoryId(calendar.getCategoryUuid())
+								.categoryColor(category.getColor())
+								.title(calendar.getTitle())
+								.startDateTime(calendar.getStartDateTime())
+								.endDateTime(calendar.getEndDateTime())
+								.alarm(calendar.getAlarm())
+								.place(calendar.getPlace())
+								.description(calendar.getDescription())
+								.build();
+
+							return chatRepository.findByRefs_CalendarUuid(dto.getCalendarId())
+								.map(chat->{
+										dto.setChatId(chat.getUuid());
+										return dto;
+									}).defaultIfEmpty(dto);
+						}
+
 					)
 			);
 	}
