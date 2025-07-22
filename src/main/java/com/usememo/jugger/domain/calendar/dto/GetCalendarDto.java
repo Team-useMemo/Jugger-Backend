@@ -4,10 +4,13 @@ import java.time.Instant;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
 
 @Builder
 @Data
 public class GetCalendarDto {
+	@Setter
+	private String chatId;
 	private String calendarId;
 	private Instant startDateTime;
 	private Instant endDateTime;
