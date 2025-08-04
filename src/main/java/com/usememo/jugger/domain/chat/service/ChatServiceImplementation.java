@@ -91,17 +91,20 @@ public class ChatServiceImplementation implements ChatService {
 	 * 생성된 카테고리는 추후 사용자에게 이름과 색상을 선택하게 할 수 있다.
 	 */
 	private Mono<Category> createDefaultCategory(CustomOAuth2User user) {
-		return Mono.defer(() -> {
-			Category newCategory = Category.builder()
-				.uuid("temp")
-				.name("")
-				.color("")
-				.userUuid(user.getUserId())
-				.isPinned(false)
-				.build();
+		String tempCategoryName = "temp-" + user.getUserId();
 
-			return categoryRepository.save(newCategory);
-		});
+		return categoryRepository.findByNameAndUserUuid(tempCategoryName, user.getUserId())
+			.switchIfEmpty(Mono.defer(() -> {
+				Category newCategory = Category.builder()
+					.uuid(UUID.randomUUID().toString())
+					.name(tempCategoryName)
+					.color("")
+					.userUuid(user.getUserId())
+					.isPinned(false)
+					.build();
+
+				return categoryRepository.save(newCategory);
+			}));
 	}
 
 	private Mono<Void> saveLinkChat(String text, String categoryUuid, CustomOAuth2User customOAuth2User) {
@@ -131,7 +134,7 @@ public class ChatServiceImplementation implements ChatService {
 					category.setUpdatedAt(now);
 					return categoryRepository.save(category);
 				}))
-			.then(); // Mono<Void>
+			.then();
 	}
 
 	private Mono<Void> saveTextChat(String text, String categoryUuid, CustomOAuth2User customOAuth2User) {
@@ -244,7 +247,6 @@ public class ChatServiceImplementation implements ChatService {
 			.flatMap(chat -> {
 				String categoryId = chat.getCategoryUuid();
 
-				Mono<Category> categoryMono = categoryRepository.findById(categoryId);
 
 				Chat.Refs refs = chat.getRefs();
 
@@ -260,11 +262,11 @@ public class ChatServiceImplementation implements ChatService {
 					? linkRepository.findById(refs.getLinkUuid())
 					: Mono.just(new Link());
 
-				return Mono.zip(categoryMono, calendarMono, photoMono, linkMono)
+				return Mono.zip(calendarMono, photoMono, linkMono)
 					.map(tuple -> {
-						Calendar calendar = tuple.getT2();
-						Photo photo = tuple.getT3();
-						Link link = tuple.getT4();
+						Calendar calendar = tuple.getT1();
+						Photo photo = tuple.getT2();
+						Link link = tuple.getT3();
 
 						String content;
 						String type;
