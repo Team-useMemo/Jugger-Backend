@@ -247,7 +247,6 @@ public class ChatServiceImplementation implements ChatService {
 			.flatMap(chat -> {
 				String categoryId = chat.getCategoryUuid();
 
-
 				Chat.Refs refs = chat.getRefs();
 
 				Mono<Calendar> calendarMono = (refs != null && refs.getCalendarUuid() != null)
