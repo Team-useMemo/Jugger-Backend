@@ -361,8 +361,43 @@ public class ChatServiceImplementation implements ChatService {
 	public Mono<Void> deleteSingleChat(CustomOAuth2User customOAuth2User, String chatId) {
 		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.deleteByUuidAndUserUuid(chatId, userId)
-			.then();
+		return chatRepository.findByUuidAndUserUuid(chatId, userId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
+			.flatMap(chat -> {
+				Chat.Refs refs = chat.getRefs();
+
+				Mono<?> updateMono;
+
+				if (refs.getCalendarUuid() != null && !refs.getCalendarUuid().isEmpty()) {
+					String calendarUuid = refs.getCalendarUuid();
+					updateMono = calendarRepository.findById(calendarUuid)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
+						.flatMap(calendar -> {
+							return calendarRepository.delete(calendar);
+						});
+
+				} else if (refs.getLinkUuid() != null && !refs.getLinkUuid().isEmpty()) {
+					String linkUuid = refs.getLinkUuid();
+					updateMono = linkRepository.findById(linkUuid)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.LINK_NOT_FOUND)))
+						.flatMap(link -> {
+							return linkRepository.delete(link);
+						});
+
+				} else if (refs.getPhotoUuid() != null && !refs.getPhotoUuid().isEmpty()) {
+					String photoUuid = refs.getPhotoUuid();
+					updateMono = photoRepository.findById(photoUuid)
+						.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_PHOTO)))
+						.flatMap(photo -> {
+							return photoRepository.delete(photo);
+						});
+
+				} else {
+					updateMono = Mono.empty();
+				}
+
+				return updateMono.then(chatRepository.delete(chat)).then();
+			});
 	}
 
 
