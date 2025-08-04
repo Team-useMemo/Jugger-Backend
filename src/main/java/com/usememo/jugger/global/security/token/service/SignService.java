@@ -125,22 +125,24 @@ public class SignService {
 		}
 
 		return userRepository.findByEmailAndDomain(email, domain)
-			.switchIfEmpty(Mono.defer(() -> {
-				String uuid = UUID.randomUUID().toString();
+			.switchIfEmpty(
+				Mono.defer(() -> {
+					String uuid = UUID.randomUUID().toString();
 
-				User user = User.builder()
-					.uuid(uuid)
-					.name(name)
-					.email(email)
-					.domain(domain)
-					.status(UserStatus.PENDING)
-					.build();
+					User user = User.builder()
+						.uuid(uuid)
+						.name(name)
+						.email(email)
+						.domain(domain)
+						.status(UserStatus.PENDING)
+						.build();
 
-				userRepository.save(user);
-
-				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
-					Map.of("email", email, "nickname", name)));
-			}));
+					return userRepository.save(user)
+						.flatMap(savedUser ->
+							Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
+								Map.of("email", email, "nickname", name))));
+				})
+			);
 	}
 
 
