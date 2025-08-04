@@ -41,7 +41,6 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
 
 			response.put("code", kakaoEx.getErrorCode().getCode());
 			response.put("message", kakaoEx.getMessage());
-			response.put("domain", "kakao");
 			response.put("needSignUp", true);
 			response.put("userInfo", kakaoEx.getMaps());
 		} else if (exception instanceof BaseException baseEx) {

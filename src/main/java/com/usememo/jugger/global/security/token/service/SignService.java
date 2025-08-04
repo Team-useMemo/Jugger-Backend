@@ -97,26 +97,17 @@ public class SignService {
 
 		return userRepository.findByEmailAndDomain(email, domain)
 			.switchIfEmpty(Mono.defer(() -> {
-				String uuid = UUID.randomUUID().toString();
-
-				User user = User.builder()
-					.uuid(uuid)
-					.name(name)
-					.email(email)
-					.domain(domain)
-					.status(UserStatus.PENDING)
-					.build();
-
-				return userRepository.save(user)
+				return userRepository.save(makeUser(name,email,domain))
 					.flatMap(savedUser ->
 						Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
-							Map.of("email", email, "nickname", name))));
+							Map.of("email", email, "nickname", name,"domain", domain))));
 			}));
 	}
 
-	public Mono<User> saveOrFindUserKakao(KakaoUserResponse response,String domain) {
+	public Mono<User> saveOrFindUserKakao(KakaoUserResponse response, String domain) {
 		String email = response.getKakao_account().getEmail();
 		String name = response.getProperties().getNickname();
+
 		if (email == null) {
 			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
 		}
@@ -125,26 +116,33 @@ public class SignService {
 		}
 
 		return userRepository.findByEmailAndDomain(email, domain)
-			.switchIfEmpty(
-				Mono.defer(() -> {
-					String uuid = UUID.randomUUID().toString();
-
-					User user = User.builder()
-						.uuid(uuid)
-						.name(name)
-						.email(email)
-						.domain(domain)
-						.status(UserStatus.PENDING)
-						.build();
-
-					return userRepository.save(user)
-						.flatMap(savedUser ->
-							Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
-								Map.of("email", email, "nickname", name))));
-				})
-			);
+			.flatMap(user -> {
+				if (user.isDeleted()) {
+					return userRepository.delete(user)
+						.then(saveAndFail(name, email, domain));
+				}
+				return Mono.just(user);
+			})
+			.switchIfEmpty(saveAndFail(name, email, domain));
 	}
 
+	private Mono<User> saveAndFail(String name, String email, String domain) {
+		return userRepository.save(makeUser(name, email, domain))
+			.flatMap(savedUser -> Mono.error(new KakaoException(
+				ErrorCode.USER_NOT_FOUND,
+				Map.of("email", email, "nickname", name, "domain", domain)
+			)));
+	}
+
+	private User makeUser(String name, String email, String domain) {
+		return User.builder()
+			.uuid(UUID.randomUUID().toString())
+			.name(name)
+			.email(email)
+			.domain(domain)
+			.status(UserStatus.PENDING)
+			.build();
+	}
 
 
 

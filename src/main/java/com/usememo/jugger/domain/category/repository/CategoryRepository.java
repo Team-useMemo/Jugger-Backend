@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CategoryRepository extends ReactiveMongoRepository<Category, String> {
-	Mono<Category> findByName(String name);
+	Mono<Category> findByNameAndUserUuid(String name,String userUuid);
 
 	Mono<Category> findByUuid(String uuid);
 

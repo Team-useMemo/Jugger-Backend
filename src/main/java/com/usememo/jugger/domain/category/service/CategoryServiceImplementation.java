@@ -42,7 +42,7 @@ public class CategoryServiceImplementation implements CategoryService {
 	private final ReactiveMongoTemplate reactiveMongoTemplate;
 
 	public Mono<Category> createCategory(PostCategoryDto dto, CustomOAuth2User customOAuth2User) {
-		return categoryRepository.findByName(dto.getName())
+		return categoryRepository.findByNameAndUserUuid(dto.getName(),customOAuth2User.getUserId())
 			.flatMap(existing -> Mono.<Category>error(new CategoryExistException()))
 			.switchIfEmpty(Mono.defer(() -> {
 				Category newCategory = Category.builder()
