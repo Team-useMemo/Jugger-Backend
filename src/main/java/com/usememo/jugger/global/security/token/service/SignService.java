@@ -121,6 +121,13 @@ public class SignService {
 					return userRepository.delete(user)
 						.then(saveAndFail(name, email, domain));
 				}
+
+				if(user.getStatus() == UserStatus.PENDING){
+					return Mono.error(new KakaoException(
+						ErrorCode.USER_NOT_FOUND,
+						Map.of("email", email, "nickname", name, "domain", domain)));
+				}
+
 				return Mono.just(user);
 			})
 			.switchIfEmpty(saveAndFail(name, email, domain));
