@@ -55,7 +55,7 @@ public class ChatController {
 
 	@Operation(summary = "[GET] 전체 채팅 조회(이전 메세지 조회)")
 	@GetMapping("/before")
-	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsBefore(
+	public Mono<ResponseEntity<List<GetChatByCategoryDto.ChatItem>>> getChatsBefore(
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size, @AuthenticationPrincipal
@@ -68,7 +68,7 @@ public class ChatController {
 
 	@Operation(summary = "[GET] 전체 채팅 조회(이후 메세지 조회)")
 	@GetMapping("/after")
-	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsAfter(
+	public Mono<ResponseEntity<List<GetChatByCategoryDto.ChatItem>>> getChatsAfter(
 		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size, @AuthenticationPrincipal

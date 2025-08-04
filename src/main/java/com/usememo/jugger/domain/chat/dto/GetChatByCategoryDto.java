@@ -27,6 +27,8 @@ public class GetChatByCategoryDto {
 	public static class ChatItem {
 		@Schema(description = "채팅 id")
 		private String chatId;
+		@Schema(description = "카테고리 id")
+		private String categoryId;
 		@Schema(description = "채팅 타입")
 		private String type;
 		@Schema(description = "채팅 텍스트")

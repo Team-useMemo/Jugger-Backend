@@ -153,18 +153,18 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size,
+	public Mono<List<GetChatByCategoryDto.ChatItem>> getChatsBefore(Instant before, int page, int size,
 		CustomOAuth2User customOAuth2User) {
 		int skip = page * size;
 		return chatRepository.findByUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(customOAuth2User.getUserId(), before)
 			.skip(skip)
 			.take(size)
 			.collectList()
-			.flatMap(this::groupByCategory);
+			.flatMap(this::flattenChats);
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size,
+	public Mono<List<GetChatByCategoryDto.ChatItem>> getChatsAfter(Instant after, int page, int size,
 		CustomOAuth2User customOAuth2User) {
 		int skip = page * size;
 
@@ -172,7 +172,7 @@ public class ChatServiceImplementation implements ChatService {
 			.skip(skip)
 			.take(size)
 			.collectList()
-			.flatMap(this::groupByCategory);
+			.flatMap(this::flattenChats);
 	}
 
 	@Override
@@ -237,6 +237,76 @@ public class ChatServiceImplementation implements ChatService {
 		boolean hasHttpPrefix = lower.startsWith("https://") || lower.startsWith("http://");
 
 		return hasHttpPrefix;
+	}
+
+	private Mono<List<GetChatByCategoryDto.ChatItem>> flattenChats(List<Chat> chats) {
+		return Flux.fromIterable(chats)
+			.flatMap(chat -> {
+				String categoryId = chat.getCategoryUuid();
+
+				Mono<Category> categoryMono = categoryRepository.findById(categoryId);
+
+				Chat.Refs refs = chat.getRefs();
+
+				Mono<Calendar> calendarMono = (refs != null && refs.getCalendarUuid() != null)
+					? calendarRepository.findById(refs.getCalendarUuid())
+					: Mono.just(new Calendar());
+
+				Mono<Photo> photoMono = (refs != null && refs.getPhotoUuid() != null)
+					? photoRepository.findById(refs.getPhotoUuid())
+					: Mono.just(new Photo());
+
+				Mono<Link> linkMono = (refs != null && refs.getLinkUuid() != null)
+					? linkRepository.findById(refs.getLinkUuid())
+					: Mono.just(new Link());
+
+				return Mono.zip(categoryMono, calendarMono, photoMono, linkMono)
+					.map(tuple -> {
+						Calendar calendar = tuple.getT2();
+						Photo photo = tuple.getT3();
+						Link link = tuple.getT4();
+
+						String content;
+						String type;
+						if (photo.getUuid() != null) {
+							content = photo.getUrl();
+							type = "PHOTO";
+						} else if (calendar.getUuid() != null) {
+							content = calendar.getDescription();
+							type = "CALENDAR";
+						} else if (link.getUuid() != null) {
+							content = link.getUrl();
+							type = "LINK";
+						} else {
+							content = chat.getData();
+							type = "TEXT";
+						}
+
+						String description = null;
+						if (calendar.getDescription() == null && photo.getDescription() != null) {
+							description = photo.getDescription();
+						} else if (calendar.getDescription() != null && photo.getDescription() == null) {
+							description = calendar.getDescription();
+						}
+
+						return GetChatByCategoryDto.ChatItem.builder()
+							.chatId(chat.getId())
+							.categoryId(categoryId)
+							.type(type)
+							.content(content)
+							.linkUrl(link.getUrl())
+							.imgUrl(photo.getUrl())
+							.scheduleName(calendar.getTitle())
+							.scheduleStartDate(calendar.getStartDateTime())
+							.scheduleEndDate(calendar.getEndDateTime())
+							.place(calendar.getPlace())
+							.alarm(calendar.getAlarm())
+							.description(description)
+							.timestamp(chat.getCreatedAt())
+							.build();
+					});
+			})
+			.collectList();
 	}
 
 	private Mono<List<GetChatByCategoryDto>> groupByCategory(List<Chat> chats) {

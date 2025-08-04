@@ -20,10 +20,10 @@ public interface ChatService {
 
 	Mono<String> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User);
 
-	Mono<List<GetChatByCategoryDto>> getChatsBefore(Instant before, int page, int size,
+	Mono<List<GetChatByCategoryDto.ChatItem>> getChatsBefore(Instant before, int page, int size,
 		CustomOAuth2User customOAuth2User);
 
-	Mono<List<GetChatByCategoryDto>> getChatsAfter(Instant after, int page, int size,
+	Mono<List<GetChatByCategoryDto.ChatItem>> getChatsAfter(Instant after, int page, int size,
 		CustomOAuth2User customOAuth2User);
 
 	Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User, String categoryId, Instant before, int page, int size);
