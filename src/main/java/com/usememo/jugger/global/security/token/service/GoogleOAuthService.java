@@ -51,7 +51,7 @@ public class GoogleOAuthService {
 		return getAccessToken(code)
 			.flatMap(this::getUserInfo)
 			.flatMap(stringObjectMap -> signService.saveOrFindUser(stringObjectMap,domain))
-			.flatMap(user -> jwtTokenProvider.createTokenBundle(user.getUuid()));
+			.flatMap(user -> jwtTokenProvider.createTokenBundle(user.getUuid(),user.getEmail()));
 	}
 
 

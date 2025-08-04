@@ -49,7 +49,7 @@ public class SignService {
 					existingUser.setStatus(UserStatus.SUCCESS);
 
 					return userRepository.save(existingUser)
-						.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
+						.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid(),savedUser.getEmail()));
 				}
 			).switchIfEmpty(
 				Mono.error(new BaseException(ErrorCode.FAIL_SIGNUP)));
@@ -107,10 +107,10 @@ public class SignService {
 					.status(UserStatus.PENDING)
 					.build();
 
-				userRepository.save(user);
-
-				return Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
-					Map.of("email", email, "nickname", name)));
+				return userRepository.save(user)
+					.flatMap(savedUser ->
+						Mono.error(new KakaoException(ErrorCode.USER_NOT_FOUND,
+							Map.of("email", email, "nickname", name))));
 			}));
 	}
 

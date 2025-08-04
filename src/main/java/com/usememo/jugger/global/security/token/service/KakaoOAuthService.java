@@ -45,7 +45,7 @@ public class KakaoOAuthService {
 			.flatMap(this::getUserInfo)
 			.flatMap(kakaoUserResponse -> signService.saveOrFindUserKakao(kakaoUserResponse,domain))
 			.flatMap(user -> {
-					return jwtTokenProvider.createTokenBundle(user.getUuid());
+					return jwtTokenProvider.createTokenBundle(user.getUuid(),user.getEmail());
 				}
 
 			);

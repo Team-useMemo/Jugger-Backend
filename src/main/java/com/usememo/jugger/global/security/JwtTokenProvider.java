@@ -119,7 +119,7 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public Mono<TokenResponse> createTokenBundle(String userId) {
+	public Mono<TokenResponse> createTokenBundle(String userId, String email) {
 		try {
 			String accessToken = createAccessToken(userId);
 			String refreshToken = createRefreshToken(userId);
@@ -133,7 +133,7 @@ public class JwtTokenProvider {
 				.build();
 
 			return refreshTokenRepository.save(refreshTokenEntity)
-				.thenReturn(new TokenResponse(accessToken, refreshToken));
+				.thenReturn(new TokenResponse(accessToken, refreshToken,email));
 		} catch (Exception e) {
 			return Mono.error(new BaseException(ErrorCode.JWT_BUNDLE_CREATION_FAILED));
 		}

@@ -39,7 +39,7 @@ public class NaverOAuthService implements OAuthService {
                 .flatMap(this::getUserInfo)
                 .flatMap(this::saveOrFindUser)
                 .flatMap(user -> {
-                            return jwtTokenProvider.createTokenBundle(user.getUuid());
+                            return jwtTokenProvider.createTokenBundle(user.getUuid(),user.getEmail());
                         }
                 );
     }
@@ -131,7 +131,8 @@ public class NaverOAuthService implements OAuthService {
                             .build();
 
                     return userRepository.save(user)
-                            .flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid()));
+                            .flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid(),
+                                savedUser.getEmail()));
                 }));
     }
 
