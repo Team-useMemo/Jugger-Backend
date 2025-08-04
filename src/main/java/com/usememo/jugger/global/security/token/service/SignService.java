@@ -38,7 +38,7 @@ public class SignService {
 		String domain = signUpRequest.domain();
 		String name = signUpRequest.name();
 
-		return userRepository.findByEmailAndDomainAndName(email, domain, name)
+		return userRepository.findByEmailAndDomain(email, domain)
 			.flatMap(existingUser -> {
 					User.Terms terms = new User.Terms();
 					terms.setMarketing(signUpRequest.terms().isMarketing());
@@ -46,6 +46,7 @@ public class SignService {
 					terms.setTermsOfService(signUpRequest.terms().isTermsOfService());
 
 					existingUser.setTerms(terms);
+					existingUser.setName(name);
 					existingUser.setStatus(UserStatus.SUCCESS);
 
 					return userRepository.save(existingUser)

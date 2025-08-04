@@ -15,6 +15,8 @@ import lombok.ToString;
 public class User {
 	@Id
 	private String uuid;
+
+	@Setter
 	private String name;
 	private String email;
 	private String domain;
