@@ -65,6 +65,7 @@ public class KakaoOAuthService {
 			.bodyToMono(Map.class)
 			.map(body -> {
 				String token = (String)body.get("access_token");
+				log.info("토큰 값 : " + token);
 				if (token == null) {
 					throw new BaseException(ErrorCode.KAKAO_TOKEN_MISSING);
 				}
