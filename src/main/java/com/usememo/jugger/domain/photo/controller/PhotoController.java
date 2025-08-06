@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -72,5 +73,16 @@ public class PhotoController {
 		return photoService.updatePhotoDescription(customOAuth2User,request)
 			.map(response -> ResponseEntity.ok().body(response));
 	}
+
+	@Operation(summary = "[DELETE] 사진 id로 삭제")
+	@DeleteMapping("")
+	public Mono<ResponseEntity<BaseResponse>> deletePhoto(
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+		@RequestParam String photoId){
+
+		return photoService.deleteByPhotoId(customOAuth2User,photoId)
+			.map(baseResponse -> ResponseEntity.ok().body(baseResponse));
+	}
+
 
 }

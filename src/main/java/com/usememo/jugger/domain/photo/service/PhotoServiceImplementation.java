@@ -122,4 +122,14 @@ public class PhotoServiceImplementation implements PhotoService {
 
 	}
 
+	@Override
+	public Mono<BaseResponse> deleteByPhotoId(CustomOAuth2User customOAuth2User, String photoId) {
+		return photoRepository.findByUuidAndUserUuid(photoId, customOAuth2User.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_PHOTO)))
+			.flatMap(photo -> photoRepository.delete(photo)
+					.then(chatRepository.findByRefs_PhotoUuid(photoId).flatMap(chat ->
+						 chatRepository.delete(chat)
+							 .then(Mono.just(new BaseResponse(200,"사진을 삭제하였습니다")))
+			)));
+	}
 }

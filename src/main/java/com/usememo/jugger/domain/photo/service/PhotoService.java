@@ -19,4 +19,6 @@ public interface PhotoService {
 	Flux<PhotoResponse> getPhotoCategoryAndDuration(String categoryId, Instant before, int page, int size, CustomOAuth2User customOAuth2User);
 
 	Mono<BaseResponse> updatePhotoDescription(CustomOAuth2User customOAuth2User, PhotoUpdateRequest request);
+
+	 Mono<BaseResponse> deleteByPhotoId(CustomOAuth2User customOAuth2User, String photoId);
 }
