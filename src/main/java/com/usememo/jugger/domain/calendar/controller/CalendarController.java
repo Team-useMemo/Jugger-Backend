@@ -85,7 +85,7 @@ public class CalendarController {
 
 	@Operation(summary = "[DELETE] 캘린더 id로 삭제")
 	@DeleteMapping("")
-	public Mono<ResponseEntity<BaseResponse>> deletePhoto(
+	public Mono<ResponseEntity<BaseResponse>> deleteCalendar(
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestParam String calendarId){
 		return calendarService.deleteByCalendarId(customOAuth2User,calendarId)

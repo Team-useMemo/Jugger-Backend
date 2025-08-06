@@ -38,13 +38,13 @@ public class LinkServiceImplementation implements LinkService {
 	private final ChatRepository chatRepository;
 
 	@Override
-	public Mono<List<GetLinkDto>> getLinks(Instant before, int page, int size, CustomOAuth2User customOAuth2User,
+	public Mono<List<GetLinkDto.LinkData>> getLinks(Instant before, int page, int size, CustomOAuth2User customOAuth2User,
 		String categoryUuid) {
 		String userId = customOAuth2User.getUserId();
 
 		return categoryRepository.findByUuid(categoryUuid)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
 			.flatMap(category -> {
-
 				Query query = new Query()
 					.addCriteria(Criteria.where("userUuid").is(userId))
 					.addCriteria(Criteria.where("categoryUuid").is(categoryUuid))
@@ -58,13 +58,8 @@ public class LinkServiceImplementation implements LinkService {
 						.linkId(link.getId())
 						.link(link.getUrl())
 						.build())
-					.collectList()
-					.map(linkDataList -> GetLinkDto.builder()
-						.categoryId(categoryUuid)
-						.linkData(linkDataList)
-						.build());
-			})
-			.map(List::of);
+					.collectList();
+			});
 	}
 
 	@Override

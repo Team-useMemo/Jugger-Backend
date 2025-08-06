@@ -14,7 +14,7 @@ import com.usememo.jugger.global.security.CustomOAuth2User;
 import reactor.core.publisher.Mono;
 
 public interface LinkService {
-	Mono<List<GetLinkDto>> getLinks(Instant before, int page, int size, CustomOAuth2User customOAuth2User, String categoryUuid);
+	Mono<List<GetLinkDto.LinkData>> getLinks(Instant before, int page, int size, CustomOAuth2User customOAuth2User, String categoryUuid);
 
 	Mono<List<LinkListResponse>> getLinksNoCategory(Instant before, int page , int size, CustomOAuth2User customOAuth2User);
 

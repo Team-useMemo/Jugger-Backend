@@ -30,4 +30,7 @@ public interface ChatRepository extends ReactiveMongoRepository<Chat, String> {
 
 	Mono<Chat> findByRefs_CalendarUuid(String calendarUuid);
 
+	Mono<Chat> findByRefs_PhotoUuid(String photoId);
+
+	Mono<Chat> findByRefs_LinkUuid(String linkId);
 }

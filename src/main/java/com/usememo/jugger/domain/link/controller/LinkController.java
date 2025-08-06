@@ -39,7 +39,7 @@ public class LinkController {
 
 	@Operation(summary = "[GET] 카테고리 포함 링크 조회")
 	@GetMapping("/category")
-	public Mono<ResponseEntity<List<GetLinkDto>>> getLinks(@RequestParam("categoryId") String categoryUuid,
+	public Mono<ResponseEntity<List<GetLinkDto.LinkData>>> getLinks(@RequestParam("categoryId") String categoryUuid,
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
 		@RequestParam(value = "page", defaultValue = "0") int page,
 		@RequestParam(value = "size", defaultValue = "20") int size,
