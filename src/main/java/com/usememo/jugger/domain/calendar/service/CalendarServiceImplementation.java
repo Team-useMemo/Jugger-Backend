@@ -62,6 +62,7 @@ public class CalendarServiceImplementation implements CalendarService {
 			);
 	}
 
+
 	@Override
 	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end, CustomOAuth2User customOAuth2User) {
 		return calendarRepository.findByUserUuidAndStartDateTimeBetween(customOAuth2User.getUserId(), start, end)
