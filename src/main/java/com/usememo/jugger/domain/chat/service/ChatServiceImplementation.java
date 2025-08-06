@@ -30,9 +30,11 @@ import com.usememo.jugger.global.exception.chat.CategoryNullException;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImplementation implements ChatService {
@@ -184,8 +186,7 @@ public class ChatServiceImplementation implements ChatService {
 		int size) {
 		int skip = page * size;
 		String userId = customOAuth2User.getUserId();
-
-		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(userId, categoryId,
+		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtBeforeOrderByCreatedAtDesc(categoryId, userId,
 				before)
 			.skip(skip)
 			.take(size)
@@ -200,7 +201,7 @@ public class ChatServiceImplementation implements ChatService {
 		int skip = page * size;
 		String userId = customOAuth2User.getUserId();
 
-		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(userId, categoryId,
+		return chatRepository.findByCategoryUuidAndUserUuidAndCreatedAtAfterOrderByCreatedAtDesc(categoryId,userId,
 				after)
 			.skip(skip)
 			.take(size)
@@ -317,6 +318,7 @@ public class ChatServiceImplementation implements ChatService {
 		return Flux.fromIterable(grouped.entrySet())
 			.flatMap(entry -> {
 				String categoryId = entry.getKey();
+				log.info("categoryId " + categoryId);
 				List<Chat> chatList = entry.getValue();
 
 				return categoryRepository.findById(categoryId)
