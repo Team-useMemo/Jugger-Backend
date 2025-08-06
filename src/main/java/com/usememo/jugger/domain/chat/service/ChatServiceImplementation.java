@@ -439,6 +439,9 @@ public class ChatServiceImplementation implements ChatService {
 			.flatMap(chat -> {
 				Chat.Refs refs = chat.getRefs();
 
+				if (refs == null) {
+					return chatRepository.delete(chat).then();
+				}
 				Mono<?> updateMono;
 
 				if (refs.getCalendarUuid() != null && !refs.getCalendarUuid().isEmpty()) {
