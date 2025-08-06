@@ -147,4 +147,16 @@ public class CalendarServiceImplementation implements CalendarService {
 					});
 	}
 
+
+	@Override
+	public Mono<BaseResponse> deleteByCalendarId(CustomOAuth2User customOAuth2User, String calendarId) {
+		return calendarRepository.findByUuidAndUserUuid(calendarId, customOAuth2User.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CALENDAR)))
+			.flatMap(photo -> calendarRepository.delete(photo)
+				.then(chatRepository.findByRefs_CalendarUuid(calendarId).flatMap(chat ->
+					chatRepository.delete(chat)
+						.then(Mono.just(new BaseResponse(200,"일정을 삭제하였습니다")))
+				)));
+	}
+
 }

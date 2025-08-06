@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -80,6 +81,15 @@ public class CalendarController {
 	){
 		return calendarService.updateCalendar(customOAuth2User,request)
 			.map(response -> ResponseEntity.ok().body(response));
+	}
+
+	@Operation(summary = "[DELETE] 캘린더 id로 삭제")
+	@DeleteMapping("")
+	public Mono<ResponseEntity<BaseResponse>> deletePhoto(
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+		@RequestParam String calendarId){
+		return calendarService.deleteByCalendarId(customOAuth2User,calendarId)
+			.map(baseResponse -> ResponseEntity.ok().body(baseResponse));
 	}
 
 }

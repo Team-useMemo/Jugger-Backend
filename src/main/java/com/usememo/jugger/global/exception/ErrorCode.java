@@ -65,7 +65,6 @@ public enum ErrorCode {
 
 
 
-
 	NO_LOGOUT_USER(BAD_REQUEST, 404, "존재하지 않는 refresh token입니다."),
 	WRONG_LOGOUT(BAD_REQUEST, 404, "로그아웃에 실패하였습니다."),
 	UPLOAD_LIMIT(BAD_REQUEST, 404, "최대 업로드 개수는 5개입니다."),

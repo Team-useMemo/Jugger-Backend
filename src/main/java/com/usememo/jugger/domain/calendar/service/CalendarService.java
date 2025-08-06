@@ -20,4 +20,6 @@ public interface CalendarService {
 	Flux<GetCalendarDto> getCalendarWithCategory(String categoryId,Instant start, Instant end, CustomOAuth2User customOAuth2User );
 
 	Mono<BaseResponse> updateCalendar(CustomOAuth2User customOAuth2User, CalendarUpdateRequest request);
+
+	Mono<BaseResponse> deleteByCalendarId(CustomOAuth2User customOAuth2User, String calendarId);
 }
