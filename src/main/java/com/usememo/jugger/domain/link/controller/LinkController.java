@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import com.usememo.jugger.domain.link.dto.LinkRequest;
 import com.usememo.jugger.domain.link.dto.LinkResponse;
 import com.usememo.jugger.domain.link.dto.LinkUpdateRequest;
 import com.usememo.jugger.domain.link.service.LinkService;
+import com.usememo.jugger.global.response.BaseResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +75,15 @@ public class LinkController {
 		@RequestBody LinkUpdateRequest linkUpdateRequest){
 		return linkService.updateLink(customOAuth2User,linkUpdateRequest)
 			.map(response-> ResponseEntity.ok().body(response));
+	}
+
+	@Operation(summary = "[DELETE] 링크 id로 삭제")
+	@DeleteMapping("")
+	public Mono<ResponseEntity<BaseResponse>> deleteLink(
+		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
+		@RequestParam String linkId){
+		return linkService.deleteByLinkId(customOAuth2User,linkId)
+			.map(baseResponse -> ResponseEntity.ok().body(baseResponse));
 	}
 
 }

@@ -22,6 +22,7 @@ import com.usememo.jugger.domain.link.entity.Link;
 import com.usememo.jugger.domain.link.repository.LinkRepository;
 import com.usememo.jugger.global.exception.BaseException;
 import com.usememo.jugger.global.exception.ErrorCode;
+import com.usememo.jugger.global.response.BaseResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import lombok.RequiredArgsConstructor;
@@ -128,6 +129,17 @@ public class LinkServiceImplementation implements LinkService {
 						).thenReturn(new LinkResponse(200, "링크를 수정하였습니다."));
 				});
 
+	}
+
+	@Override
+	public Mono<BaseResponse> deleteByLinkId(CustomOAuth2User customOAuth2User, String linkId) {
+		return linkRepository.findByUuidAndUserUuid(linkId, customOAuth2User.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_LINK)))
+			.flatMap(photo -> linkRepository.delete(photo)
+				.then(chatRepository.findByRefs_LinkUuid(linkId).flatMap(chat ->
+					chatRepository.delete(chat)
+						.then(Mono.just(new BaseResponse(200,"링크을 삭제하였습니다")))
+				)));
 	}
 
 }

@@ -8,6 +8,7 @@ import com.usememo.jugger.domain.link.dto.LinkListResponse;
 import com.usememo.jugger.domain.link.dto.LinkRequest;
 import com.usememo.jugger.domain.link.dto.LinkResponse;
 import com.usememo.jugger.domain.link.dto.LinkUpdateRequest;
+import com.usememo.jugger.global.response.BaseResponse;
 import com.usememo.jugger.global.security.CustomOAuth2User;
 
 import reactor.core.publisher.Mono;
@@ -20,4 +21,6 @@ public interface LinkService {
 	Mono<LinkResponse> postLink(CustomOAuth2User customOAuth2User, LinkRequest request);
 
 	Mono<LinkResponse> updateLink(CustomOAuth2User customOAuth2User, LinkUpdateRequest request);
+
+	Mono<BaseResponse> deleteByLinkId(CustomOAuth2User customOAuth2User, String linkId);
 }
