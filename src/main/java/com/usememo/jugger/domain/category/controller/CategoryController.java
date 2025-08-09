@@ -70,7 +70,7 @@ public class CategoryController {
 
 	@Operation(summary = "[GET] 카테고리별 채팅 조회 (이전 메세지 불러오기) ")
 	@GetMapping("/chat/before")
-	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsByCategoryBefore(
+	public Mono<ResponseEntity<List<GetChatByCategoryDto.ChatItem>>> getChatsByCategoryBefore(
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestParam("categoryId") String categoryId,
 		@RequestParam("before") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant before,
@@ -83,7 +83,7 @@ public class CategoryController {
 
 	@Operation(summary = "[GET] 카테고리별 채팅 조회 (이후 메세지 불러오기)")
 	@GetMapping("/chat/after")
-	public Mono<ResponseEntity<List<GetChatByCategoryDto>>> getChatsByCategoryAfter(
+	public Mono<ResponseEntity<List<GetChatByCategoryDto.ChatItem>>> getChatsByCategoryAfter(
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User,
 		@RequestParam("categoryId") String categoryId,
 		@RequestParam("after") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,

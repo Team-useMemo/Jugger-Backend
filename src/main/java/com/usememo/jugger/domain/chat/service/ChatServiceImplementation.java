@@ -75,7 +75,7 @@ public class ChatServiceImplementation implements ChatService {
 
 	@Override
 	public Mono<String> postChatWithoutCategory(PostChatTextDto postChatTextDto, CustomOAuth2User customOAuth2User) {
-		return createDefaultCategory(customOAuth2User)
+		return createDefaultCategory()
 			.flatMap(category -> {
 				String categoryUuid = category.getUuid();
 				Mono<Void> saveMono;
@@ -92,19 +92,18 @@ public class ChatServiceImplementation implements ChatService {
 	 * 카테고리 없이 채팅 요청 시, 임의의 카테고리를 생성하고 UUID를 리턴.
 	 * 생성된 카테고리는 추후 사용자에게 이름과 색상을 선택하게 할 수 있다.
 	 */
-	private Mono<Category> createDefaultCategory(CustomOAuth2User user) {
-		String tempCategoryName = "temp-" + user.getUserId();
+	private Mono<Category> createDefaultCategory() {
+		String tempCategoryName = "temp";
 
-		return categoryRepository.findByNameAndUserUuid(tempCategoryName, user.getUserId())
+		return categoryRepository.findByUuid(tempCategoryName)
 			.switchIfEmpty(Mono.defer(() -> {
 				Category newCategory = Category.builder()
-					.uuid(UUID.randomUUID().toString())
-					.name(tempCategoryName)
+					.uuid("temp")
+					.name("temp")
 					.color("")
-					.userUuid(user.getUserId())
+					.userUuid("temp")
 					.isPinned(false)
 					.build();
-
 				return categoryRepository.save(newCategory);
 			}));
 	}
@@ -181,7 +180,7 @@ public class ChatServiceImplementation implements ChatService {
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User,
+	public Mono<List<GetChatByCategoryDto.ChatItem>> getChatsByCategoryIdBefore(CustomOAuth2User customOAuth2User,
 		String categoryId, Instant before, int page,
 		int size) {
 		int skip = page * size;
@@ -191,11 +190,11 @@ public class ChatServiceImplementation implements ChatService {
 			.skip(skip)
 			.take(size)
 			.collectList()
-			.flatMap(this::groupByCategory);
+			.flatMap(this::flattenChats);
 	}
 
 	@Override
-	public Mono<List<GetChatByCategoryDto>> getChatsByCategoryIdAfter(CustomOAuth2User customOAuth2User,
+	public Mono<List<GetChatByCategoryDto.ChatItem>> getChatsByCategoryIdAfter(CustomOAuth2User customOAuth2User,
 		String categoryId, Instant after, int page,
 		int size) {
 		int skip = page * size;
@@ -206,7 +205,7 @@ public class ChatServiceImplementation implements ChatService {
 			.skip(skip)
 			.take(size)
 			.collectList()
-			.flatMap(this::groupByCategory);
+			.flatMap(this::flattenChats);
 	}
 
 	private Mono<Void> saveCalendar(PostChatDto dto, CustomOAuth2User customOAuth2User) {

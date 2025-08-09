@@ -66,13 +66,10 @@ public class CalendarServiceImplementation implements CalendarService {
 	@Override
 	public Flux<GetCalendarDto> getCalendar(Instant start, Instant end, CustomOAuth2User customOAuth2User) {
 		return calendarRepository.findByUserUuidAndStartDateTimeBetween(customOAuth2User.getUserId(), start, end)
-			.flatMap(calendar ->
-				categoryRepository.findByUuid(calendar.getCategoryUuid())
-					.flatMap(category -> {
+			.flatMap(calendar ->{
 						GetCalendarDto dto = GetCalendarDto.builder()
 							.calendarId(calendar.getUuid())
 							.categoryId(calendar.getCategoryUuid())
-							.categoryColor(category.getColor())
 							.title(calendar.getTitle())
 							.startDateTime(calendar.getStartDateTime())
 							.endDateTime(calendar.getEndDateTime())
@@ -87,8 +84,7 @@ public class CalendarServiceImplementation implements CalendarService {
 								return dto;
 							})
 							.defaultIfEmpty(dto);
-					})
-			);
+					});
 	}
 
 	@Override
