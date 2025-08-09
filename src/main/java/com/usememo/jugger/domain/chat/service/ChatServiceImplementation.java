@@ -480,11 +480,16 @@ public class ChatServiceImplementation implements ChatService {
 	public Mono<Void> changeCategory(CustomOAuth2User customOAuth2User, String chatId, String newCategoryId) {
 		String userId = customOAuth2User.getUserId();
 
+
 		return chatRepository.findByUuidAndUserUuid(chatId, userId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CHAT)))
 			.flatMap(chat -> {
 				chat.setCategoryUuid(newCategoryId);
 				Chat.Refs refs = chat.getRefs();
+
+				if(refs==null){
+					return chatRepository.save(chat).then();
+				}
 
 				Mono<?> updateMono;
 
