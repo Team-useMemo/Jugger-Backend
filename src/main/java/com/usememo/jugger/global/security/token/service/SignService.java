@@ -3,6 +3,8 @@ package com.usememo.jugger.global.security.token.service;
 import java.util.Map;
 import java.util.UUID;
 
+import com.usememo.jugger.global.security.token.domain.signUp.NaverSignUpRequest;
+import com.usememo.jugger.global.security.token.domain.userResponse.NaverUserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -105,53 +107,82 @@ public class SignService {
 			}));
 	}
 
-	public Mono<User> saveOrFindUserKakao(KakaoUserResponse response, String domain) {
-		String email = response.getKakao_account().getEmail();
-		String name = response.getProperties().getNickname();
+    public Mono<User> saveOrFindUserKakao(KakaoUserResponse response, String domain) {
+        String email = response.getKakao_account().getEmail();
+        String name = response.getProperties().getNickname();
+
+        if (email == null) {
+            return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
+        }
+        if (name == null) {
+            return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_NAME));
+        }
+
+        return userRepository.findByEmailAndDomain(email, domain)
+                .flatMap(user -> {
+                    if (user.isDeleted()) {
+                        return userRepository.delete(user)
+                                .then(saveAndFail(name, email, domain));
+                    }
+
+                    if (user.getStatus() == UserStatus.PENDING) {
+                        return Mono.error(new KakaoException(
+                                ErrorCode.USER_NOT_FOUND,
+                                Map.of("email", email, "nickname", name, "domain", domain)));
+                    }
+
+                    return Mono.just(user);
+                })
+                .switchIfEmpty(saveAndFail(name, email, domain));
+    }
+
+	public Mono<User> saveOrFindUserNaver(NaverUserResponse response, String domain) {
+		String email = response.getResponse().getEmail();
 
 		if (email == null) {
-			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_EMAIL));
+			return Mono.error(new BaseException(ErrorCode.NAVER_EMAIL_MISSING));
 		}
-		if (name == null) {
-			return Mono.error(new BaseException(ErrorCode.GOOGLE_NO_NAME));
-		}
+
+		String name = "";
 
 		return userRepository.findByEmailAndDomain(email, domain)
-			.flatMap(user -> {
-				if (user.isDeleted()) {
-					return userRepository.delete(user)
-						.then(saveAndFail(name, email, domain));
-				}
+				.flatMap(user -> {
+					if (user.isDeleted()) {
+						return userRepository.delete(user)
+								.then(saveAndFail(name, email, domain));
+					}
 
-				if(user.getStatus() == UserStatus.PENDING){
-					return Mono.error(new KakaoException(
-						ErrorCode.USER_NOT_FOUND,
-						Map.of("email", email, "nickname", name, "domain", domain)));
-				}
+					if (user.getStatus() == UserStatus.PENDING) {
+						return Mono.error(new KakaoException(
+								ErrorCode.USER_NOT_FOUND,
+								Map.of("email", email, "nickname", name, "domain", domain)
+						));
+					}
 
-				return Mono.just(user);
-			})
-			.switchIfEmpty(saveAndFail(name, email, domain));
+					return Mono.just(user);
+				})
+				.switchIfEmpty(saveAndFail(name, email, domain));
 	}
 
-	private Mono<User> saveAndFail(String name, String email, String domain) {
-		return userRepository.save(makeUser(name, email, domain))
-			.flatMap(savedUser -> Mono.error(new KakaoException(
-				ErrorCode.USER_NOT_FOUND,
-				Map.of("email", email, "nickname", name, "domain", domain)
-			)));
-	}
 
-	private User makeUser(String name, String email, String domain) {
-		return User.builder()
-			.uuid(UUID.randomUUID().toString())
-			.name(name)
-			.email(email)
-			.domain(domain)
-			.status(UserStatus.PENDING)
-			.build();
-	}
 
+    private Mono<User> saveAndFail(String name, String email, String domain) {
+        return userRepository.save(makeUser(name, email, domain))
+                .flatMap(savedUser -> Mono.error(new KakaoException(
+                        ErrorCode.USER_NOT_FOUND,
+                        Map.of("email", email, "nickname", name, "domain", domain)
+                )));
+    }
+
+    private User makeUser(String name, String email, String domain) {
+        return User.builder()
+                .uuid(UUID.randomUUID().toString())
+                .name(name)
+                .email(email)
+                .domain(domain)
+                .status(UserStatus.PENDING)
+                .build();
+    }
 
 
 }
