@@ -40,6 +40,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 		return jwtTokenProvider.getAuthentication(token);
 	}
 
+
 	private boolean isMasterToken(String token){
 		return token.equals(masterToken);
 	}
