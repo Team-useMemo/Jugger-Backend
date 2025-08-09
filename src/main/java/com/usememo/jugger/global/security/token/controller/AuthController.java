@@ -56,6 +56,7 @@ public class AuthController {
 		return signService.giveNewToken(refreshToken);
 	}
 
+
     @Operation(summary = "[POST] 로그아웃")
     @PostMapping("/logout")
     public Mono<ResponseEntity<LogOutResponse>> logout(@RequestBody LogOutRequest request) {
