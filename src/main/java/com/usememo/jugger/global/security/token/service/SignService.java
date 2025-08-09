@@ -3,6 +3,7 @@ package com.usememo.jugger.global.security.token.service;
 import java.util.Map;
 import java.util.UUID;
 
+import com.usememo.jugger.domain.user.entity.Gender;
 import com.usememo.jugger.global.security.token.domain.signUp.NaverSignUpRequest;
 import com.usememo.jugger.global.security.token.domain.userResponse.NaverUserResponse;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,8 @@ public class SignService {
 					existingUser.setTerms(terms);
 					existingUser.setName(name);
 					existingUser.setStatus(UserStatus.SUCCESS);
+					existingUser.setGender(Gender.valueOf(signUpRequest.gender()));
+					existingUser.setBirthDay(signUpRequest.birthDay());
 
 					return userRepository.save(existingUser)
 						.flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid(),savedUser.getEmail()));

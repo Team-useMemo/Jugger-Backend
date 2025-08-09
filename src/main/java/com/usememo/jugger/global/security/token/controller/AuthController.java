@@ -95,12 +95,5 @@ public class AuthController {
                 .map(token -> ResponseEntity.ok().body(token));
     }
 
-    @Operation(summary = "[POST] 네이버 회원가입")
-    @PostMapping("/naver/signup")
-    public Mono<ResponseEntity<TokenResponse>> signUpNaver(@RequestBody NaverSignUpRequest naverSignUpRequest) {
-        return naverOAuthService.signUpNaver(naverSignUpRequest)
-                .map(token -> ResponseEntity.ok().body(token));
-    }
-
 
 }

@@ -1,5 +1,9 @@
 package com.usememo.jugger.global.security.token.domain;
 
+import java.time.LocalDate;
+
+import com.usememo.jugger.domain.user.entity.Gender;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -15,7 +19,13 @@ public record SignUpRequest(
 	String domain,
 
 	@Schema(description = "약관 동의 정보", required = true)
-	Terms terms
+	Terms terms,
+
+	@Schema(description = "성별 : MAN , WOMAN", required = true)
+	String gender,
+
+	@Schema(description = "생년 월일",required = true)
+	LocalDate birthDay
 
 ) {
 	@Schema(name = "Terms", description = "약관 동의 항목들")
