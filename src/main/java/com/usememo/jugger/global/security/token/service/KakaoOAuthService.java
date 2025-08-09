@@ -51,7 +51,14 @@ public class KakaoOAuthService {
 			);
 	}
 
+	//
+
 	private Mono<String> getAccessToken(String code) {
+		log.info("카카오 토큰 요청 시작 - client_id={}, redirect_uri={}, code={}",
+			kakaoProps.getClientId(),
+			kakaoProps.getRedirectUri(),
+			code);
+
 		return webClient.post()
 			.uri("https://kauth.kakao.com/oauth/token")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -61,18 +68,26 @@ public class KakaoOAuthService {
 				.with("code", code))
 			.retrieve()
 			.onStatus(status -> !status.is2xxSuccessful(),
-				response -> Mono.error(new BaseException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
+				response -> response.bodyToMono(String.class)
+					.doOnNext(body -> log.error("Kakao token 요청 실패: status={}, body={}", response.statusCode(), body))
+					.then(Mono.error(new BaseException(ErrorCode.KAKAO_TOKEN_REQUEST_FAILED)))
+			)
 			.bodyToMono(Map.class)
+			.doOnNext(body -> log.info("카카오 응답: {}", body))
 			.map(body -> {
-				String token = (String)body.get("access_token");
-				log.info("토큰 값 : " + token);
+				String token = (String) body.get("access_token");
+				log.info("토큰 값: {}", token);
 				if (token == null) {
 					throw new BaseException(ErrorCode.KAKAO_TOKEN_MISSING);
 				}
 				return token;
 			})
-			.onErrorMap(e -> new BaseException(ErrorCode.KAKAO_CONNECTION_FAILED));
+			.onErrorMap(e -> {
+				log.error("카카오 토큰 요청 중 예외 발생", e);
+				return new BaseException(ErrorCode.KAKAO_CONNECTION_FAILED);
+			});
 	}
+
 
 	private Mono<KakaoUserResponse> getUserInfo(String accessToken) {
 
