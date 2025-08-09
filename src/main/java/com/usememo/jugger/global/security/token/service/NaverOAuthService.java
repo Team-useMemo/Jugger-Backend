@@ -22,7 +22,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,16 +32,20 @@ public class NaverOAuthService implements OAuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final SignService signService;
 
     public Mono<TokenResponse> loginWithNaver(String code) {
         return getAccessToken(code)
                 .flatMap(this::getUserInfo)
-                .flatMap(this::saveOrFindUser)
-                .flatMap(user -> {
-                            return jwtTokenProvider.createTokenBundle(user.getUuid(),user.getEmail());
-                        }
-                );
+                .flatMap(naver -> {
+                    if (naver == null || naver.getResponse() == null) {
+                        return Mono.error(new BaseException(ErrorCode.NAVER_JSON_PARSE_ERROR));
+                    }
+                    return signService.saveOrFindUserNaver(naver, "naver");
+                })
+                .flatMap(user -> jwtTokenProvider.createTokenBundle(user.getUuid(), user.getEmail()));
     }
+
 
     private Mono<String> getAccessToken(String code) {
 
@@ -83,58 +86,6 @@ public class NaverOAuthService implements OAuthService {
                 });
     }
 
-    private Mono<User> saveOrFindUser(NaverUserResponse response) {
-        String email = response.getResponse().getEmail();
-        String name = response.getResponse().getNickname();
-
-        if (email == null) {
-            return Mono.error(new BaseException(ErrorCode.NAVER_EMAIL_MISSING));
-        }
-        if (name == null) {
-            return Mono.error(new BaseException(ErrorCode.NAVER_NAME_MISSING));
-        }
-
-        return userRepository.findByEmailAndDomain(email, "naver")
-                .switchIfEmpty(Mono.defer(() -> {
-                    return Mono.error(new BaseException(ErrorCode.NAVER_USER_NOT_FOUND));
-                }));
-    }
-
-    public Mono<TokenResponse> signUpNaver(NaverSignUpRequest naverSignUpRequest) {
-        String email = naverSignUpRequest.email();
-        String domain = naverSignUpRequest.domain();
-        String name = naverSignUpRequest.name();
-
-        if (!naverSignUpRequest.terms().isTermsOfService() || !naverSignUpRequest.terms().isPrivacyPolicy()) {
-            return Mono.error(new BaseException(ErrorCode.REQUIRED_TERMS_NOT_AGREED));
-        }
-
-
-        return userRepository.findByEmailAndDomainAndName(email, domain, name)
-                .flatMap(existingUser ->
-                        Mono.<TokenResponse>error(new BaseException(ErrorCode.DUPLICATE_USER))
-                )
-                .switchIfEmpty(Mono.defer(() -> {
-                    String uuid = UUID.randomUUID().toString();
-
-                    User.Terms terms = new User.Terms();
-                    terms.setMarketing(naverSignUpRequest.terms().isMarketing());
-                    terms.setPrivacyPolicy(naverSignUpRequest.terms().isPrivacyPolicy());
-                    terms.setTermsOfService(naverSignUpRequest.terms().isTermsOfService());
-
-                    User user = User.builder()
-                            .uuid(uuid)
-                            .name(name)
-                            .email(email)
-                            .domain(domain)
-                            .terms(terms)
-                            .build();
-
-                    return userRepository.save(user)
-                            .flatMap(savedUser -> jwtTokenProvider.createTokenBundle(savedUser.getUuid(),
-                                savedUser.getEmail()));
-                }));
-    }
 
     public Mono<Void> userLogOut(String refreshToken) {
         String userId;
