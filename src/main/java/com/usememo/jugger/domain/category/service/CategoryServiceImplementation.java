@@ -146,4 +146,11 @@ public class CategoryServiceImplementation implements CategoryService {
 
 	}
 
+	public Mono<> aiProvideCategory(){
+
+
+
+	}
+
+
 }
