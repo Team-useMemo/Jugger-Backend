@@ -169,21 +169,20 @@ public class CategoryServiceImplementation implements CategoryService {
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.NO_CATEGORY)))
 			.map(Category::getName)
 			.filter(name -> name != null && !name.isBlank())
+			// "temp" 포함된 카테고리는 제외
+			.filter(name -> !name.toLowerCase().contains("temp"))
 			.distinct()
 			.collectList()
-			.flatMap(userCategories -> {
-					return classify(
-						memo,
-						userCategories.isEmpty() ? null : userCategories,
-						threshold
-					).map(ClassifyResponse::recommendCategory);
-				}
+			.flatMap(userCategories -> classify(
+					memo,
+					userCategories.isEmpty() ? null : userCategories,
+					threshold
+				).map(ClassifyResponse::recommendCategory)
 			)
 			.defaultIfEmpty(List.of())
-			.onErrorResume(ex -> {
-				return Mono.just(List.of());
-			});
+			.onErrorResume(ex -> Mono.just(List.of()));
 	}
+
 
 
 	private Mono<ClassifyResponse> classify(String paragraph, List<String> userCategories, Double threshold) {
