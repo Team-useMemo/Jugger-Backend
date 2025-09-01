@@ -22,6 +22,7 @@ import com.usememo.jugger.domain.category.dto.DeleteResponse;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryWithUuidDto;
+import com.usememo.jugger.domain.category.dto.RecommendResponse;
 import com.usememo.jugger.domain.category.dto.UpdateRequest;
 import com.usememo.jugger.domain.category.dto.UpdateResponse;
 import com.usememo.jugger.domain.category.entity.Category;
@@ -122,11 +123,20 @@ public class CategoryController {
 	}
 
 	@Operation(summary = "[PUT] 카테고리 수정")
-	@PutMapping("update")
+	@PutMapping("/update")
 	public Mono<ResponseEntity<UpdateResponse>> updateCategory(@RequestBody UpdateRequest updateRequest,
 		@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
 		return categoryService.updateCategory(updateRequest, customOAuth2User)
 			.map(c -> ResponseEntity.status(HttpStatus.OK).body(c));
 	}
+
+	@Operation(summary = "[GET] 카테고리 AI 추천 ")
+	@GetMapping("/ai")
+	public  Mono<ResponseEntity<List<String>>> recommendCategory(@AuthenticationPrincipal CustomOAuth2User customOAuth2User,@RequestParam String memo){
+		return categoryService.aiClassify(customOAuth2User, memo)
+			.map(c->ResponseEntity.status(HttpStatus.OK).body(c));
+
+	}
+
 
 }

@@ -8,20 +8,10 @@ group = 'com.usememo'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 def os = org.gradle.internal.os.OperatingSystem.current()
 
@@ -29,28 +19,34 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'software.amazon.awssdk:s3:2.31.15'
-    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.2'
+
+    // ★ AWS Spring Cloud BOM으로 버전 정합성 통일
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1")
+    implementation "io.awspring.cloud:spring-cloud-aws-starter-s3"
+
+    // ★ AWS SDK v2 HTTP 클라이언트 중 '하나' 선택 (아래는 Netty 권장)
+    implementation "software.amazon.awssdk:netty-nio-client"
+    // 대안: implementation "software.amazon.awssdk:apache-client"
+    // 대안: implementation "software.amazon.awssdk:url-connection-client"
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-
-    //Jwt
+    // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+    runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9'
 
-
-    //mac 설정
+    // macOS 네이티브 DNS (WebFlux/Netty)
     if (os.isMacOsX()) {
         runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.109.Final:osx-aarch_64"
     }
 
-    implementation 'org.slf4j:slf4j-api:2.0.9'
-    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    // 로깅: 부트 스타터가 slf4j를 포함하므로 아래 두 줄은 사실 필요 없음
+    // implementation 'org.slf4j:slf4j-api:2.0.9'
+    // implementation 'org.springframework.boot:spring-boot-starter-logging'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
@@ -59,6 +55,4 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
+tasks.named('test') { useJUnitPlatform() }
