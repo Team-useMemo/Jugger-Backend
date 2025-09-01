@@ -28,7 +28,7 @@ jobs:
           echo "spring.jwt.refresh-token-duration=${{ secrets.JWT_REFRESH }}" >> src/main/resources/application.properties
           echo "spring.jwt.access-token-duration=${{ secrets.JWT_ACCESS }}" >> src/main/resources/application.properties
           echo "master.token=${{ secrets.MASTER_TOKEN }}" >> src/main/resources/application.properties
-
+          echo "fastapi.base-url=${{ secrets.AI_URL }}" >> src/main/resources/application.properties
 
           # 공통 Kakao 설정
           echo "kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }}" >> src/main/resources/application.properties

@@ -1,6 +1,9 @@
 package com.usememo.jugger.domain.category.service;
 
+import java.util.List;
+
 import com.mongodb.client.result.UpdateResult;
+import com.usememo.jugger.domain.category.dto.ClassifyResponse;
 import com.usememo.jugger.domain.category.dto.GetRecentCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryDto;
 import com.usememo.jugger.domain.category.dto.PostCategoryWithUuidDto;
@@ -26,5 +29,8 @@ public interface CategoryService {
 	Mono<Boolean> deleteCategory(String categoryId, CustomOAuth2User customOAuth2User);
 
 	Mono<UpdateResponse> updateCategory(UpdateRequest updateRequest, CustomOAuth2User customOAuth2User);
+
+	Mono<List<String>> aiClassify(CustomOAuth2User user, String memo);
+
 }
 
